@@ -88,6 +88,7 @@ public class AnonymizeService {
             anonymizationHierarchyNode.setChildren(new LinkedList<>());
             anonymizationHierarchyNode.setValue(node.getValue());
             anonymizationHierarchyNode.setDescendants(0);
+            anonymizationHierarchyNode.setSort(node.getSort());
             for (CustomHierarchyNode child : node.getChildren()) {
                 anonymizationHierarchyNode.getChildren().add(entityNodeToDataNode(child));
             }

@@ -1,6 +1,7 @@
 package com.anonymizerweb.anonymizerweb.logic;
 
 import com.anonymizerweb.anonymizerweb.controller.AnonymizationController;
+import com.anonymizerweb.anonymizerweb.data.AnonymizationHierarchyNode;
 import com.anonymizerweb.anonymizerweb.data.Cell;
 import com.anonymizerweb.anonymizerweb.data.Column;
 import com.anonymizerweb.anonymizerweb.data.Row;
@@ -189,7 +190,28 @@ public class Anonymizer {
                             String to = split[c].replace('*', '9');
                             print += from + ":" + to;
                         } else if (columns.get(c + 1).getDataTyp().equals(ColumnDataTyp.CUSTOMHIERARCHY)) {
-                            print += split[c];
+                            AnonymizationHierarchyNode hierarchyElementForValue = findHierarchyElementForValue(split[c], columns.get(c + 1).getHierarchyRootNode());
+                            if(hierarchyElementForValue != null){
+                                List<AnonymizationHierarchyNode> childrenOfHierarchyElement = findChildrenOfHierarchyElement(hierarchyElementForValue);
+                                Boolean sortable = true;
+                                for (AnonymizationHierarchyNode anonymizationHierarchyNode : childrenOfHierarchyElement) {
+                                    if(anonymizationHierarchyNode.getSort() == null || anonymizationHierarchyNode.getSort().equals("")){
+                                        sortable = false;
+                                        break;
+                                    }
+                                }
+                                if(sortable){
+                                    Collections.sort(childrenOfHierarchyElement);
+
+
+
+                                    print += childrenOfHierarchyElement.get(0).getValue() + ":" + childrenOfHierarchyElement.get(childrenOfHierarchyElement.size()-1).getValue();
+                                }else {
+                                    print += split[c] + ":" + split[c];
+                                }
+                            }else {
+                                print += split[c] + ":" + split[c];
+                            }
                         }
                     } else if (columns.get(c + 1).getTyp().equals(ColumnTyp.IDENTIFIER)) {
                         print += "*";
@@ -205,6 +227,39 @@ public class Anonymizer {
         Collections.shuffle(out);
 
         return out;
+    }
+
+
+    private List<AnonymizationHierarchyNode> findChildrenOfHierarchyElement(AnonymizationHierarchyNode node) {
+        List<AnonymizationHierarchyNode> leafs = new LinkedList<>();
+        if (node.getChildren() == null || node.getChildren().size() == 0) {
+            leafs.add(node);
+        } else {
+            for (AnonymizationHierarchyNode child : node.getChildren()) {
+                List<AnonymizationHierarchyNode> list = findChildrenOfHierarchyElement(child);
+                leafs.addAll(list);
+            }
+        }
+        return leafs;
+    }
+
+
+    private AnonymizationHierarchyNode findHierarchyElementForValue(String search, AnonymizationHierarchyNode node) {
+        if (node.getValue().equals(search)) {
+            return node;
+        } else {
+            if (node.getChildren() == null || node.getChildren().size() == 0) {
+                return null;
+            } else {
+                for (AnonymizationHierarchyNode child : node.getChildren()) {
+                    AnonymizationHierarchyNode childNode = findHierarchyElementForValue(search, child);
+                    if (childNode != null) {
+                        return childNode;
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     private void initColumnBorders(String line) {
