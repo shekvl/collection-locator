@@ -2,11 +2,10 @@ package com.anonymizerweb.anonymizerweb.commands;
 
 import org.springframework.web.multipart.MultipartFile;
 
-public class NewCommand {
+public class EditAnonymizationCommand {
     Integer targetk;
     Boolean fast;
     Integer batch;
-    MultipartFile file;
     String name;
 
     public Integer getTargetk() {
@@ -33,13 +32,6 @@ public class NewCommand {
         this.batch = batch;
     }
 
-    public MultipartFile getFile() {
-        return file;
-    }
-
-    public void setFile(MultipartFile file) {
-        this.file = file;
-    }
 
     public String getName() {
         return name;
