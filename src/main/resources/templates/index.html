@@ -22,6 +22,11 @@
             </ul>
             <ul class="nav">
                 <li class="nav-item">
+                    <a class="nav-link active" th:href="@{/definitions}">Definitions</a>
+                </li>
+            </ul>
+            <ul class="nav">
+                <li class="nav-item">
                     <a class="nav-link active" th:href="@{/anonymizations}">Anonymizations</a>
                 </li>
             </ul>
@@ -37,6 +42,17 @@
         <p class="card-text">Currently <span th:text="${collectionsNr}"/> Collections available</p>
         <a class="btn btn-outline-primary"
            th:href="@{/collections}">Open Collections</a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        Definitions
+    </div>
+    <div class="card-body">
+        <p class="card-text">Currently <span th:text="${definitionsNr}"/> Definitions available</p>
+        <a class="btn btn-outline-primary"
+           th:href="@{/definitions}">Open Definitions</a>
     </div>
 </div>
 
