@@ -1,24 +1,26 @@
 package com.anonymizerweb.anonymizerweb.controller;
 
-import com.anonymizerweb.anonymizerweb.entities.Anonymization;
 import com.anonymizerweb.anonymizerweb.services.AnonymizationService;
+import com.anonymizerweb.anonymizerweb.services.CollectionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-
-import java.util.List;
 
 @Controller
 public class IndexController {
     @Autowired
     AnonymizationService anonymizationService;
 
+    @Autowired
+    CollectionService collectionService;
+
     @GetMapping("/index")
-    public String index(@RequestParam(name = "name", required = false, defaultValue = "World") String name, Model model) {
-        List<Anonymization> all = anonymizationService.findAll();
-        model.addAttribute("all", all);
-        return "anonymizations/index";
+    public String index(Model model) {
+        Integer numberOfAnonymizations = anonymizationService.findNumberOfAnonymizations();
+        Integer numberOfCollections = collectionService.findNumberOfCollections();
+        model.addAttribute("anonymizationsNr", numberOfAnonymizations);
+        model.addAttribute("collectionsNr", numberOfCollections);
+        return "index";
     }
 }

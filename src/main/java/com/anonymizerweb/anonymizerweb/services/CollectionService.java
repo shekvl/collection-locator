@@ -40,6 +40,10 @@ public class CollectionService {
         return collections;
     }
 
+    public Integer findNumberOfCollections() {
+        return ((java.util.Collection<?>) collectionRepository.findAll()).size();
+    }
+
     public Collection save(NewCollectionCommand command) throws IOException {
         Collection collection = new Collection();
         String line;

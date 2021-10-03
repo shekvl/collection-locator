@@ -18,10 +18,7 @@ import org.springframework.core.io.InputStreamResource;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class AnonymizationService {
@@ -45,6 +42,10 @@ public class AnonymizationService {
         }
 
         return anonymizations;
+    }
+
+    public Integer findNumberOfAnonymizations() {
+        return ((Collection<?>) anonymizationRepository.findAll()).size();
     }
 
     public Anonymization save(NewAnonymizationCommand command) throws IOException {
@@ -88,10 +89,10 @@ public class AnonymizationService {
 
     }
 
-    public EditAnonymizationCommand getEditCommand(Long id){
+    public EditAnonymizationCommand getEditCommand(Long id) {
         EditAnonymizationCommand editAnonymizationCommand = new EditAnonymizationCommand();
         Optional<Anonymization> anonymizationOptional = anonymizationRepository.findById(id);
-        if(anonymizationOptional.isPresent()){
+        if (anonymizationOptional.isPresent()) {
             Anonymization anonymization = anonymizationOptional.get();
             editAnonymizationCommand.setName(anonymization.getName());
             editAnonymizationCommand.setTargetk(anonymization.getTargetK());
@@ -101,9 +102,9 @@ public class AnonymizationService {
         return editAnonymizationCommand;
     }
 
-    public Anonymization updateAnonymization(EditAnonymizationCommand editAnonymizationCommand, Long id){
+    public Anonymization updateAnonymization(EditAnonymizationCommand editAnonymizationCommand, Long id) {
         Optional<Anonymization> anonymizationOptional = anonymizationRepository.findById(id);
-        if(anonymizationOptional.isPresent()){
+        if (anonymizationOptional.isPresent()) {
             Anonymization anonymization = anonymizationOptional.get();
             anonymization.setName(editAnonymizationCommand.getName());
             anonymization.setTargetK(editAnonymizationCommand.getTargetk());
@@ -119,11 +120,11 @@ public class AnonymizationService {
     public Anonymization saveProperties(Long id, ColumnPropertiesCommand command) throws IOException {
         Anonymization anonymization = null;
         Optional<Anonymization> anonymizationOptional = anonymizationRepository.findById(id);
-        if(anonymizationOptional.isPresent()){
+        if (anonymizationOptional.isPresent()) {
             anonymization = anonymizationOptional.get();
         }
 
-        if(anonymization != null){
+        if (anonymization != null) {
             List<ColumnProperty> propertyList = new LinkedList<>();
             for (ColumnPropertiesCommandProperties columnPropertiesCommandProperties : command.getPropertyList()) {
                 ColumnProperty property = new ColumnProperty();
@@ -132,7 +133,7 @@ public class AnonymizationService {
                 property.setName(columnPropertiesCommandProperties.getName());
                 property.setDataTyp(ColumnDataTyp.getByCode(columnPropertiesCommandProperties.getDataTyp()));
                 property.setTyp(ColumnTyp.getByCode(columnPropertiesCommandProperties.getTyp()));
-                if(columnPropertiesCommandProperties.getHierarchyFile() != null && !columnPropertiesCommandProperties.getHierarchyFile().isEmpty()){
+                if (columnPropertiesCommandProperties.getHierarchyFile() != null && !columnPropertiesCommandProperties.getHierarchyFile().isEmpty()) {
                     InputStream inputStream = columnPropertiesCommandProperties.getHierarchyFile().getInputStream();
                     InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
                     BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
@@ -145,7 +146,7 @@ public class AnonymizationService {
                     Gson gson = new Gson();
                     CustomHierarchyNode node = gson.fromJson(content, CustomHierarchyNode.class);
                     property.setHierarchyRoot(node);
-                }else {
+                } else {
                     property.setHierarchyRoot(null);
                 }
                 propertyList.add(property);
@@ -165,10 +166,10 @@ public class AnonymizationService {
         anonymizationRepository.deleteById(id);
     }
 
-    public InputStreamResource outputAnonymizedData(Long id){
+    public InputStreamResource outputAnonymizedData(Long id) {
         Optional<Anonymization> anonymizationOptional = anonymizationRepository.findById(id);
         InputStreamResource file = null;
-        if(anonymizationOptional.isPresent()){
+        if (anonymizationOptional.isPresent()) {
             Anonymization anonymization = anonymizationOptional.get();
             String out = anonymization.getHeading() + "\n";
             for (String outputDatum : anonymization.getOutputData()) {
