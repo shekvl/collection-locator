@@ -18,8 +18,7 @@ public class IndexController {
     @GetMapping("/index")
     public String index(@RequestParam(name = "name", required = false, defaultValue = "World") String name, Model model) {
         List<Anonymization> all = anonymizationService.findAll();
-
         model.addAttribute("all", all);
-        return "index";
+        return "anonymizations/index";
     }
 }

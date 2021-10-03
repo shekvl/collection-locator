@@ -17,7 +17,7 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="nav">
                 <li class="nav-item">
-                    <a class="nav-link active" th:href="@{/new}">Add new Anonymizer</a>
+                    <a class="nav-link active" th:href="@{/anonymizations/new}">Add new Anonymizer</a>
                 </li>
             </ul>
         </div>
@@ -26,11 +26,10 @@
 
 <div class="card">
     <div class="card-header">
-        Anonymization: <span th:text="${anonymization.name}  + ' (' + ${anonymization.id} + ')'"/>
+        New Anonymization
     </div>
     <div class="card-body">
-        <form method="post" th:action="@{/anonymization/{id}/edit(id=${anonymization.id})}" th:object="${command}"
-              enctype="multipart/form-data">
+        <form method="post" th:action="@{/anonymizations/new} " th:object="${command}" enctype="multipart/form-data">
             <table style="width: 100%">
                 <tr class="form-group">
                     <td>Name:</td>
@@ -48,9 +47,13 @@
                     <td>Batch Size:</td>
                     <td><input type="text" th:field="*{batch}" class="form-control"></td>
                 </tr>
+                <tr class="form-group">
+                    <td>File:</td>
+                    <td><input type="file" th:field="*{file}" class="form-control"></td>
+                </tr>
                 <tr>
                     <td colspan="2">
-                        <button type="submit" class="btn btn-outline-primary">Edit</button>
+                        <button type="submit" class="btn btn-primary">Upload</button>
                     </td>
                 </tr>
             </table>

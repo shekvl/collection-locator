@@ -2,8 +2,8 @@ package com.anonymizerweb.anonymizerweb.services;
 
 import com.anonymizerweb.anonymizerweb.commands.ColumnPropertiesCommand;
 import com.anonymizerweb.anonymizerweb.commands.ColumnPropertiesCommandProperties;
-import com.anonymizerweb.anonymizerweb.commands.EditCommand;
-import com.anonymizerweb.anonymizerweb.commands.NewCommand;
+import com.anonymizerweb.anonymizerweb.commands.EditAnonymizationCommand;
+import com.anonymizerweb.anonymizerweb.commands.NewAnonymizationCommand;
 import com.anonymizerweb.anonymizerweb.entities.Anonymization;
 import com.anonymizerweb.anonymizerweb.entities.ColumnProperty;
 import com.anonymizerweb.anonymizerweb.entities.CustomHierarchyNode;
@@ -47,7 +47,7 @@ public class AnonymizationService {
         return anonymizations;
     }
 
-    public Anonymization save(NewCommand command) throws IOException {
+    public Anonymization save(NewAnonymizationCommand command) throws IOException {
         Anonymization anonymization = new Anonymization();
         String line;
         List<String> data = new LinkedList<>();
@@ -88,27 +88,27 @@ public class AnonymizationService {
 
     }
 
-    public EditCommand getEditCommand(Long id){
-        EditCommand editCommand = new EditCommand();
+    public EditAnonymizationCommand getEditCommand(Long id){
+        EditAnonymizationCommand editAnonymizationCommand = new EditAnonymizationCommand();
         Optional<Anonymization> anonymizationOptional = anonymizationRepository.findById(id);
         if(anonymizationOptional.isPresent()){
             Anonymization anonymization = anonymizationOptional.get();
-            editCommand.setName(anonymization.getName());
-            editCommand.setTargetk(anonymization.getTargetK());
-            editCommand.setFast(anonymization.getFast());
-            editCommand.setBatch(anonymization.getBatch());
+            editAnonymizationCommand.setName(anonymization.getName());
+            editAnonymizationCommand.setTargetk(anonymization.getTargetK());
+            editAnonymizationCommand.setFast(anonymization.getFast());
+            editAnonymizationCommand.setBatch(anonymization.getBatch());
         }
-        return editCommand;
+        return editAnonymizationCommand;
     }
 
-    public Anonymization updateAnonymization(EditCommand editCommand, Long id){
+    public Anonymization updateAnonymization(EditAnonymizationCommand editAnonymizationCommand, Long id){
         Optional<Anonymization> anonymizationOptional = anonymizationRepository.findById(id);
         if(anonymizationOptional.isPresent()){
             Anonymization anonymization = anonymizationOptional.get();
-            anonymization.setName(editCommand.getName());
-            anonymization.setTargetK(editCommand.getTargetk());
-            anonymization.setFast(editCommand.getFast());
-            anonymization.setBatch(editCommand.getBatch());
+            anonymization.setName(editAnonymizationCommand.getName());
+            anonymization.setTargetK(editAnonymizationCommand.getTargetk());
+            anonymization.setFast(editAnonymizationCommand.getFast());
+            anonymization.setBatch(editAnonymizationCommand.getBatch());
             anonymization.setAnonymized(false);
             anonymizationRepository.save(anonymization);
             return anonymization;

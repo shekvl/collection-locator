@@ -17,7 +17,7 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="nav">
                 <li class="nav-item">
-                    <a class="nav-link active" th:href="@{/new}">Add new Anonymizer</a>
+                    <a class="nav-link active" th:href="@{/anonymizations/new}">Add new Anonymizer</a>
                 </li>
             </ul>
         </div>
@@ -53,9 +53,9 @@
                 </span>
 
                 <a class="btn btn-outline-primary"
-                   th:href="@{/anonymization/{id}(id=${element.id})}">Open Anonymization</a>
+                   th:href="@{/anonymizations/{id}(id=${element.id})}">Open Anonymization</a>
                 <a class="btn btn-outline-danger"
-                   th:href="@{/anonymization/{id}/delete(id=${element.id})}">Delete Anonymization</a>
+                   th:href="@{/anonymizations/{id}/delete(id=${element.id})}">Delete Anonymization</a>
             </div>
     </div>
 </span>

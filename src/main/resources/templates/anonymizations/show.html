@@ -2,7 +2,7 @@
 <html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
-    <title>New Anonymization</title>
+    <title>Anonymization</title>
     <link th:rel="stylesheet" th:href="@{/webjars/bootstrap/4.0.0-2/css/bootstrap.min.css} "/>
 </head>
 <body>
@@ -17,7 +17,7 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="nav">
                 <li class="nav-item">
-                    <a class="nav-link active" th:href="@{/new}">Add new Anonymizer</a>
+                    <a class="nav-link active" th:href="@{/anonymizations/new}">Add new Anonymizer</a>
                 </li>
             </ul>
         </div>
@@ -26,40 +26,31 @@
 
 <div class="card">
     <div class="card-header">
-        New Anonymization
+        Anonymization: <span th:text="${anonymization.name}  + ' (' + ${anonymization.id} + ')'"/>
     </div>
     <div class="card-body">
-        <form method="post" th:action="@{/new} " th:object="${command}" enctype="multipart/form-data">
-            <table style="width: 100%">
-                <tr class="form-group">
-                    <td>Name:</td>
-                    <td><input type="text" th:field="*{name}" class="form-control"></td>
-                </tr>
-                <tr class="form-group">
-                    <td>Target K:</td>
-                    <td><input type="text" th:field="*{targetk}" class="form-control"></td>
-                </tr>
-                <tr class="form-group">
-                    <td>Fast Mode:</td>
-                    <td><input type="checkbox" th:field="*{fast}" class="form-check"></td>
-                </tr>
-                <tr class="form-group">
-                    <td>Batch Size:</td>
-                    <td><input type="text" th:field="*{batch}" class="form-control"></td>
-                </tr>
-                <tr class="form-group">
-                    <td>File:</td>
-                    <td><input type="file" th:field="*{file}" class="form-control"></td>
-                </tr>
-                <tr>
-                    <td colspan="2">
-                        <button type="submit" class="btn btn-primary">Upload</button>
-                    </td>
-                </tr>
-            </table>
-        </form>
+        <div class="card-text">Target K: <span th:text="${anonymization.targetK}"/></div>
+        <div class="card-text">Filename: <span th:text="${anonymization.fileName}"/></div>
+        <br>
+        <div class="card-text">Fast Mode: <span th:text="${anonymization.fast}"/></div>
+        <div class="card-text">Batchsize: <span th:text="${anonymization.batch}"/></div>
+        <br>
+        <span th:if="${anonymization.anonymized}">
+            <div class="card-text">Loss: <span th:text="${anonymization.loss}"/></div>
+            <div class="card-text">Duration: <span th:text="${anonymization.duration}"/></div>
+            <br>
+        </span>
+        <span th:if="${anonymization.running}">
+            <div class="alert alert-warning" role="alert"> Anonymizations in progress. Please Wait! </div>
+            <br>
+        </span>
+        <span th:if="!${anonymization.running}">
+            <a class="btn btn-outline-primary" th:href="@{/anonymizations/{id}/edit(id=${anonymization.id})}">Edit Anonymization</a>
+            <a class="btn btn-outline-secondary" th:href="@{/anonymizations/{id}/properties(id=${anonymization.id})}">Edit Anonymization Properties</a>
+        </span>
     </div>
 </div>
+
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
       integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
