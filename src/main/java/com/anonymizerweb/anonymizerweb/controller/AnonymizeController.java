@@ -31,7 +31,7 @@ public class AnonymizeController {
     public String anonymization(@PathVariable String id, Model model) throws InterruptedException {
         Anonymization anonymization = anonymizationService.findbyId(Long.valueOf(id));
         anonymizeService.anonymize(anonymization.getId());
-        return "redirect:/anonymizations/index";
+        return "redirect:/anonymizations";
     }
 
     @GetMapping("/{id}/download")

@@ -13,6 +13,12 @@ public class Definition {
 
     private String fileName;
 
+    private Integer targetK;
+
+    private Boolean fast;
+
+    private Integer batch;
+
     @OneToMany(fetch = FetchType.EAGER, cascade = {CascadeType.ALL}, orphanRemoval = true)
     private Set<DefinitionColumn> columns;
 
@@ -38,6 +44,30 @@ public class Definition {
 
     public void setFileName(String fileName) {
         this.fileName = fileName;
+    }
+
+    public Integer getTargetK() {
+        return targetK;
+    }
+
+    public void setTargetK(Integer targetK) {
+        this.targetK = targetK;
+    }
+
+    public Boolean getFast() {
+        return fast;
+    }
+
+    public void setFast(Boolean fast) {
+        this.fast = fast;
+    }
+
+    public Integer getBatch() {
+        return batch;
+    }
+
+    public void setBatch(Integer batch) {
+        this.batch = batch;
     }
 
     public Set<DefinitionColumn> getColumns() {

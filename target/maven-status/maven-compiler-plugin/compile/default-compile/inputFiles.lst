@@ -7,6 +7,7 @@ C:\Users\PatrickEisenkeil\Desktop\Master\Code\k-anonymity\src\main\java\com\anon
 C:\Users\PatrickEisenkeil\Desktop\Master\Code\k-anonymity\src\main\java\com\anonymizerweb\anonymizerweb\logic\Anonymizer.java
 C:\Users\PatrickEisenkeil\Desktop\Master\Code\k-anonymity\src\main\java\com\anonymizerweb\anonymizerweb\services\AnonymizationPropertiesService.java
 C:\Users\PatrickEisenkeil\Desktop\Master\Code\k-anonymity\src\main\java\com\anonymizerweb\anonymizerweb\entities\CustomHierarchyNode.java
+C:\Users\PatrickEisenkeil\Desktop\Master\Code\k-anonymity\src\main\java\com\anonymizerweb\anonymizerweb\commands\CombineCommand.java
 C:\Users\PatrickEisenkeil\Desktop\Master\Code\k-anonymity\src\main\java\com\anonymizerweb\anonymizerweb\data\Cell.java
 C:\Users\PatrickEisenkeil\Desktop\Master\Code\k-anonymity\src\main\java\com\anonymizerweb\anonymizerweb\entities\Anonymization.java
 C:\Users\PatrickEisenkeil\Desktop\Master\Code\k-anonymity\src\main\java\com\anonymizerweb\anonymizerweb\data\Column.java
@@ -28,12 +29,16 @@ C:\Users\PatrickEisenkeil\Desktop\Master\Code\k-anonymity\src\main\java\com\anon
 C:\Users\PatrickEisenkeil\Desktop\Master\Code\k-anonymity\src\main\java\com\anonymizerweb\anonymizerweb\services\CollectionService.java
 C:\Users\PatrickEisenkeil\Desktop\Master\Code\k-anonymity\src\main\java\com\anonymizerweb\anonymizerweb\entities\DefinitionColumn.java
 C:\Users\PatrickEisenkeil\Desktop\Master\Code\k-anonymity\src\main\java\com\anonymizerweb\anonymizerweb\repositories\DefinitionRepository.java
+C:\Users\PatrickEisenkeil\Desktop\Master\Code\k-anonymity\src\main\java\com\anonymizerweb\anonymizerweb\commands\MatchCommand.java
 C:\Users\PatrickEisenkeil\Desktop\Master\Code\k-anonymity\src\main\java\com\anonymizerweb\anonymizerweb\logic\AnonymizerThread.java
 C:\Users\PatrickEisenkeil\Desktop\Master\Code\k-anonymity\src\main\java\com\anonymizerweb\anonymizerweb\commands\NewAnonymizationCommand.java
 C:\Users\PatrickEisenkeil\Desktop\Master\Code\k-anonymity\src\main\java\com\anonymizerweb\anonymizerweb\controller\IndexController.java
 C:\Users\PatrickEisenkeil\Desktop\Master\Code\k-anonymity\src\main\java\com\anonymizerweb\anonymizerweb\entities\ColumnProperty.java
+C:\Users\PatrickEisenkeil\Desktop\Master\Code\k-anonymity\src\main\java\com\anonymizerweb\anonymizerweb\services\CombineService.java
 C:\Users\PatrickEisenkeil\Desktop\Master\Code\k-anonymity\src\main\java\com\anonymizerweb\anonymizerweb\commands\EditCollectionCommand.java
+C:\Users\PatrickEisenkeil\Desktop\Master\Code\k-anonymity\src\main\java\com\anonymizerweb\anonymizerweb\controller\CombineController.java
 C:\Users\PatrickEisenkeil\Desktop\Master\Code\k-anonymity\src\main\java\com\anonymizerweb\anonymizerweb\data\AnonymizationHierarchyNode.java
+C:\Users\PatrickEisenkeil\Desktop\Master\Code\k-anonymity\src\main\java\com\anonymizerweb\anonymizerweb\commands\MatchColumnCommand.java
 C:\Users\PatrickEisenkeil\Desktop\Master\Code\k-anonymity\src\main\java\com\anonymizerweb\anonymizerweb\commands\NewCollectionCommand.java
 C:\Users\PatrickEisenkeil\Desktop\Master\Code\k-anonymity\src\main\java\com\anonymizerweb\anonymizerweb\controller\AnonymizeController.java
 C:\Users\PatrickEisenkeil\Desktop\Master\Code\k-anonymity\src\main\java\com\anonymizerweb\anonymizerweb\data\Row.java

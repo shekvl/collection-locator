@@ -4,6 +4,7 @@ com\anonymizerweb\anonymizerweb\commands\NewDefinitionCommand.class
 com\anonymizerweb\anonymizerweb\repositories\AnonymizationRepository.class
 com\anonymizerweb\anonymizerweb\structures\Group.class
 com\anonymizerweb\anonymizerweb\logic\Anonymizer.class
+com\anonymizerweb\anonymizerweb\commands\CombineCommand.class
 com\anonymizerweb\anonymizerweb\services\DefinitionService.class
 com\anonymizerweb\anonymizerweb\repositories\DefinitionRepository.class
 com\anonymizerweb\anonymizerweb\commands\ColumnPropertiesCommandProperties.class
@@ -11,9 +12,12 @@ com\anonymizerweb\anonymizerweb\controller\IndexController.class
 com\anonymizerweb\anonymizerweb\entities\Anonymization.class
 com\anonymizerweb\anonymizerweb\AnonymizerwebApplication.class
 com\anonymizerweb\anonymizerweb\structures\MergeStep.class
+com\anonymizerweb\anonymizerweb\commands\MatchCommand.class
 com\anonymizerweb\anonymizerweb\data\Cell.class
 com\anonymizerweb\anonymizerweb\controller\AnonymizeController.class
 com\anonymizerweb\anonymizerweb\entities\Definition.class
+com\anonymizerweb\anonymizerweb\controller\CombineController.class
+com\anonymizerweb\anonymizerweb\commands\MatchColumnCommand.class
 com\anonymizerweb\anonymizerweb\enums\ColumnTyp.class
 com\anonymizerweb\anonymizerweb\enums\ColumnDataTyp.class
 com\anonymizerweb\anonymizerweb\structures\Interval.class
@@ -28,6 +32,7 @@ com\anonymizerweb\anonymizerweb\data\AnonymizationHierarchyNode.class
 com\anonymizerweb\anonymizerweb\commands\ColumnPropertiesCommand.class
 com\anonymizerweb\anonymizerweb\logic\AnonymizerThread.class
 com\anonymizerweb\anonymizerweb\controller\DefinitionController.class
+com\anonymizerweb\anonymizerweb\services\CombineService.class
 com\anonymizerweb\anonymizerweb\services\AnonymizationService.class
 com\anonymizerweb\anonymizerweb\data\Column.class
 com\anonymizerweb\anonymizerweb\commands\EditAnonymizationCommand.class

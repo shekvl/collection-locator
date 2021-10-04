@@ -32,49 +32,46 @@
 
 <div class="card">
     <div class="card-header">
-        Anonymization: <span th:text="${anonymization.name}  + ' (' + ${anonymization.id} + ')'"/>
+        New Anonymization
     </div>
     <div class="card-body">
-        <form method="post" th:action="@{/anonymizations/{id}/properties(id=${command.anonymizationId})}"
-              th:object="${command}"
-              enctype="multipart/form-data">
+        <form method="post" th:action="@{/combine/match}" th:object="${command}" enctype="multipart/form-data">
             <div style="display: flex; flex-wrap: wrap;">
-                <div class="card" style="width: 48%; margin: 10px;" th:each="element, stat : *{propertyList}">
+                <div class="card" style="width: 100%; margin: 10px;">
                     <div class="card-body">
-                        <input type="hidden" th:field="*{propertyList[__${stat.index}__].position}">
+                        <input type="hidden" th:field="*{definitionId}">
+                        <input type="hidden" th:field="*{collectionId}">
                         <table style="width: 100%">
                             <tr class="form-group">
-                                <td>Name:</td>
+                                <td>Definition:</td>
+                                <td><span th:text="${definition.name}"></span></td>
+                            </tr>
+                            <tr class="form-group">
+                                <td>Collection:</td>
+                                <td><span th:text="${collection.name}"></span></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <div class="card" style="width: 48%; margin: 10px;" th:each="element, stat : *{columns}">
+                    <div class="card-body">
+                        <table style="width: 100%">
+                            <tr class="form-group">
+                                <td>Definition Column:</td>
                                 <td class="input-element">
-                                    <input type="text" th:field="*{propertyList[__${stat.index}__].name}"
-                                           class="form-control">
+                                    <input type="hidden" th:field="*{columns[__${stat.index}__].definitionColumnPosition}">
+                                    <input type="hidden" th:field="*{columns[__${stat.index}__].definitionColumnName}">
+                                    <span th:text="*{columns[__${stat.index}__].definitionColumnName}"></span>
                                 </td>
                             </tr>
                             <tr class="form-group">
-                                <td>Typ:</td>
+                                <td>Collection Column:</td>
                                 <td class="input-element">
-                                    <select class="form-select" th:field="*{propertyList[__${stat.index}__].typ}">
-                                        <option th:each="typ : ${columnTyps}" th:value="${typ.code}"
-                                                th:text="${typ.description}">
+                                    <select class="form-select" th:field="*{columns[__${stat.index}__].collectionColumnPosition}">
+                                        <option th:each="column : ${collectionColumns}" th:value="${column.position}"
+                                                th:text="${column.name}">
                                         </option>
                                     </select>
-                                </td>
-                            </tr>
-                            <tr class="form-group">
-                                <td>DataTyp:</td>
-                                <td class="input-element">
-                                    <select class="form-select" th:field="*{propertyList[__${stat.index}__].dataTyp}">
-                                        <option th:each="dataTyp : ${columnDataTyps}" th:value="${dataTyp.code}"
-                                                th:text="${dataTyp.description}">
-                                        </option>
-                                    </select>
-                                </td>
-                            </tr>
-                            <tr class="form-group">
-                                <td>Hierarchy:</td>
-                                <td class="input-element">
-                                    <input type="file" th:field="*{propertyList[__${stat.index}__].hierarchyFile}"
-                                           class="form-control">
                                 </td>
                             </tr>
                         </table>

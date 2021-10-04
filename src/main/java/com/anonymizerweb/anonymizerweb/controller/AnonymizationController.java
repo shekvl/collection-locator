@@ -47,7 +47,7 @@ public class AnonymizationController {
     @GetMapping("/{id}/delete")
     public String delete(@PathVariable String id, Model model) {
         anonymizationService.delete(Long.valueOf(id));
-        return "redirect:/anonymizations/index";
+        return "redirect:/anonymizations";
     }
 
     @GetMapping("/new")

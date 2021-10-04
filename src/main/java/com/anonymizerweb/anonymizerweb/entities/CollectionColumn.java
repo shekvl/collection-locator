@@ -6,7 +6,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 @Entity
-public class CollectionColumn {
+public class CollectionColumn implements Comparable<CollectionColumn>{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -37,5 +37,10 @@ public class CollectionColumn {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    @Override
+    public int compareTo(CollectionColumn o) {
+        return position.compareTo(o.position);
     }
 }
