@@ -24,4 +24,4 @@ hs_err_pid*
 
 *.db
 /target/classes/templates
-/data
+/data/
