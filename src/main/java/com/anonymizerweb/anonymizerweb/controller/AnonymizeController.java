@@ -14,10 +14,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-
-import java.io.ByteArrayInputStream;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
+@RequestMapping("/anonymize")
 public class AnonymizeController {
     Logger logger = LoggerFactory.getLogger(AnonymizeController.class);
 
@@ -27,14 +27,14 @@ public class AnonymizeController {
     @Autowired
     AnonymizeService anonymizeService;
 
-    @GetMapping("/anonymize/{id}")
+    @GetMapping("/{id}")
     public String anonymization(@PathVariable String id, Model model) throws InterruptedException {
         Anonymization anonymization = anonymizationService.findbyId(Long.valueOf(id));
         anonymizeService.anonymize(anonymization.getId());
-        return "redirect:/index";
+        return "redirect:/anonymizations";
     }
 
-    @GetMapping("/anonymize/{id}/download")
+    @GetMapping("/{id}/download")
     public ResponseEntity<InputStreamResource> download(@PathVariable String id, Model model) {
         String filename = "out.csv";
         InputStreamResource file = anonymizationService.outputAnonymizedData(Long.valueOf(id));

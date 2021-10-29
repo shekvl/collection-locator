@@ -32,56 +32,45 @@
 
 <div class="card">
     <div class="card-header">
-        Anonymization: <span th:text="${anonymization.name}  + ' (' + ${anonymization.id} + ')'"/>
+        New Combination
     </div>
     <div class="card-body">
-        <form method="post" th:action="@{/anonymizations/{id}/properties(id=${command.anonymizationId})}"
-              th:object="${command}"
-              enctype="multipart/form-data">
+        <form method="post" th:action="@{/combine}" th:object="${command}" enctype="multipart/form-data">
             <div style="display: flex; flex-wrap: wrap;">
-                <div class="card" style="width: 48%; margin: 10px;" th:each="element, stat : *{propertyList}">
+                <div class="card" style="width: 48%; margin: 10px;">
                     <div class="card-body">
-                        <input type="hidden" th:field="*{propertyList[__${stat.index}__].position}">
                         <table style="width: 100%">
                             <tr class="form-group">
-                                <td>Name:</td>
+                                <td>Definition:</td>
                                 <td class="input-element">
-                                    <input type="text" th:field="*{propertyList[__${stat.index}__].name}"
-                                           class="form-control">
-                                </td>
-                            </tr>
-                            <tr class="form-group">
-                                <td>Typ:</td>
-                                <td class="input-element">
-                                    <select class="form-select" th:field="*{propertyList[__${stat.index}__].typ}">
-                                        <option th:each="typ : ${columnTyps}" th:value="${typ.code}"
-                                                th:text="${typ.description}">
+                                    <select class="form-select" th:field="*{definitionId}">
+                                        <option th:each="definition : ${definitions}" th:value="${definition.id}"
+                                                th:text="${definition.name}">
                                         </option>
                                     </select>
                                 </td>
                             </tr>
+                        </table>
+                    </div>
+                </div>
+                <div class="card" style="width: 48%; margin: 10px;">
+                    <div class="card-body">
+                        <table style="width: 100%">
                             <tr class="form-group">
-                                <td>DataTyp:</td>
+                                <td>Collection:</td>
                                 <td class="input-element">
-                                    <select class="form-select" th:field="*{propertyList[__${stat.index}__].dataTyp}">
-                                        <option th:each="dataTyp : ${columnDataTyps}" th:value="${dataTyp.code}"
-                                                th:text="${dataTyp.description}">
+                                    <select class="form-select" th:field="*{collectionId}">
+                                        <option th:each="collection : ${collections}" th:value="${collection.id}"
+                                                th:text="${collection.name}">
                                         </option>
                                     </select>
-                                </td>
-                            </tr>
-                            <tr class="form-group">
-                                <td>Hierarchy:</td>
-                                <td class="input-element">
-                                    <input type="file" th:field="*{propertyList[__${stat.index}__].hierarchyFile}"
-                                           class="form-control">
                                 </td>
                             </tr>
                         </table>
                     </div>
                 </div>
             </div>
-            <button style="margin-left: 10px" type="submit" class="btn btn-outline-primary">Save</button>
+            <button style="margin-left: 10px" type="submit" class="btn btn-outline-primary">Next</button>
         </form>
     </div>
 </div>

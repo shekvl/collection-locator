@@ -30,6 +30,13 @@ public class AnonymizationController {
     @Autowired
     AnonymizationPropertiesService anonymizationPropertiesService;
 
+    @GetMapping("")
+    public String index(Model model) {
+        List<Anonymization> all = anonymizationService.findAll();
+        model.addAttribute("all", all);
+        return "anonymizations/index";
+    }
+
     @GetMapping("/{id}")
     public String anonymization(@PathVariable String id, Model model) {
         Anonymization anonymization = anonymizationService.findbyId(Long.valueOf(id));
@@ -40,7 +47,7 @@ public class AnonymizationController {
     @GetMapping("/{id}/delete")
     public String delete(@PathVariable String id, Model model) {
         anonymizationService.delete(Long.valueOf(id));
-        return "redirect:/index";
+        return "redirect:/anonymizations";
     }
 
     @GetMapping("/new")

@@ -2,7 +2,7 @@
 <html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
-    <title>Index</title>
+    <title>New Anonymization</title>
     <link th:rel="stylesheet" th:href="@{/webjars/bootstrap/4.0.0-2/css/bootstrap.min.css} "/>
 </head>
 <body>
@@ -22,12 +22,7 @@
             </ul>
             <ul class="nav">
                 <li class="nav-item">
-                    <a class="nav-link active" th:href="@{/definitions}">Definitions</a>
-                </li>
-            </ul>
-            <ul class="nav">
-                <li class="nav-item">
-                    <a class="nav-link active" th:href="@{/anonymizations}">Anonymizations</a>
+                    <a class="nav-link active" th:href="@{/collections/new}">Add new Collection</a>
                 </li>
             </ul>
         </div>
@@ -36,34 +31,27 @@
 
 <div class="card">
     <div class="card-header">
-        Collections
+        New Collection
     </div>
     <div class="card-body">
-        <p class="card-text">Currently <span th:text="${collectionsNr}"/> Collections available</p>
-        <a class="btn btn-outline-primary"
-           th:href="@{/collections}">Open Collections</a>
-    </div>
-</div>
-
-<div class="card">
-    <div class="card-header">
-        Definitions
-    </div>
-    <div class="card-body">
-        <p class="card-text">Currently <span th:text="${definitionsNr}"/> Definitions available</p>
-        <a class="btn btn-outline-primary"
-           th:href="@{/definitions}">Open Definitions</a>
-    </div>
-</div>
-
-<div class="card">
-    <div class="card-header">
-        Anonymizations
-    </div>
-    <div class="card-body">
-        <p class="card-text">Currently <span th:text="${anonymizationsNr}"/> Anonymizations available</p>
-        <a class="btn btn-outline-primary"
-           th:href="@{/anonymizations}">Open Anonymizations</a>
+        <form method="post" th:action="@{/collections/new}" th:object="${command}"
+              enctype="multipart/form-data">
+            <table style="width: 100%">
+                <tr class="form-group">
+                    <td>Name:</td>
+                    <td><input type="text" th:field="*{name}" class="form-control"></td>
+                </tr>
+                <tr class="form-group">
+                    <td>File:</td>
+                    <td><input type="file" th:field="*{file}" class="form-control"></td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <button type="submit" class="btn btn-outline-primary">Save</button>
+                    </td>
+                </tr>
+            </table>
+        </form>
     </div>
 </div>
 
@@ -72,9 +60,5 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
         crossorigin="anonymous"></script>
-
-<!--<script th:src="@{/webjars/jquery/3.0.0/jquery.min.js}"></script>-->
-<!--<script th:src="@{/webjars/popper.js/1.12.9-1/umd/popper.min.js}"></script>-->
-<!--<script th:src="@{/webjars/bootstrap/4.0.0-2/js/bootstrap.min.js}"></script>-->
 </body>
 </html>

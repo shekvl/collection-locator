@@ -1,12 +1,8 @@
 package com.anonymizerweb.anonymizerweb.services;
 
-import com.anonymizerweb.anonymizerweb.commands.ColumnPropertiesCommand;
-import com.anonymizerweb.anonymizerweb.commands.ColumnPropertiesCommandProperties;
-import com.anonymizerweb.anonymizerweb.commands.EditAnonymizationCommand;
-import com.anonymizerweb.anonymizerweb.commands.NewAnonymizationCommand;
-import com.anonymizerweb.anonymizerweb.entities.Anonymization;
-import com.anonymizerweb.anonymizerweb.entities.ColumnProperty;
-import com.anonymizerweb.anonymizerweb.entities.CustomHierarchyNode;
+import com.anonymizerweb.anonymizerweb.commands.*;
+import com.anonymizerweb.anonymizerweb.entities.Collection;
+import com.anonymizerweb.anonymizerweb.entities.*;
 import com.anonymizerweb.anonymizerweb.enums.ColumnDataTyp;
 import com.anonymizerweb.anonymizerweb.enums.ColumnTyp;
 import com.anonymizerweb.anonymizerweb.repositories.AnonymizationRepository;
@@ -18,10 +14,7 @@ import org.springframework.core.io.InputStreamResource;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class AnonymizationService {
@@ -29,6 +22,12 @@ public class AnonymizationService {
 
     @Autowired
     AnonymizationRepository anonymizationRepository;
+
+    @Autowired
+    DefinitionService definitionService;
+
+    @Autowired
+    CollectionService collectionService;
 
     public Anonymization findbyId(Long id) {
         Optional<Anonymization> byId = anonymizationRepository.findById(id);
@@ -45,6 +44,10 @@ public class AnonymizationService {
         }
 
         return anonymizations;
+    }
+
+    public Integer findNumberOfAnonymizations() {
+        return ((java.util.Collection<?>) anonymizationRepository.findAll()).size();
     }
 
     public Anonymization save(NewAnonymizationCommand command) throws IOException {
@@ -88,10 +91,65 @@ public class AnonymizationService {
 
     }
 
-    public EditAnonymizationCommand getEditCommand(Long id){
+    public Anonymization saveFromMatch(MatchCommand command) {
+        Anonymization anonymization = new Anonymization();
+
+        Definition definition = definitionService.findbyId(command.getDefinitionId());
+        Collection collection = collectionService.findbyId(command.getCollectionId());
+        LinkedList<DefinitionColumn> definitionColumns = new LinkedList<>(definition.getColumns());
+        Integer cnt = 0;
+        String heading = "";
+        for (DefinitionColumn definitionColumn : definitionColumns) {
+            ColumnProperty property = new ColumnProperty();
+            property.setPosition(definitionColumn.getPosition());
+            property.setName(definitionColumn.getName());
+            property.setDataTyp(ColumnDataTyp.NUMBER);
+            property.setTyp(ColumnTyp.QUASIIDENTIFIER);
+            if (anonymization.getColumnProperties() == null) {
+                anonymization.setColumnProperties(new HashSet<>());
+            }
+            anonymization.getColumnProperties().add(property);
+
+            heading = heading + definitionColumn.getName();
+            if (!(cnt >= definitionColumns.size() - 1)) {
+                heading = heading + ";";
+            }
+            cnt++;
+        }
+
+        anonymization.setHeading(heading);
+
+        List<String> data = new LinkedList<>();
+        for (String rawDatum : collection.getRawData()) {
+            String[] splits = rawDatum.split(";");
+            String filteredDatum = "";
+            Collections.sort(command.getColumns());
+            cnt = 0;
+            for (MatchColumnCommand column : command.getColumns()) {
+                filteredDatum = filteredDatum + splits[column.getCollectionColumnPosition() - 1];
+                if (!(cnt >= command.getColumns().size() - 1)) {
+                    filteredDatum = filteredDatum + ";";
+                }
+                cnt++;
+            }
+
+            data.add(filteredDatum);
+        }
+
+        anonymization.setRawData(data);
+        anonymization.setTargetK(definition.getTargetK());
+        anonymization.setName(definition.getName() + " ++++ " + collection.getName());
+        anonymization.setFileName(definition.getFileName() + " ++++ " + collection.getFileName());
+        anonymization.setFast((definition.getFast() != null ? definition.getFast() : false));
+        anonymization.setBatch((definition.getBatch() != null && definition.getBatch() >= definition.getTargetK() ? definition.getBatch() : 5000));
+
+        return anonymizationRepository.save(anonymization);
+    }
+
+    public EditAnonymizationCommand getEditCommand(Long id) {
         EditAnonymizationCommand editAnonymizationCommand = new EditAnonymizationCommand();
         Optional<Anonymization> anonymizationOptional = anonymizationRepository.findById(id);
-        if(anonymizationOptional.isPresent()){
+        if (anonymizationOptional.isPresent()) {
             Anonymization anonymization = anonymizationOptional.get();
             editAnonymizationCommand.setName(anonymization.getName());
             editAnonymizationCommand.setTargetk(anonymization.getTargetK());
@@ -101,9 +159,9 @@ public class AnonymizationService {
         return editAnonymizationCommand;
     }
 
-    public Anonymization updateAnonymization(EditAnonymizationCommand editAnonymizationCommand, Long id){
+    public Anonymization updateAnonymization(EditAnonymizationCommand editAnonymizationCommand, Long id) {
         Optional<Anonymization> anonymizationOptional = anonymizationRepository.findById(id);
-        if(anonymizationOptional.isPresent()){
+        if (anonymizationOptional.isPresent()) {
             Anonymization anonymization = anonymizationOptional.get();
             anonymization.setName(editAnonymizationCommand.getName());
             anonymization.setTargetK(editAnonymizationCommand.getTargetk());
@@ -119,11 +177,11 @@ public class AnonymizationService {
     public Anonymization saveProperties(Long id, ColumnPropertiesCommand command) throws IOException {
         Anonymization anonymization = null;
         Optional<Anonymization> anonymizationOptional = anonymizationRepository.findById(id);
-        if(anonymizationOptional.isPresent()){
+        if (anonymizationOptional.isPresent()) {
             anonymization = anonymizationOptional.get();
         }
 
-        if(anonymization != null){
+        if (anonymization != null) {
             List<ColumnProperty> propertyList = new LinkedList<>();
             for (ColumnPropertiesCommandProperties columnPropertiesCommandProperties : command.getPropertyList()) {
                 ColumnProperty property = new ColumnProperty();
@@ -132,7 +190,7 @@ public class AnonymizationService {
                 property.setName(columnPropertiesCommandProperties.getName());
                 property.setDataTyp(ColumnDataTyp.getByCode(columnPropertiesCommandProperties.getDataTyp()));
                 property.setTyp(ColumnTyp.getByCode(columnPropertiesCommandProperties.getTyp()));
-                if(columnPropertiesCommandProperties.getHierarchyFile() != null && !columnPropertiesCommandProperties.getHierarchyFile().isEmpty()){
+                if (columnPropertiesCommandProperties.getHierarchyFile() != null && !columnPropertiesCommandProperties.getHierarchyFile().isEmpty()) {
                     InputStream inputStream = columnPropertiesCommandProperties.getHierarchyFile().getInputStream();
                     InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
                     BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
@@ -145,7 +203,7 @@ public class AnonymizationService {
                     Gson gson = new Gson();
                     CustomHierarchyNode node = gson.fromJson(content, CustomHierarchyNode.class);
                     property.setHierarchyRoot(node);
-                }else {
+                } else {
                     property.setHierarchyRoot(null);
                 }
                 propertyList.add(property);
@@ -165,10 +223,10 @@ public class AnonymizationService {
         anonymizationRepository.deleteById(id);
     }
 
-    public InputStreamResource outputAnonymizedData(Long id){
+    public InputStreamResource outputAnonymizedData(Long id) {
         Optional<Anonymization> anonymizationOptional = anonymizationRepository.findById(id);
         InputStreamResource file = null;
-        if(anonymizationOptional.isPresent()){
+        if (anonymizationOptional.isPresent()) {
             Anonymization anonymization = anonymizationOptional.get();
             String out = anonymization.getHeading() + "\n";
             for (String outputDatum : anonymization.getOutputData()) {
