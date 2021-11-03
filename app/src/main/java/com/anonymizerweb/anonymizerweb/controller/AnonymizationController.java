@@ -4,8 +4,10 @@ import com.anonymizerweb.anonymizerweb.commands.AnonymizationColumnsCommand;
 import com.anonymizerweb.anonymizerweb.commands.EditAnonymizationCommand;
 import com.anonymizerweb.anonymizerweb.commands.NewAnonymizationCommand;
 import com.anonymizerweb.anonymizerweb.entities.Anonymization;
+import com.anonymizerweb.anonymizerweb.entities.Loinc;
 import com.anonymizerweb.anonymizerweb.enums.ColumnDataTyp;
 import com.anonymizerweb.anonymizerweb.enums.ColumnTyp;
+import com.anonymizerweb.anonymizerweb.repositories.LoincRepository;
 import com.anonymizerweb.anonymizerweb.services.AnonymizationColumnsService;
 import com.anonymizerweb.anonymizerweb.services.AnonymizationService;
 import org.slf4j.Logger;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
 @Controller
