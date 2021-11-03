@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/anonymizerweb.iml" filepath="$PROJECT_DIR$/anonymizerweb.iml" />
+      <module fileurl="file://$PROJECT_DIR$/app/anonymizerweb.iml" filepath="$PROJECT_DIR$/app/anonymizerweb.iml" />
     </modules>
   </component>
 </project>

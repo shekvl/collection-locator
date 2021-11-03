@@ -1,0 +1,46 @@
+version: '3'
+services:
+  anodb:
+    image: mysql:5.7
+    container_name: anodb
+    environment:
+      MYSQL_DATABASE: ano
+      MYSQL_USER: springuser
+      MYSQL_PASSWORD: springuser
+      MYSQL_ROOT_PASSWORD: admin
+      MYSQL_ROOT_HOST: '%'
+    expose:
+      - "3306"
+    networks:
+      - ano
+    restart: always
+    volumes:
+      - ./mysqldata:/var/lib/mysql
+
+  ano:
+    build: ./app
+    container_name: ano
+    depends_on:
+      - anodb
+    restart: always
+    # will build ./docker/ano/Dockerfile
+    working_dir: /app
+    volumes:
+      - ./:/ano
+      - ~/.m2:/root/.m2
+    ports:
+      - "8082:8081"
+    networks:
+      - ano
+    command: "mvn clean spring-boot:run"
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - "8081:8080"
+    networks:
+      - ano
+
+networks:
+  ano:
