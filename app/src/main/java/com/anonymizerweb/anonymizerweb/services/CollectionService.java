@@ -6,9 +6,11 @@ import com.anonymizerweb.anonymizerweb.commands.NewCollectionCommand;
 import com.anonymizerweb.anonymizerweb.entities.Collection;
 import com.anonymizerweb.anonymizerweb.entities.CollectionColumn;
 import com.anonymizerweb.anonymizerweb.entities.CollectionHierarchyNode;
+import com.anonymizerweb.anonymizerweb.entities.Loinc;
 import com.anonymizerweb.anonymizerweb.enums.ColumnDataTyp;
 import com.anonymizerweb.anonymizerweb.enums.ColumnTyp;
 import com.anonymizerweb.anonymizerweb.repositories.CollectionRepository;
+import com.anonymizerweb.anonymizerweb.repositories.LoincRepository;
 import com.google.gson.Gson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +29,9 @@ public class CollectionService {
 
     @Autowired
     CollectionRepository collectionRepository;
+
+    @Autowired
+    LoincRepository loincRepository;
 
     public Collection findbyId(Long id) {
         Optional<Collection> byId = collectionRepository.findById(id);
@@ -103,6 +108,11 @@ public class CollectionService {
                 editCollectionCommandColumn.setPosition(collectionColumn.getPosition());
                 editCollectionCommandColumn.setName(collectionColumn.getName());
                 editCollectionCommandColumn.setCode(collectionColumn.getCode());
+                Optional<Loinc> byId = loincRepository.findById(collectionColumn.getCode());
+                if(byId.isPresent()){
+                    Loinc loinc = byId.get();
+                    editCollectionCommandColumn.setCodeText(loinc.getLong_common_name() + " (" + loinc.getLoinc_num() + ")");
+                }
                 editCollectionCommandColumn.setTyp(collectionColumn.getTyp().getCode());
                 editCollectionCommandColumn.setDataTyp(collectionColumn.getDataTyp().getCode());
                 editCollectionCommandColumns.add(editCollectionCommandColumn);

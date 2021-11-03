@@ -6,16 +6,16 @@ import javax.persistence.Id;
 @Entity
 public class Loinc {
     @Id
-    private String lonc_num;
+    private String loinc_num;
 
     private String long_common_name;
 
-    public String getLonc_num() {
-        return lonc_num;
+    public String getLoinc_num() {
+        return loinc_num;
     }
 
-    public void setLonc_num(String lonc_num) {
-        this.lonc_num = lonc_num;
+    public void setLoinc_num(String loinc_num) {
+        this.loinc_num = loinc_num;
     }
 
     public String getLong_common_name() {

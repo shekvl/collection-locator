@@ -3,8 +3,10 @@ package com.anonymizerweb.anonymizerweb.controller;
 import com.anonymizerweb.anonymizerweb.commands.EditCollectionCommand;
 import com.anonymizerweb.anonymizerweb.commands.NewCollectionCommand;
 import com.anonymizerweb.anonymizerweb.entities.Collection;
+import com.anonymizerweb.anonymizerweb.entities.Loinc;
 import com.anonymizerweb.anonymizerweb.enums.ColumnDataTyp;
 import com.anonymizerweb.anonymizerweb.enums.ColumnTyp;
+import com.anonymizerweb.anonymizerweb.repositories.LoincRepository;
 import com.anonymizerweb.anonymizerweb.services.CollectionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
 @Controller
@@ -24,6 +27,9 @@ public class CollectionController {
 
     @Autowired
     CollectionService collectionService;
+
+    @Autowired
+    LoincRepository loincRepository;
 
     @GetMapping("")
     public String indexAll(Model model) {

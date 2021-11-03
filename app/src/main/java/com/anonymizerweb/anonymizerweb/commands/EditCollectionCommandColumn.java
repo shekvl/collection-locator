@@ -14,6 +14,8 @@ public class EditCollectionCommandColumn implements Comparable<EditCollectionCom
 
     private String code;
 
+    private String codeText;
+
     private String typ;
 
     private String dataTyp;
@@ -50,6 +52,14 @@ public class EditCollectionCommandColumn implements Comparable<EditCollectionCom
 
     public void setCode(String code) {
         this.code = code;
+    }
+
+    public String getCodeText() {
+        return codeText;
+    }
+
+    public void setCodeText(String codeText) {
+        this.codeText = codeText;
     }
 
     public String getTyp() {
