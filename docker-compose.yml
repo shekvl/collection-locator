@@ -34,13 +34,5 @@ services:
       - ano
     command: "mvn clean spring-boot:run"
 
-  adminer:
-    image: adminer
-    restart: always
-    ports:
-      - "8081:8080"
-    networks:
-      - ano
-
 networks:
   ano:

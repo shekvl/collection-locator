@@ -25,7 +25,6 @@ hs_err_pid*
 *.jar.original
 
 /app/data/
-/app/.mvn/
 /app/test/
 /app/target/classes/
 /app/target/generated-sources/
