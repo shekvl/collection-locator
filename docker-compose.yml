@@ -2,7 +2,7 @@ version: '3'
 services:
   anodb:
     image: mysql:5.7
-    container_name: anodb
+    container_name: ano-db
     environment:
       MYSQL_DATABASE: ano
       MYSQL_USER: springuser
@@ -16,6 +16,23 @@ services:
     restart: always
     volumes:
       - ./mysqldata:/var/lib/mysql
+
+  adminerano:
+    image: adminer
+    container_name: ano-adminer
+    restart: always
+    depends_on:
+      - anodb
+    environment:
+      ADMINER_DEFAULT_DB_DRIVER: mysql
+      ADMINER_DEFAULT_DB_HOST: anodb
+      ADMINER_DEFAULT_DB_NAME: ano
+      ADMINER_DESIGN: nette
+      ADMINER_PLUGINS: tables-filter tinymce
+    ports:
+      - "8081:8080"
+    networks:
+      - ano
 
   ano:
     build: ./app
