@@ -11,7 +11,6 @@
 .mtj.tmp/
 
 # Package Files #
-*.jar
 *.war
 *.nar
 *.ear
@@ -21,3 +20,20 @@
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
+
+*.iml
+*.jar.original
+
+/app/data/
+/app/test/
+/app/target/classes/
+/app/target/generated-sources/
+/app/target/generated-test-sources/
+/app/target/maven-archiver/
+/app/target/maven-status/
+/app/target/test-classes/
+
+/mysqldata/*
+!/mysqldata/.gitkeep
+
+.idea

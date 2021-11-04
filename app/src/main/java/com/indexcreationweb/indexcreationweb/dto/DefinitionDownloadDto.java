@@ -1,0 +1,56 @@
+package com.indexcreationweb.indexcreationweb.dto;
+
+import java.util.List;
+import java.util.Set;
+
+public class DefinitionDownloadDto {
+    private String name;
+
+    private Integer targetK;
+
+    private Boolean fast;
+
+    private Integer batch;
+
+    private List<DefinitionColumnDownloadDto> columns;
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Integer getTargetK() {
+        return targetK;
+    }
+
+    public void setTargetK(Integer targetK) {
+        this.targetK = targetK;
+    }
+
+    public Boolean getFast() {
+        return fast;
+    }
+
+    public void setFast(Boolean fast) {
+        this.fast = fast;
+    }
+
+    public Integer getBatch() {
+        return batch;
+    }
+
+    public void setBatch(Integer batch) {
+        this.batch = batch;
+    }
+
+    public List<DefinitionColumnDownloadDto> getColumns() {
+        return columns;
+    }
+
+    public void setColumns(List<DefinitionColumnDownloadDto> columns) {
+        this.columns = columns;
+    }
+}

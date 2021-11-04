@@ -1,0 +1,155 @@
+package com.indexcreationweb.indexcreationweb.services;
+
+import com.google.gson.Gson;
+import com.indexcreationweb.indexcreationweb.commands.DefinitionCommand;
+import com.indexcreationweb.indexcreationweb.commands.DefinitionCommandColumnCommand;
+import com.indexcreationweb.indexcreationweb.dto.DefinitionColumnDownloadDto;
+import com.indexcreationweb.indexcreationweb.dto.DefinitionDownloadDto;
+import com.indexcreationweb.indexcreationweb.entities.Definition;
+import com.indexcreationweb.indexcreationweb.entities.DefinitionColumn;
+import com.indexcreationweb.indexcreationweb.entities.Loinc;
+import com.indexcreationweb.indexcreationweb.repositories.DefinitionRepository;
+import com.indexcreationweb.indexcreationweb.repositories.LoincRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.stereotype.Service;
+
+import java.io.ByteArrayInputStream;
+import java.util.*;
+
+@Service
+public class DefinitionService {
+    Logger logger = LoggerFactory.getLogger(DefinitionService.class);
+
+    @Autowired
+    DefinitionRepository definitionRepository;
+
+    @Autowired
+    LoincRepository loincRepository;
+
+    public Definition findbyId(Long id) {
+        Optional<Definition> byId = definitionRepository.findById(id);
+        if (byId.isPresent()) {
+            return byId.get();
+        }
+        return null;
+    }
+
+    public List<Definition> findAll() {
+        List<Definition> definitions = new LinkedList<>();
+        for (Definition definition : definitionRepository.findAll()) {
+            definitions.add(definition);
+        }
+
+        return definitions;
+    }
+
+    public Integer findNumberOfDefinitions() {
+        return ((java.util.Collection<?>) definitionRepository.findAll()).size();
+    }
+
+    public Definition save(DefinitionCommand command){
+        Definition definition = new Definition();
+        definition.setName(command.getName());
+        definition.setTargetK(command.getTargetk());
+        definition.setFast(command.getFast());
+        definition.setBatch(command.getBatch());
+        Integer cnt = 1;
+        List<DefinitionColumn> columnList = new LinkedList<>();
+        if(command.getColumns() != null){
+            for (DefinitionCommandColumnCommand column : command.getColumns()) {
+                if (column != null && column.getName() != null && column.getCode() != null) {
+                    DefinitionColumn col = new DefinitionColumn();
+                    col.setPosition(cnt);
+                    cnt++;
+                    col.setName(column.getName());
+                    col.setCode(column.getCode());
+                    columnList.add(col);
+                }
+            }
+        }
+        definition.setColumns(new HashSet<>(columnList));
+
+        return definitionRepository.save(definition);
+    }
+
+    public Definition edit(DefinitionCommand command, String id){
+        Definition definition = definitionRepository.findById(Long.parseLong(id));
+        definition.setName(command.getName());
+        definition.setTargetK(command.getTargetk());
+        definition.setFast(command.getFast());
+        definition.setBatch(command.getBatch());
+        Integer cnt = 1;
+        List<DefinitionColumn> columnList = new LinkedList<>();
+        if(command.getColumns() != null){
+            for (DefinitionCommandColumnCommand column : command.getColumns()) {
+                if (column != null && column.getName() != null && column.getCode() != null) {
+                    DefinitionColumn col = new DefinitionColumn();
+                    col.setPosition(cnt);
+                    cnt++;
+                    col.setName(column.getName());
+                    col.setCode(column.getCode());
+                    columnList.add(col);
+                }
+            }
+        }
+        definition.getColumns().clear();
+        definition.getColumns().addAll(new HashSet<>(columnList));
+
+        return definitionRepository.save(definition);
+    }
+
+    public DefinitionCommand getCommandFromId(String id){
+        Definition definition = definitionRepository.findById(Long.parseLong(id));
+        DefinitionCommand command = new DefinitionCommand();
+        command.setName(definition.getName());
+        command.setTargetk(definition.getTargetK());
+        command.setFast(definition.getFast());
+        command.setBatch(definition.getBatch());
+        List<DefinitionCommandColumnCommand> columnsList = new LinkedList<>();
+        for (DefinitionColumn column : definition.getColumns()) {
+            DefinitionCommandColumnCommand columnCommand = new DefinitionCommandColumnCommand();
+            columnCommand.setName(column.getName());
+            columnCommand.setCode(column.getCode());
+            Optional<Loinc> loincOptional = loincRepository.findById(column.getCode());
+            if(loincOptional.isPresent()){
+                Loinc loinc = loincOptional.get();
+                columnCommand.setCodeText(loinc.getLong_common_name()  + " (" + loinc.getLoinc_num() + ")");
+            }else {
+                columnCommand.setCodeText("Name not found (" + column.getCode() + ")");
+            }
+            columnsList.add(columnCommand);
+        }
+        command.setColumns(columnsList);
+        return command;
+    }
+
+    public InputStreamResource getDownloadDataFromId(String id){
+        Definition definition = definitionRepository.findById(Long.parseLong(id));
+        DefinitionDownloadDto dto = new DefinitionDownloadDto();
+        dto.setName(definition.getName());
+        dto.setTargetK(definition.getTargetK());
+        dto.setFast(definition.getFast());
+        dto.setBatch(definition.getBatch());
+        List<DefinitionColumnDownloadDto> columnsList = new LinkedList<>();
+        for (DefinitionColumn column : definition.getColumns()) {
+            DefinitionColumnDownloadDto columnDownloadDto = new DefinitionColumnDownloadDto();
+            columnDownloadDto.setPosition(column.getPosition());
+            columnDownloadDto.setName(column.getName());
+            columnDownloadDto.setCode(column.getCode());
+            columnsList.add(columnDownloadDto);
+        }
+        Collections.sort(columnsList);
+        dto.setColumns(columnsList);
+
+        Gson gson = new Gson();
+        String json = gson.toJson(dto);
+        return new InputStreamResource(new ByteArrayInputStream(json.getBytes()));
+    }
+
+    public void delete(Long id) {
+        definitionRepository.deleteById(id);
+    }
+}
