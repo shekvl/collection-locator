@@ -33,7 +33,8 @@ hs_err_pid*
 /app/target/maven-status/
 /app/target/test-classes/
 
-/mysqldata/
+
+/mysqldata/*
 !/mysqldata/.gitkeep
 
 .idea
