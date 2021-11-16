@@ -1,8 +1,12 @@
 package com.indexcreationweb.indexcreationweb.dto;
 
+import javax.xml.bind.annotation.*;
 import java.util.List;
 import java.util.Set;
 
+@XmlRootElement(name = "definition")
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlType(propOrder = { "name", "targetK", "fast", "batch", "columns" })
 public class DefinitionDownloadDto {
     private String name;
 
@@ -12,6 +16,8 @@ public class DefinitionDownloadDto {
 
     private Integer batch;
 
+    @XmlElement(name="column", type=DefinitionColumnDownloadDto.class)
+    @XmlElementWrapper(name="columns")
     private List<DefinitionColumnDownloadDto> columns;
 
     public String getName() {

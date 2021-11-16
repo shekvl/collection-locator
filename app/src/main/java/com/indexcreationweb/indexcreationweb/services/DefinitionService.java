@@ -16,7 +16,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.stereotype.Service;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
 import java.io.ByteArrayInputStream;
+import java.io.StringWriter;
 import java.util.*;
 
 @Service
@@ -126,7 +130,26 @@ public class DefinitionService {
         return command;
     }
 
-    public InputStreamResource getDownloadDataFromId(String id){
+    public InputStreamResource getDownloadDataJsonFromId(String id){
+        DefinitionDownloadDto dto = getDefinitionDownloadDto(id);
+
+        Gson gson = new Gson();
+        String json = gson.toJson(dto);
+        return new InputStreamResource(new ByteArrayInputStream(json.getBytes()));
+    }
+
+    public InputStreamResource getDownloadDataXmlFromId(String id) throws JAXBException {
+        DefinitionDownloadDto dto = getDefinitionDownloadDto(id);
+        JAXBContext context = JAXBContext.newInstance(DefinitionDownloadDto.class);
+        Marshaller mar = context.createMarshaller();
+        mar.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+        StringWriter sw = new StringWriter();
+        mar.marshal(dto, sw);
+        String xmlString = sw.toString();
+        return new InputStreamResource(new ByteArrayInputStream(xmlString.getBytes()));
+    }
+
+    private DefinitionDownloadDto getDefinitionDownloadDto(String id) {
         Definition definition = definitionRepository.findById(Long.parseLong(id));
         DefinitionDownloadDto dto = new DefinitionDownloadDto();
         dto.setName(definition.getName());
@@ -143,10 +166,7 @@ public class DefinitionService {
         }
         Collections.sort(columnsList);
         dto.setColumns(columnsList);
-
-        Gson gson = new Gson();
-        String json = gson.toJson(dto);
-        return new InputStreamResource(new ByteArrayInputStream(json.getBytes()));
+        return dto;
     }
 
     public void delete(Long id) {

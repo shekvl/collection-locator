@@ -1,5 +1,13 @@
 package com.indexcreationweb.indexcreationweb.dto;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+
+@XmlRootElement(name = "column")
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlType(propOrder = { "position", "name", "code"})
 public class DefinitionColumnDownloadDto implements Comparable<DefinitionColumnDownloadDto> {
     private Integer position;
 

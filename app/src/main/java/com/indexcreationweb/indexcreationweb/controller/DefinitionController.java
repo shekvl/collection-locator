@@ -14,7 +14,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.util.List;
 
 @Controller
@@ -68,14 +72,25 @@ public class DefinitionController {
         return "redirect:/definitions/" + save.getId();
     }
 
-    @GetMapping("{id}/download")
-    public ResponseEntity<InputStreamResource> downloadGet(@PathVariable String id, Model model) {
+    @GetMapping("{id}/download/json")
+    public ResponseEntity<InputStreamResource> downloadGetJson(@PathVariable String id, Model model) {
         DefinitionCommand command = definitionService.getCommandFromId(id);
         String filename = command.getName() + ".json";
-        InputStreamResource file = definitionService.getDownloadDataFromId(id);
+        InputStreamResource file = definitionService.getDownloadDataJsonFromId(id);
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename)
                 .contentType(MediaType.parseMediaType("application/json"))
+                .body(file);
+    }
+
+    @GetMapping("{id}/download/xml")
+    public ResponseEntity<InputStreamResource> downloadGetXml(@PathVariable String id, Model model) throws JAXBException {
+        DefinitionCommand command = definitionService.getCommandFromId(id);
+        String filename = command.getName() + ".xml";
+        InputStreamResource file = definitionService.getDownloadDataXmlFromId(id);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename)
+                .contentType(MediaType.parseMediaType("application/xml"))
                 .body(file);
     }
 
