@@ -1,8 +1,11 @@
 package com.anonymizerweb.anonymizerweb.services;
 
 import com.anonymizerweb.anonymizerweb.commands.NewDefinitionCommand;
+import com.anonymizerweb.anonymizerweb.dto.UploadDefinitionColumnDto;
+import com.anonymizerweb.anonymizerweb.dto.UploadDefinitionDto;
 import com.anonymizerweb.anonymizerweb.entities.Collection;
 import com.anonymizerweb.anonymizerweb.entities.Definition;
+import com.anonymizerweb.anonymizerweb.entities.DefinitionColumn;
 import com.anonymizerweb.anonymizerweb.repositories.DefinitionRepository;
 import com.google.gson.Gson;
 import org.slf4j.Logger;
@@ -10,14 +13,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
+import java.io.*;
+import java.util.*;
 
 @Service
 public class DefinitionService {
@@ -47,7 +47,8 @@ public class DefinitionService {
         return ((java.util.Collection<?>) definitionRepository.findAll()).size();
     }
 
-    public Definition save(NewDefinitionCommand command) throws IOException {
+    public Definition save(NewDefinitionCommand command) throws JAXBException, IOException {
+
         String line;
         String content = "";
         InputStream inputStream = command.getFile().getInputStream();
@@ -57,12 +58,54 @@ public class DefinitionService {
         while ((line = bufferedReader.readLine()) != null) {
             content = content + line;
         }
-        Gson gson = new Gson();
-        Definition definition = gson.fromJson(content, Definition.class);
-        definition.setFileName(command.getFile().getOriginalFilename());
+        Definition definition = null;
+
+        String originalFilename = command.getFile().getOriginalFilename();
+        definition = isJsonDefinition(originalFilename, content);
+        if(definition == null){
+            JAXBContext context = JAXBContext.newInstance(UploadDefinitionDto.class);
+            Unmarshaller unmarshaller = context.createUnmarshaller();
+            StringReader stringReader = new StringReader(content);
+            UploadDefinitionDto definitionDto = (UploadDefinitionDto) unmarshaller.unmarshal(stringReader);
+            definition = uploadDtoToDefinition(originalFilename, definitionDto);
+        }
 
         return definitionRepository.save(definition);
 
+    }
+
+    private Definition isJsonDefinition(String filename, String content) {
+        Definition definition = null;
+        try {
+            Gson gson = new Gson();
+            definition = gson.fromJson(content, Definition.class);
+            definition.setFileName(filename);
+
+        } catch(Exception ex) {
+
+        }
+        return definition;
+    }
+
+    private Definition uploadDtoToDefinition(String originalFilename, UploadDefinitionDto dto){
+        Definition definition = new Definition();
+        definition.setName(dto.getName());
+        definition.setTargetK(dto.getTargetK());
+        definition.setFast(dto.getFast());
+        definition.setBatch(dto.getBatch());
+        definition.setFileName(originalFilename);
+        Set<DefinitionColumn> columns = new HashSet<>();
+        for (UploadDefinitionColumnDto dtoColumn : dto.getColumns()) {
+            DefinitionColumn column = new DefinitionColumn();
+            column.setPosition(dtoColumn.getPosition());
+            column.setName(dtoColumn.getName());
+            column.setCode(dtoColumn.getCode());
+            columns.add(column);
+        }
+
+        definition.setColumns(columns);
+
+        return definition;
     }
 
     public void delete(Long id) {
