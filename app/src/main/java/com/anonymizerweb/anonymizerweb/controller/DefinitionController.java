@@ -13,6 +13,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.util.List;
 
@@ -46,7 +47,7 @@ public class DefinitionController {
     }
 
     @PostMapping("/new")
-    public String newPost(@ModelAttribute NewDefinitionCommand command, Model model) throws IOException {
+    public String newPost(@ModelAttribute NewDefinitionCommand command, Model model) throws IOException, JAXBException {
         Definition save = definitionService.save(command);
         model.addAttribute("command", command);
         return "redirect:/definitions/" + save.getId();
