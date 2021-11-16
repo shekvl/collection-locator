@@ -56,7 +56,9 @@
         <a class="btn btn-outline-primary"
            th:href="@{/definitions/{id}/edit(id=${definition.id})}">Edit Definition</a>
         <a class="btn btn-outline-secondary"
-           th:href="@{/definitions/{id}/download(id=${definition.id})}">Download Definition File</a>
+           th:href="@{/definitions/{id}/download/json(id=${definition.id})}">Download Definition File (JSON)</a>
+        <a class="btn btn-outline-secondary"
+           th:href="@{/definitions/{id}/download/xml(id=${definition.id})}">Download Definition File (XML)</a>
     </div>
 </div>
 
