@@ -149,9 +149,10 @@ public class DefinitionService {
         return new InputStreamResource(new ByteArrayInputStream(xmlString.getBytes()));
     }
 
-    private DefinitionDownloadDto getDefinitionDownloadDto(String id) {
+    public DefinitionDownloadDto getDefinitionDownloadDto(String id) {
         Definition definition = definitionRepository.findById(Long.parseLong(id));
         DefinitionDownloadDto dto = new DefinitionDownloadDto();
+        dto.setuId(definition.getName() + "_" + definition.getId());
         dto.setName(definition.getName());
         dto.setTargetK(definition.getTargetK());
         dto.setFast(definition.getFast());

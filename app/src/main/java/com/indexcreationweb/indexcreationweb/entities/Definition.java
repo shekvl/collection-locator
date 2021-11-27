@@ -17,7 +17,8 @@ public class Definition {
 
     private Integer batch;
 
-    @OneToMany(fetch = FetchType.EAGER, cascade = {CascadeType.ALL}, orphanRemoval = true)
+    @OneToMany(fetch = FetchType.LAZY, cascade = {CascadeType.ALL}, orphanRemoval = true)
+    @JoinColumn(name = "definitionId")
     private Set<DefinitionColumn> columns;
 
     public Long getId() {
