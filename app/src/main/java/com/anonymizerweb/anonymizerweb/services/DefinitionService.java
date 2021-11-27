@@ -3,15 +3,20 @@ package com.anonymizerweb.anonymizerweb.services;
 import com.anonymizerweb.anonymizerweb.commands.NewDefinitionCommand;
 import com.anonymizerweb.anonymizerweb.dto.UploadDefinitionColumnDto;
 import com.anonymizerweb.anonymizerweb.dto.UploadDefinitionDto;
-import com.anonymizerweb.anonymizerweb.entities.Collection;
+import com.anonymizerweb.anonymizerweb.dto.UploadDefinitionListDto;
 import com.anonymizerweb.anonymizerweb.entities.Definition;
 import com.anonymizerweb.anonymizerweb.entities.DefinitionColumn;
+import com.anonymizerweb.anonymizerweb.entities.Options;
 import com.anonymizerweb.anonymizerweb.repositories.DefinitionRepository;
+import com.anonymizerweb.anonymizerweb.repositories.OptionsRepository;
 import com.google.gson.Gson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -25,6 +30,12 @@ public class DefinitionService {
 
     @Autowired
     DefinitionRepository definitionRepository;
+
+    @Autowired
+    OptionsRepository optionsRepository;
+
+    @Autowired
+    AnonymizationService anonymizationService;
 
     public Definition findbyId(Long id) {
         Optional<Definition> byId = definitionRepository.findById(id);
@@ -62,7 +73,7 @@ public class DefinitionService {
 
         String originalFilename = command.getFile().getOriginalFilename();
         definition = isJsonDefinition(originalFilename, content);
-        if(definition == null){
+        if (definition == null) {
             JAXBContext context = JAXBContext.newInstance(UploadDefinitionDto.class);
             Unmarshaller unmarshaller = context.createUnmarshaller();
             StringReader stringReader = new StringReader(content);
@@ -81,14 +92,15 @@ public class DefinitionService {
             definition = gson.fromJson(content, Definition.class);
             definition.setFileName(filename);
 
-        } catch(Exception ex) {
+        } catch (Exception ex) {
 
         }
         return definition;
     }
 
-    private Definition uploadDtoToDefinition(String originalFilename, UploadDefinitionDto dto){
+    private Definition uploadDtoToDefinition(String originalFilename, UploadDefinitionDto dto) {
         Definition definition = new Definition();
+        definition.setuId(dto.getuId());
         definition.setName(dto.getName());
         definition.setTargetK(dto.getTargetK());
         definition.setFast(dto.getFast());
@@ -111,4 +123,43 @@ public class DefinitionService {
     public void delete(Long id) {
         definitionRepository.deleteById(id);
     }
+
+    @Async
+    public void importDefinitions() throws InterruptedException {
+        Optional<Options> indexGen = optionsRepository.findById("indexGen");
+        if (indexGen.isPresent()) {
+            RestTemplateBuilder builder = new RestTemplateBuilder();
+            RestTemplate restTemplate = builder.build();
+            String url = indexGen.get().getOptValue() + "/api/definitions/get/all";
+            UploadDefinitionListDto dto = restTemplate.getForObject(url, UploadDefinitionListDto.class);
+            List<Long> ids = new LinkedList<>();
+            for (Definition definition : definitionRepository.findAll()) {
+                Boolean delete = false;
+                for (UploadDefinitionDto definitionDto : dto.getDefinitions()) {
+                    if (definition.getuId() != null && definition.getuId().equals(definitionDto.getuId())) {
+                        delete = true;
+                        break;
+                    }
+                }
+                if (delete) {
+                    ids.add(definition.getId());
+                }
+            }
+
+            for (Long id : ids) {
+                definitionRepository.deleteById(id);
+            }
+
+            List<Long> importedIds = new LinkedList<>();
+            for (UploadDefinitionDto definitionDto : dto.getDefinitions()) {
+                Definition definition = uploadDtoToDefinition("From Import", definitionDto);
+                definitionRepository.save(definition);
+                importedIds.add(definition.getId());
+            }
+
+            anonymizationService.anonymzieFromImport(importedIds);
+        }
+    }
+
+
 }

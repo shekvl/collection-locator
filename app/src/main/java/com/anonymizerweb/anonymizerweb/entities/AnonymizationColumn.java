@@ -22,7 +22,7 @@ public class AnonymizationColumn {
 
     private ColumnDataTyp dataTyp;
 
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private AnonymizationHierarchyNode hierarchyRoot;
 
     public Long getId() {

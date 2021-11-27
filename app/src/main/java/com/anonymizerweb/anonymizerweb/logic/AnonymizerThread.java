@@ -116,7 +116,7 @@ public class AnonymizerThread implements Runnable {
         anonymizeAll();
         for (Map.Entry<String, Group> entry : groups.entrySet()) {
             anonymizer.getGroups().merge(entry.getKey(), entry.getValue(), (group, group2) -> {
-                for (Row row : group.getRows()) {
+                for (Row row : group2.getRows()) {
                     group.addRow(row);
                 }
                 return group;

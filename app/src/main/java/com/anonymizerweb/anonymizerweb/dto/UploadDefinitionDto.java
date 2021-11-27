@@ -5,8 +5,10 @@ import java.util.List;
 
 @XmlRootElement(name = "definition")
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(propOrder = { "name", "targetK", "fast", "batch", "columns" })
+@XmlType(propOrder = {"uId", "name", "targetK", "fast", "batch", "columns"})
 public class UploadDefinitionDto {
+    private String uId;
+
     private String name;
 
     private Integer targetK;
@@ -15,9 +17,17 @@ public class UploadDefinitionDto {
 
     private Integer batch;
 
-    @XmlElement(name="column", type=UploadDefinitionColumnDto.class)
-    @XmlElementWrapper(name="columns")
+    @XmlElement(name = "column", type = UploadDefinitionColumnDto.class)
+    @XmlElementWrapper(name = "columns")
     private List<UploadDefinitionColumnDto> columns;
+
+    public String getuId() {
+        return uId;
+    }
+
+    public void setuId(String uId) {
+        this.uId = uId;
+    }
 
     public String getName() {
         return name;

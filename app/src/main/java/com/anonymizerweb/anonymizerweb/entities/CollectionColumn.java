@@ -21,7 +21,7 @@ public class CollectionColumn implements Comparable<CollectionColumn>{
 
     private ColumnDataTyp dataTyp;
 
-    @ManyToOne(fetch = FetchType.EAGER, cascade=CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY, cascade=CascadeType.ALL)
     private CollectionHierarchyNode hierarchyRoot;
 
     public Long getId() {

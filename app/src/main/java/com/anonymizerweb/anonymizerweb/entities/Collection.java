@@ -19,7 +19,8 @@ public class Collection {
 
     private String heading;
 
-    @OneToMany(fetch = FetchType.EAGER, cascade = {CascadeType.ALL}, orphanRemoval = true)
+    @OneToMany(fetch = FetchType.LAZY, cascade = {CascadeType.ALL}, orphanRemoval = true)
+    @JoinColumn(name = "collectionId")
     private Set<CollectionColumn> columns;
 
     @ElementCollection
