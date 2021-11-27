@@ -13,7 +13,8 @@ public class CollectionHierarchyNode {
 
     private String sort;
 
-    @OneToMany(fetch = FetchType.EAGER, cascade = {CascadeType.ALL},  orphanRemoval=true)
+    @OneToMany(fetch = FetchType.LAZY, cascade = {CascadeType.ALL},  orphanRemoval=true)
+    @JoinColumn(name = "parentHierarchyNodeId")
     private List<CollectionHierarchyNode> children;
 
     public Long getId() {

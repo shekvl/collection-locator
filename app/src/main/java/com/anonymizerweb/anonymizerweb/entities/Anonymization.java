@@ -41,7 +41,8 @@ public class Anonymization {
     @LazyCollection(LazyCollectionOption.FALSE)
     private List<String> outputData;
 
-    @OneToMany(fetch = FetchType.EAGER, cascade = {CascadeType.ALL},  orphanRemoval=true)
+    @OneToMany(fetch = FetchType.LAZY, cascade = {CascadeType.ALL},  orphanRemoval=true)
+    @JoinColumn(name = "anonymizationId")
     private Set<AnonymizationColumn> columns;
 
     public Long getId() {

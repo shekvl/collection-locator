@@ -9,6 +9,8 @@ public class Definition {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private String uId;
+
     private String name;
 
     private String fileName;
@@ -19,7 +21,8 @@ public class Definition {
 
     private Integer batch;
 
-    @OneToMany(fetch = FetchType.EAGER, cascade = {CascadeType.ALL}, orphanRemoval = true)
+    @OneToMany(fetch = FetchType.LAZY, cascade = {CascadeType.ALL}, orphanRemoval = true)
+    @JoinColumn(name = "definitionId")
     private Set<DefinitionColumn> columns;
 
     public Long getId() {
@@ -28,6 +31,14 @@ public class Definition {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getuId() {
+        return uId;
+    }
+
+    public void setuId(String uId) {
+        this.uId = uId;
     }
 
     public String getName() {

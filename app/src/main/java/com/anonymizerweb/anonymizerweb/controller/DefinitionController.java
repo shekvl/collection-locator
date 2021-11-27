@@ -9,9 +9,11 @@ import com.anonymizerweb.anonymizerweb.services.DefinitionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
@@ -56,6 +58,12 @@ public class DefinitionController {
     @GetMapping("/{id}/delete")
     public String delete(@PathVariable String id, Model model) {
         definitionService.delete(Long.valueOf(id));
+        return "redirect:/definitions";
+    }
+
+    @GetMapping("/import")
+    public String imp() throws InterruptedException {
+        definitionService.importDefinitions();
         return "redirect:/definitions";
     }
 }

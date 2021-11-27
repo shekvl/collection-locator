@@ -77,7 +77,18 @@ public class AnonymizeService {
             Integer minutes = Math.toIntExact((timeElapsed / 1000) / 60);
             Integer seconds = Math.toIntExact((timeElapsed / 1000) % 60);
             anonymization.setDuration(minutes + " Minutes and " + seconds + " Seconds");
-            anonymization.setLoss(anonymizer.getLoss().sum() / anonymizer.getSteps().sum());
+
+            try {
+                Double parseDouble = Double.parseDouble(String.valueOf((anonymizer.getLoss().sum() / anonymizer.getSteps().sum())));
+                if(parseDouble.isNaN()){
+                    anonymization.setLoss(0.0);
+                }else {
+                    anonymization.setLoss(anonymizer.getLoss().sum() / anonymizer.getSteps().sum());
+                }
+            } catch (NumberFormatException e) {
+                anonymization.setLoss(0.0);
+            }
+
             anonymizationRepository.save(anonymization);
         }
     }

@@ -7,6 +7,7 @@ import com.anonymizerweb.anonymizerweb.enums.ColumnDataTyp;
 import com.anonymizerweb.anonymizerweb.enums.ColumnTyp;
 import com.anonymizerweb.anonymizerweb.repositories.AnonymizationRepository;
 import com.google.gson.Gson;
+import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +29,12 @@ public class AnonymizationService {
 
     @Autowired
     CollectionService collectionService;
+
+    @Autowired
+    CombineService combineService;
+
+    @Autowired
+    AnonymizeService anonymizeService;
 
     public Anonymization findbyId(Long id) {
         Optional<Anonymization> byId = anonymizationRepository.findById(id);
@@ -111,7 +118,8 @@ public class AnonymizationService {
                 if(collectionColumn.getPosition().equals(column.getCollectionColumnPosition())){
                     property.setTyp(collectionColumn.getTyp());
                     property.setDataTyp(collectionColumn.getDataTyp());
-                    String jsonString = gson.toJson(collectionColumn.getHierarchyRoot());
+                    Hibernate.initialize(collectionColumn.getHierarchyRoot());
+                    String jsonString = gson.toJson((CollectionHierarchyNode) Hibernate.unproxy(collectionColumn.getHierarchyRoot()));
                     AnonymizationHierarchyNode anonymizationHierarchyNode = gson.fromJson(jsonString, AnonymizationHierarchyNode.class);
                     property.setHierarchyRoot(anonymizationHierarchyNode);
                     break;
@@ -243,5 +251,27 @@ public class AnonymizationService {
             file = new InputStreamResource(new ByteArrayInputStream(out.getBytes()));
         }
         return file;
+    }
+
+    public void anonymzieFromImport(List<Long> ids) throws InterruptedException {
+        List<CombineCommand> combineCommands = new LinkedList<>();
+        List<Collection> collections = collectionService.findAll();
+
+        for (Long id : ids) {
+            Definition definition = definitionService.findbyId(id);
+            for (Collection collection : collections) {
+                CombineCommand combineCommand = new CombineCommand();
+                combineCommand.setCollectionId(collection.getId());
+                combineCommand.setDefinitionId(definition.getId());
+                combineCommands.add(combineCommand);
+            }
+        }
+        for (CombineCommand combineCommand : combineCommands) {
+            MatchCommand matchCommand = combineService.getMatchCommandFromCombine(combineCommand);
+            if(matchCommand.getMatchable()){
+                Anonymization anonymization = saveFromMatch(matchCommand);
+                anonymizeService.anonymize(anonymization.getId());
+            }
+        }
     }
 }
