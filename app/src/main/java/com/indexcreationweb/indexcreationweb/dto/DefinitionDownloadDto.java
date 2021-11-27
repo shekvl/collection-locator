@@ -6,8 +6,10 @@ import java.util.Set;
 
 @XmlRootElement(name = "definition")
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(propOrder = { "name", "targetK", "fast", "batch", "columns" })
+@XmlType(propOrder = {"uId", "name", "targetK", "fast", "batch", "columns" })
 public class DefinitionDownloadDto {
+    private String uId;
+
     private String name;
 
     private Integer targetK;
@@ -19,6 +21,14 @@ public class DefinitionDownloadDto {
     @XmlElement(name="column", type=DefinitionColumnDownloadDto.class)
     @XmlElementWrapper(name="columns")
     private List<DefinitionColumnDownloadDto> columns;
+
+    public String getuId() {
+        return uId;
+    }
+
+    public void setuId(String uId) {
+        this.uId = uId;
+    }
 
     public String getName() {
         return name;
