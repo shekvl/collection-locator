@@ -1,6 +1,7 @@
 package com.indexcreationweb.indexcreationweb.controller;
 
 import com.indexcreationweb.indexcreationweb.commands.DefinitionCommand;
+import com.indexcreationweb.indexcreationweb.dto.DefinitionDto;
 import com.indexcreationweb.indexcreationweb.entities.Definition;
 import com.indexcreationweb.indexcreationweb.services.DefinitionService;
 import org.slf4j.Logger;
@@ -14,11 +15,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
 import java.io.IOException;
-import java.io.StringWriter;
 import java.util.List;
 
 @Controller
@@ -32,15 +30,9 @@ public class DefinitionController {
     @GetMapping("")
     public String indexAll(Model model) {
         List<Definition> definitions = definitionService.findAll();
-        model.addAttribute("definitions", definitions);
+        List<DefinitionDto> dtoList = definitionService.getDtoListFromDefinitionList(definitions);
+        model.addAttribute("definitions", dtoList);
         return "definitions/index";
-    }
-
-    @GetMapping("/{id}")
-    public String index(@PathVariable String id, Model model) {
-        Definition definition = definitionService.findbyId(Long.valueOf(id));
-        model.addAttribute("definition", definition);
-        return "definitions/show";
     }
 
     @GetMapping("/new")
@@ -54,7 +46,7 @@ public class DefinitionController {
     public String newPost(@ModelAttribute DefinitionCommand command, Model model) {
         Definition save = definitionService.save(command);
         model.addAttribute("command", command);
-        return "redirect:/definitions/" + save.getId();
+        return "redirect:/definitions";
     }
 
     @GetMapping("{id}/edit")
@@ -69,8 +61,15 @@ public class DefinitionController {
     public String editPost(@PathVariable String id, @ModelAttribute DefinitionCommand command, Model model) throws IOException {
         Definition save = definitionService.edit(command, id);
         model.addAttribute("command", command);
-        return "redirect:/definitions/" + save.getId();
+        return "redirect:/definitions";
     }
+
+    @GetMapping("/{id}/delete")
+    public String delete(@PathVariable String id, Model model) {
+        definitionService.delete(Long.valueOf(id));
+        return "redirect:/definitions";
+    }
+
 
     @GetMapping("{id}/download/json")
     public ResponseEntity<InputStreamResource> downloadGetJson(@PathVariable String id, Model model) {
@@ -92,11 +91,5 @@ public class DefinitionController {
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename)
                 .contentType(MediaType.parseMediaType("application/xml"))
                 .body(file);
-    }
-
-    @GetMapping("/{id}/delete")
-    public String delete(@PathVariable String id, Model model) {
-        definitionService.delete(Long.valueOf(id));
-        return "redirect:/definitions";
     }
 }

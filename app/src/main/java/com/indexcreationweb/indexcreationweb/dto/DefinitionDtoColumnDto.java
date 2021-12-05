@@ -1,29 +1,13 @@
-package com.indexcreationweb.indexcreationweb.entities;
+package com.indexcreationweb.indexcreationweb.dto;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-
-@Entity
-public class DefinitionColumn implements Comparable<DefinitionColumn> {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
+public class DefinitionDtoColumnDto implements Comparable<DefinitionDtoColumnDto> {
     private Integer position;
 
     private String name;
 
     private String code;
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
+    private String codeText;
 
     public Integer getPosition() {
         return position;
@@ -49,8 +33,16 @@ public class DefinitionColumn implements Comparable<DefinitionColumn> {
         this.code = code;
     }
 
+    public String getCodeText() {
+        return codeText;
+    }
+
+    public void setCodeText(String codeText) {
+        this.codeText = codeText;
+    }
+
     @Override
-    public int compareTo(DefinitionColumn o) {
+    public int compareTo(DefinitionDtoColumnDto o) {
         return position.compareTo(o.position);
     }
 }

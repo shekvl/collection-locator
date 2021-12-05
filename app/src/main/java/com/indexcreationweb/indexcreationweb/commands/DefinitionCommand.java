@@ -5,7 +5,7 @@ import java.util.List;
 public class DefinitionCommand {
     private String name;
 
-    private Integer targetk;
+    private Integer targetK;
 
     private Boolean isFast;
 
@@ -21,12 +21,12 @@ public class DefinitionCommand {
         this.name = name;
     }
 
-    public Integer getTargetk() {
-        return targetk;
+    public Integer getTargetK() {
+        return targetK;
     }
 
-    public void setTargetk(Integer targetk) {
-        this.targetk = targetk;
+    public void setTargetK(Integer targetK) {
+        this.targetK = targetK;
     }
 
     public Boolean getFast() {

@@ -7,8 +7,8 @@ import javax.xml.bind.annotation.XmlType;
 
 @XmlRootElement(name = "column")
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(propOrder = { "position", "name", "code"})
-public class DefinitionColumnDownloadDto implements Comparable<DefinitionColumnDownloadDto> {
+@XmlType(propOrder = {"position", "name", "code"})
+public class DefinitionDownloadDtoColumnDto implements Comparable<DefinitionDownloadDtoColumnDto> {
     private Integer position;
 
     private String name;
@@ -40,7 +40,7 @@ public class DefinitionColumnDownloadDto implements Comparable<DefinitionColumnD
     }
 
     @Override
-    public int compareTo(DefinitionColumnDownloadDto o) {
+    public int compareTo(DefinitionDownloadDtoColumnDto o) {
         return position.compareTo(o.position);
     }
 }

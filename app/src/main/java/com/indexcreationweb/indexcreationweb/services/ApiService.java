@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.xml.bind.JAXBException;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -23,14 +22,14 @@ public class ApiService {
     @Autowired
     DefinitionService definitionService;
 
-    public ApiDefinitionListDto getDownloadDataXmlFromId(String id) throws JAXBException {
+    public ApiDefinitionListDto getApiDataFromId(String id) {
         ApiDefinitionListDto apiDefinitionListDto = new ApiDefinitionListDto();
         List<DefinitionDownloadDto> downloadDtoList = new LinkedList<>();
-        if(id.equals("all")){
+        if (id.equals("all")) {
             for (Definition definition : definitionRepository.findAll()) {
                 downloadDtoList.add(definitionService.getDefinitionDownloadDto(String.valueOf(definition.getId())));
             }
-        }else {
+        } else {
             downloadDtoList.add(definitionService.getDefinitionDownloadDto(id));
         }
 

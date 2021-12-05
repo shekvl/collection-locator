@@ -1,32 +1,26 @@
 package com.indexcreationweb.indexcreationweb.dto;
 
-import javax.xml.bind.annotation.*;
 import java.util.List;
 
-@XmlRootElement(name = "definition")
-@XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(propOrder = {"uId", "name", "targetK", "fast", "batch", "columns"})
-public class DefinitionDownloadDto {
-    private String uId;
+public class DefinitionDto {
+    private Long id;
 
     private String name;
 
     private Integer targetK;
 
-    private Boolean fast;
+    private Boolean isFast;
 
     private Integer batch;
 
-    @XmlElement(name = "column", type = DefinitionDownloadDtoColumnDto.class)
-    @XmlElementWrapper(name = "columns")
-    private List<DefinitionDownloadDtoColumnDto> columns;
+    private List<DefinitionDtoColumnDto> columns;
 
-    public String getuId() {
-        return uId;
+    public Long getId() {
+        return id;
     }
 
-    public void setuId(String uId) {
-        this.uId = uId;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getName() {
@@ -46,11 +40,11 @@ public class DefinitionDownloadDto {
     }
 
     public Boolean getFast() {
-        return fast;
+        return isFast;
     }
 
     public void setFast(Boolean fast) {
-        this.fast = fast;
+        isFast = fast;
     }
 
     public Integer getBatch() {
@@ -61,11 +55,11 @@ public class DefinitionDownloadDto {
         this.batch = batch;
     }
 
-    public List<DefinitionDownloadDtoColumnDto> getColumns() {
+    public List<DefinitionDtoColumnDto> getColumns() {
         return columns;
     }
 
-    public void setColumns(List<DefinitionDownloadDtoColumnDto> columns) {
+    public void setColumns(List<DefinitionDtoColumnDto> columns) {
         this.columns = columns;
     }
 }

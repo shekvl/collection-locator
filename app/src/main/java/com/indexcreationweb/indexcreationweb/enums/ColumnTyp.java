@@ -15,17 +15,18 @@ public enum ColumnTyp {
         this.code = code;
     }
 
-    public static List<String> getAllCodes(){
+    public static List<String> getAllCodes() {
         List<String> result = new LinkedList<>();
         for (ColumnTyp value : ColumnTyp.values()) {
             result.add(value.getCode());
         }
         return result;
     }
-    public static ColumnTyp getByCode(String code){
+
+    public static ColumnTyp getByCode(String code) {
         ColumnTyp result = null;
         for (ColumnTyp value : ColumnTyp.values()) {
-            if(value.getCode().equals(code)){
+            if (value.getCode().equals(code)) {
                 result = value;
                 break;
             }

@@ -11,18 +11,21 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.xml.bind.JAXBException;
-
 @RestController
 @RequestMapping("/api")
-public class ApiDefinitionController {
-    Logger logger = LoggerFactory.getLogger(ApiDefinitionController.class);
+public class ApiController {
+    Logger logger = LoggerFactory.getLogger(ApiController.class);
 
     @Autowired
     ApiService apiService;
 
-    @GetMapping(value = "/definitions/get/{id}", produces = MediaType.APPLICATION_XML_VALUE)
-    public ApiDefinitionListDto indexAll(@PathVariable String id) throws JAXBException {
-        return apiService.getDownloadDataXmlFromId(id);
+    @GetMapping(value = "/definitions/get/{id}/xml", produces = MediaType.APPLICATION_XML_VALUE)
+    public ApiDefinitionListDto definitionGetXml(@PathVariable String id) {
+        return apiService.getApiDataFromId(id);
+    }
+
+    @GetMapping(value = "/definitions/get/{id}/json", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ApiDefinitionListDto definitionGetJson(@PathVariable String id) {
+        return apiService.getApiDataFromId(id);
     }
 }

@@ -3,8 +3,10 @@ package com.indexcreationweb.indexcreationweb.services;
 import com.google.gson.Gson;
 import com.indexcreationweb.indexcreationweb.commands.DefinitionCommand;
 import com.indexcreationweb.indexcreationweb.commands.DefinitionCommandColumnCommand;
-import com.indexcreationweb.indexcreationweb.dto.DefinitionColumnDownloadDto;
 import com.indexcreationweb.indexcreationweb.dto.DefinitionDownloadDto;
+import com.indexcreationweb.indexcreationweb.dto.DefinitionDownloadDtoColumnDto;
+import com.indexcreationweb.indexcreationweb.dto.DefinitionDto;
+import com.indexcreationweb.indexcreationweb.dto.DefinitionDtoColumnDto;
 import com.indexcreationweb.indexcreationweb.entities.Definition;
 import com.indexcreationweb.indexcreationweb.entities.DefinitionColumn;
 import com.indexcreationweb.indexcreationweb.entities.Loinc;
@@ -54,15 +56,15 @@ public class DefinitionService {
         return ((java.util.Collection<?>) definitionRepository.findAll()).size();
     }
 
-    public Definition save(DefinitionCommand command){
+    public Definition save(DefinitionCommand command) {
         Definition definition = new Definition();
         definition.setName(command.getName());
-        definition.setTargetK(command.getTargetk());
+        definition.setTargetK(command.getTargetK());
         definition.setFast(command.getFast());
         definition.setBatch(command.getBatch());
         Integer cnt = 1;
         List<DefinitionColumn> columnList = new LinkedList<>();
-        if(command.getColumns() != null){
+        if (command.getColumns() != null) {
             for (DefinitionCommandColumnCommand column : command.getColumns()) {
                 if (column != null && column.getName() != null && column.getCode() != null) {
                     DefinitionColumn col = new DefinitionColumn();
@@ -79,15 +81,15 @@ public class DefinitionService {
         return definitionRepository.save(definition);
     }
 
-    public Definition edit(DefinitionCommand command, String id){
+    public Definition edit(DefinitionCommand command, String id) {
         Definition definition = definitionRepository.findById(Long.parseLong(id));
         definition.setName(command.getName());
-        definition.setTargetK(command.getTargetk());
+        definition.setTargetK(command.getTargetK());
         definition.setFast(command.getFast());
         definition.setBatch(command.getBatch());
         Integer cnt = 1;
         List<DefinitionColumn> columnList = new LinkedList<>();
-        if(command.getColumns() != null){
+        if (command.getColumns() != null) {
             for (DefinitionCommandColumnCommand column : command.getColumns()) {
                 if (column != null && column.getName() != null && column.getCode() != null) {
                     DefinitionColumn col = new DefinitionColumn();
@@ -105,11 +107,11 @@ public class DefinitionService {
         return definitionRepository.save(definition);
     }
 
-    public DefinitionCommand getCommandFromId(String id){
+    public DefinitionCommand getCommandFromId(String id) {
         Definition definition = definitionRepository.findById(Long.parseLong(id));
         DefinitionCommand command = new DefinitionCommand();
         command.setName(definition.getName());
-        command.setTargetk(definition.getTargetK());
+        command.setTargetK(definition.getTargetK());
         command.setFast(definition.getFast());
         command.setBatch(definition.getBatch());
         List<DefinitionCommandColumnCommand> columnsList = new LinkedList<>();
@@ -118,10 +120,10 @@ public class DefinitionService {
             columnCommand.setName(column.getName());
             columnCommand.setCode(column.getCode());
             Optional<Loinc> loincOptional = loincRepository.findById(column.getCode());
-            if(loincOptional.isPresent()){
+            if (loincOptional.isPresent()) {
                 Loinc loinc = loincOptional.get();
-                columnCommand.setCodeText(loinc.getLong_common_name()  + " (" + loinc.getLoinc_num() + ")");
-            }else {
+                columnCommand.setCodeText(loinc.getLong_common_name() + " (" + loinc.getLoinc_num() + ")");
+            } else {
                 columnCommand.setCodeText("Name not found (" + column.getCode() + ")");
             }
             columnsList.add(columnCommand);
@@ -130,7 +132,36 @@ public class DefinitionService {
         return command;
     }
 
-    public InputStreamResource getDownloadDataJsonFromId(String id){
+    public List<DefinitionDto> getDtoListFromDefinitionList(List<Definition> definitions) {
+        List<DefinitionDto> definitionDtos = new LinkedList<>();
+        for (Definition definition : definitions) {
+            DefinitionDto definitionDto = getDtoFromDefinition(definition);
+            definitionDtos.add(definitionDto);
+        }
+        return definitionDtos;
+    }
+
+    public DefinitionDto getDtoFromDefinition(Definition definition) {
+        DefinitionDto dto = new DefinitionDto();
+        dto.setId(definition.getId());
+        dto.setName(definition.getName());
+        dto.setTargetK(definition.getTargetK());
+        dto.setFast(definition.getFast());
+        dto.setBatch(definition.getBatch());
+        List<DefinitionDtoColumnDto> columnsList = new LinkedList<>();
+        for (DefinitionColumn column : definition.getColumns()) {
+            DefinitionDtoColumnDto columnDto = new DefinitionDtoColumnDto();
+            columnDto.setPosition(column.getPosition());
+            columnDto.setName(column.getName());
+            columnDto.setCode(column.getCode());
+            columnsList.add(columnDto);
+        }
+        Collections.sort(columnsList);
+        dto.setColumns(columnsList);
+        return dto;
+    }
+
+    public InputStreamResource getDownloadDataJsonFromId(String id) {
         DefinitionDownloadDto dto = getDefinitionDownloadDto(id);
 
         Gson gson = new Gson();
@@ -157,9 +188,9 @@ public class DefinitionService {
         dto.setTargetK(definition.getTargetK());
         dto.setFast(definition.getFast());
         dto.setBatch(definition.getBatch());
-        List<DefinitionColumnDownloadDto> columnsList = new LinkedList<>();
+        List<DefinitionDownloadDtoColumnDto> columnsList = new LinkedList<>();
         for (DefinitionColumn column : definition.getColumns()) {
-            DefinitionColumnDownloadDto columnDownloadDto = new DefinitionColumnDownloadDto();
+            DefinitionDownloadDtoColumnDto columnDownloadDto = new DefinitionDownloadDtoColumnDto();
             columnDownloadDto.setPosition(column.getPosition());
             columnDownloadDto.setName(column.getName());
             columnDownloadDto.setCode(column.getCode());
