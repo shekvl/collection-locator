@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Set;
 
 @Entity
+@Cacheable(false)
 public class Anonymization {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -18,6 +19,8 @@ public class Anonymization {
     private String fileName;
 
     private String heading;
+
+    private String definitionUid;
 
     private Integer targetK;
 
@@ -147,6 +150,14 @@ public class Anonymization {
 
     public void setHeading(String heading) {
         this.heading = heading;
+    }
+
+    public String getDefinitionUid() {
+        return definitionUid;
+    }
+
+    public void setDefinitionUid(String definitionUid) {
+        this.definitionUid = definitionUid;
     }
 
     public Set<AnonymizationColumn> getColumns() {

@@ -60,10 +60,4 @@ public class DefinitionController {
         definitionService.delete(Long.valueOf(id));
         return "redirect:/definitions";
     }
-
-    @GetMapping("/import")
-    public String imp() throws InterruptedException {
-        definitionService.importDefinitions();
-        return "redirect:/definitions";
-    }
 }

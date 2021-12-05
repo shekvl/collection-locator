@@ -1,24 +1,41 @@
 package com.anonymizerweb.anonymizerweb.services;
 
+import com.anonymizerweb.anonymizerweb.commands.CombineCommand;
+import com.anonymizerweb.anonymizerweb.commands.MatchCommand;
 import com.anonymizerweb.anonymizerweb.data.AnonymizationHierarchyNode;
 import com.anonymizerweb.anonymizerweb.data.Column;
+import com.anonymizerweb.anonymizerweb.dto.ApiAnonymizationDto;
+import com.anonymizerweb.anonymizerweb.dto.ApiAnonymizationDtoColumn;
+import com.anonymizerweb.anonymizerweb.dto.ApiAnonymizationDtoHierarchyNodeDto;
+import com.anonymizerweb.anonymizerweb.dto.ApiAnonymizationDtoList;
 import com.anonymizerweb.anonymizerweb.entities.Anonymization;
 import com.anonymizerweb.anonymizerweb.entities.AnonymizationColumn;
+import com.anonymizerweb.anonymizerweb.entities.Collection;
 import com.anonymizerweb.anonymizerweb.entities.CollectionHierarchyNode;
+import com.anonymizerweb.anonymizerweb.entities.Definition;
 import com.anonymizerweb.anonymizerweb.logic.Anonymizer;
 import com.anonymizerweb.anonymizerweb.repositories.AnonymizationRepository;
+import com.google.gson.Gson;
+import org.hibernate.Hibernate;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.cfg.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityManager;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import java.io.StringWriter;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.concurrent.Future;
 import java.util.concurrent.atomic.DoubleAdder;
 
 @Service
@@ -29,7 +46,7 @@ public class AnonymizeService {
     AnonymizationRepository anonymizationRepository;
 
     @Async
-    public void anonymize(Long id) throws InterruptedException {
+    public Future<String> anonymize(Long id) throws InterruptedException {
         Optional<Anonymization> optionalAnonymization = anonymizationRepository.findById(id);
         Anonymization anonymization = null;
         Instant start = Instant.now();
@@ -91,6 +108,8 @@ public class AnonymizeService {
 
             anonymizationRepository.save(anonymization);
         }
+
+        return new AsyncResult<>("done");
     }
 
     private AnonymizationHierarchyNode entityNodeToDataNode(com.anonymizerweb.anonymizerweb.entities.AnonymizationHierarchyNode node) {

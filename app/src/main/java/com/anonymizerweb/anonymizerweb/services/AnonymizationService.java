@@ -1,6 +1,10 @@
 package com.anonymizerweb.anonymizerweb.services;
 
 import com.anonymizerweb.anonymizerweb.commands.*;
+import com.anonymizerweb.anonymizerweb.dto.ApiAnonymizationDto;
+import com.anonymizerweb.anonymizerweb.dto.ApiAnonymizationDtoColumn;
+import com.anonymizerweb.anonymizerweb.dto.ApiAnonymizationDtoHierarchyNodeDto;
+import com.anonymizerweb.anonymizerweb.dto.ApiAnonymizationDtoList;
 import com.anonymizerweb.anonymizerweb.entities.Collection;
 import com.anonymizerweb.anonymizerweb.entities.*;
 import com.anonymizerweb.anonymizerweb.enums.ColumnDataTyp;
@@ -14,6 +18,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.stereotype.Service;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
 import java.io.*;
 import java.util.*;
 
@@ -157,6 +164,7 @@ public class AnonymizationService {
         anonymization.setFileName(definition.getFileName() + " ++++ " + collection.getFileName());
         anonymization.setFast((definition.getFast() != null ? definition.getFast() : false));
         anonymization.setBatch((definition.getBatch() != null && definition.getBatch() >= definition.getTargetK() ? definition.getBatch() : 5000));
+        anonymization.setDefinitionUid(definition.getuId());
         Anonymization save = anonymizationRepository.save(anonymization);
         save.setColumns(new HashSet<>(columns));
         return anonymizationRepository.save(save);
@@ -251,27 +259,5 @@ public class AnonymizationService {
             file = new InputStreamResource(new ByteArrayInputStream(out.getBytes()));
         }
         return file;
-    }
-
-    public void anonymzieFromImport(List<Long> ids) throws InterruptedException {
-        List<CombineCommand> combineCommands = new LinkedList<>();
-        List<Collection> collections = collectionService.findAll();
-
-        for (Long id : ids) {
-            Definition definition = definitionService.findbyId(id);
-            for (Collection collection : collections) {
-                CombineCommand combineCommand = new CombineCommand();
-                combineCommand.setCollectionId(collection.getId());
-                combineCommand.setDefinitionId(definition.getId());
-                combineCommands.add(combineCommand);
-            }
-        }
-        for (CombineCommand combineCommand : combineCommands) {
-            MatchCommand matchCommand = combineService.getMatchCommandFromCombine(combineCommand);
-            if(matchCommand.getMatchable()){
-                Anonymization anonymization = saveFromMatch(matchCommand);
-                anonymizeService.anonymize(anonymization.getId());
-            }
-        }
     }
 }
