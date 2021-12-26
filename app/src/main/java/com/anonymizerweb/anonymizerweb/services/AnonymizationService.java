@@ -7,6 +7,7 @@ import com.anonymizerweb.anonymizerweb.dto.ApiAnonymizationDtoHierarchyNodeDto;
 import com.anonymizerweb.anonymizerweb.dto.ApiAnonymizationDtoList;
 import com.anonymizerweb.anonymizerweb.entities.Collection;
 import com.anonymizerweb.anonymizerweb.entities.*;
+import com.anonymizerweb.anonymizerweb.enums.AnonymizationTyp;
 import com.anonymizerweb.anonymizerweb.enums.ColumnDataTyp;
 import com.anonymizerweb.anonymizerweb.enums.ColumnTyp;
 import com.anonymizerweb.anonymizerweb.repositories.AnonymizationRepository;
@@ -64,45 +65,49 @@ public class AnonymizationService {
         return ((java.util.Collection<?>) anonymizationRepository.findAll()).size();
     }
 
-    public Anonymization save(NewAnonymizationCommand command) throws IOException {
+    public Anonymization save(NewAnonymizationCommand command) {
+        Collection collection = collectionService.findbyId(command.getCollectionId());
+        return saveFromCollection(collection);
+    }
+
+    public Anonymization saveFromCollection(Collection collection) {
         Anonymization anonymization = new Anonymization();
-        String line;
-        List<String> data = new LinkedList<>();
-        InputStream inputStream = command.getFile().getInputStream();
-        InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
-        BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+        Gson gson = new Gson();
 
-        line = bufferedReader.readLine();
-        anonymization.setHeading(line);
-        String[] split = line.split(";");
-        Integer cnt = 1;
-        for (String s : split) {
-            AnonymizationColumn property = new AnonymizationColumn();
-            property.setPosition(cnt);
-            property.setName(s);
-            property.setDataTyp(ColumnDataTyp.NUMBER);
-            property.setTyp(ColumnTyp.QUASIIDENTIFIER);
-            if (anonymization.getColumns() == null) {
-                anonymization.setColumns(new HashSet<>());
-            }
+        anonymization.setName("Full collection ++++ " + collection.getName());
+        anonymization.setFileName("Full collection ++++ " + collection.getName());
+        anonymization.setHeading(collection.getHeading());
+        anonymization.setDefinitionUid(null);
+        anonymization.setAnonymizationTyp(AnonymizationTyp.FROM_COLLECTION);
+        anonymization.setTargetK(collection.getTargetK());
+        anonymization.setFast(true);
+        anonymization.setBatch(3000);
+        anonymization.setLoss(null);
+        anonymization.setDuration(null);
+        anonymization.setRunning(false);
+        anonymization.setAnonymized(false);
+        List<String> anonymizationRawData = new LinkedList<>(collection.getRawData());
 
-            anonymization.getColumns().add(property);
-            cnt++;
+        anonymization.setRawData(anonymizationRawData);
+        Set<AnonymizationColumn> anonymizationColumns = new HashSet<>();
+        for (CollectionColumn column : collection.getColumns()) {
+            AnonymizationColumn anonymizationColumn = new AnonymizationColumn();
+            anonymizationColumn.setPosition(column.getPosition());
+            anonymizationColumn.setName(column.getName());
+            anonymizationColumn.setCode(column.getCode());
+            anonymizationColumn.setTyp(column.getTyp());
+            anonymizationColumn.setDataTyp(column.getDataTyp());
+            Hibernate.initialize(column.getHierarchyRoot());
+            String jsonString = gson.toJson((CollectionHierarchyNode) Hibernate.unproxy(column.getHierarchyRoot()));
+            AnonymizationHierarchyNode anonymizationHierarchyNode = gson.fromJson(jsonString, AnonymizationHierarchyNode.class);
+            anonymizationColumn.setHierarchyRoot(anonymizationHierarchyNode);
+
+            anonymizationColumns.add(anonymizationColumn);
         }
 
-        while ((line = bufferedReader.readLine()) != null) {
-            data.add(line);
-        }
-
-        anonymization.setRawData(data);
-        anonymization.setTargetK(command.getTargetk());
-        anonymization.setName(command.getName());
-        anonymization.setFileName(command.getFile().getOriginalFilename());
-        anonymization.setFast(command.getFast());
-        anonymization.setBatch(command.getBatch());
+        anonymization.setColumns(anonymizationColumns);
 
         return anonymizationRepository.save(anonymization);
-
     }
 
     public Anonymization saveFromMatch(MatchCommand command) {
@@ -165,6 +170,7 @@ public class AnonymizationService {
         anonymization.setFast((definition.getFast() != null ? definition.getFast() : false));
         anonymization.setBatch((definition.getBatch() != null && definition.getBatch() >= definition.getTargetK() ? definition.getBatch() : 5000));
         anonymization.setDefinitionUid(definition.getuId());
+        anonymization.setAnonymizationTyp(AnonymizationTyp.FROM_DEFINITION);
         Anonymization save = anonymizationRepository.save(anonymization);
         save.setColumns(new HashSet<>(columns));
         return anonymizationRepository.save(save);

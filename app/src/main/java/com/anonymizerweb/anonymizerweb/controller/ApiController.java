@@ -1,6 +1,7 @@
 package com.anonymizerweb.anonymizerweb.controller;
 
 import com.anonymizerweb.anonymizerweb.dto.ApiAnonymizationDtoList;
+import com.anonymizerweb.anonymizerweb.entities.Anonymization;
 import com.anonymizerweb.anonymizerweb.services.ActionsService;
 import com.anonymizerweb.anonymizerweb.services.DefinitionService;
 import org.slf4j.Logger;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -30,8 +32,7 @@ public class ApiController {
     public ApiAnonymizationDtoList sendAllData() throws InterruptedException, JAXBException, IOException, ExecutionException {
         actionsService.importDefinitions();
         actionsService.createAllAnonymizations();
-        Future<String> stringFuture = actionsService.anonymizeAll();
-        stringFuture.get();
-        return actionsService.sendAllAnonymizations();
+        Future<List<Anonymization>> future = actionsService.anonymizeAll();
+        return actionsService.sendAllAnonymizations(future.get());
     }
 }

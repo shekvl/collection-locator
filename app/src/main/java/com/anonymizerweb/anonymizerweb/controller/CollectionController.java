@@ -4,6 +4,7 @@ import com.anonymizerweb.anonymizerweb.commands.EditCollectionCommand;
 import com.anonymizerweb.anonymizerweb.commands.NewCollectionCommand;
 import com.anonymizerweb.anonymizerweb.entities.Collection;
 import com.anonymizerweb.anonymizerweb.entities.Loinc;
+import com.anonymizerweb.anonymizerweb.enums.CollectionUsageTyp;
 import com.anonymizerweb.anonymizerweb.enums.ColumnDataTyp;
 import com.anonymizerweb.anonymizerweb.enums.ColumnTyp;
 import com.anonymizerweb.anonymizerweb.repositories.LoincRepository;
@@ -51,11 +52,13 @@ public class CollectionController {
         Collection collection = collectionService.findbyId(Long.valueOf(id));
         List<ColumnTyp> columnTyps = Arrays.asList(ColumnTyp.values());
         List<ColumnDataTyp> columnDataTyps = Arrays.asList(ColumnDataTyp.values());
+        List<CollectionUsageTyp> usageTyps = Arrays.asList(CollectionUsageTyp.values());
 
         model.addAttribute("command", command);
         model.addAttribute("collection", collection);
         model.addAttribute("columnTyps", columnTyps);
         model.addAttribute("columnDataTyps", columnDataTyps);
+        model.addAttribute("usageTyps", usageTyps);
         return "collections/edit";
     }
 
@@ -70,7 +73,10 @@ public class CollectionController {
     @GetMapping("/new")
     public String newGet(Model model) {
         NewCollectionCommand command = new NewCollectionCommand();
+        List<CollectionUsageTyp> usageTyps = Arrays.asList(CollectionUsageTyp.values());
+
         model.addAttribute("command", command);
+        model.addAttribute("usageTyps", usageTyps);
         return "collections/new";
     }
 

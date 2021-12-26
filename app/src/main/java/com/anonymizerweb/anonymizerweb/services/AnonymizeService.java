@@ -46,7 +46,8 @@ public class AnonymizeService {
     AnonymizationRepository anonymizationRepository;
 
     @Async
-    public Future<String> anonymize(Long id) throws InterruptedException {
+    public Future<Anonymization> anonymize(Long id) throws InterruptedException {
+        Anonymization save = null;
         Optional<Anonymization> optionalAnonymization = anonymizationRepository.findById(id);
         Anonymization anonymization = null;
         Instant start = Instant.now();
@@ -106,10 +107,10 @@ public class AnonymizeService {
                 anonymization.setLoss(0.0);
             }
 
-            anonymizationRepository.save(anonymization);
+            save = anonymizationRepository.save(anonymization);
         }
 
-        return new AsyncResult<>("done");
+        return new AsyncResult<Anonymization>(save);
     }
 
     private AnonymizationHierarchyNode entityNodeToDataNode(com.anonymizerweb.anonymizerweb.entities.AnonymizationHierarchyNode node) {

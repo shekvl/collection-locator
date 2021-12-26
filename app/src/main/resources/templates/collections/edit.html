@@ -41,6 +41,23 @@
                     <td>Name:</td>
                     <td><input type="text" th:field="*{name}" class="form-control"></td>
                 </tr>
+                <tr class="form-group">
+                    <td>Collection Usage:</td>
+                    <td class="input-element">
+                        <select class="form-select typ-select" th:field="*{usageTyp}">
+                            <option th:each="typ : ${usageTyps}" th:value="${typ.code}"
+                                    th:text="${typ.description}">
+                            </option>
+                        </select>
+                    </td>
+                </tr>
+                <tr class="form-group">
+                    <td>Default Target K:</td>
+                    <td class="input-element">
+                        <input type="text" th:field="*{targetK}"
+                               class="form-control">
+                    </td>
+                </tr>
             </table>
         </div>
         <div style="display: flex; flex-wrap: wrap;">

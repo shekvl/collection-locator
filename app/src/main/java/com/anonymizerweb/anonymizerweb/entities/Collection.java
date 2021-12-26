@@ -1,5 +1,7 @@
 package com.anonymizerweb.anonymizerweb.entities;
 
+import com.anonymizerweb.anonymizerweb.enums.CollectionUsageTyp;
+import com.anonymizerweb.anonymizerweb.enums.ColumnDataTyp;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 
@@ -18,6 +20,11 @@ public class Collection {
     private String fileName;
 
     private String heading;
+
+    private Integer targetK;
+
+    @Enumerated(EnumType.STRING)
+    private CollectionUsageTyp usageTyp;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = {CascadeType.ALL}, orphanRemoval = true)
     @JoinColumn(name = "collectionId")
@@ -57,6 +64,22 @@ public class Collection {
 
     public void setHeading(String heading) {
         this.heading = heading;
+    }
+
+    public CollectionUsageTyp getUsageTyp() {
+        return usageTyp;
+    }
+
+    public void setUsageTyp(CollectionUsageTyp usageTyp) {
+        this.usageTyp = usageTyp;
+    }
+
+    public Integer getTargetK() {
+        return targetK;
+    }
+
+    public void setTargetK(Integer targetK) {
+        this.targetK = targetK;
     }
 
     public Set<CollectionColumn> getColumns() {

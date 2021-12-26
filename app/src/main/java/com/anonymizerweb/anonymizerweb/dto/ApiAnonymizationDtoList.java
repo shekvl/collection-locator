@@ -7,7 +7,7 @@ import java.util.List;
 @XmlRootElement(name = "anonymizations")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(propOrder = {"anonymizations"})
-@XmlSeeAlso(ApiAnonymizationDtoHierarchyNodeDto.class)
+@XmlSeeAlso({ApiAnonymizationDtoHierarchyNodeDto.class, ApiAnonymizationDtoDataDto.class})
 public class ApiAnonymizationDtoList {
 
     @XmlElement(name = "anonymization", type = ApiAnonymizationDto.class)

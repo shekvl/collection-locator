@@ -34,6 +34,8 @@
         Collection: <span th:text="${collection.name}  + ' (' + ${collection.id} + ')'"/>
     </div>
     <div class="card-body">
+        <div class="card-text">Usage: <span th:text="${collection.usageTyp.description}"/></div>
+        <div class="card-text">Default Target k: <span th:text="${collection.targetK}"/></div>
         <div class="card-text">Filename: <span th:text="${collection.fileName}"/></div>
         <div class="card-text">Heading: <span th:text="${collection.heading}"/></div>
         <br>

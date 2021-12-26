@@ -7,6 +7,7 @@ import com.anonymizerweb.anonymizerweb.entities.Collection;
 import com.anonymizerweb.anonymizerweb.entities.CollectionColumn;
 import com.anonymizerweb.anonymizerweb.entities.CollectionHierarchyNode;
 import com.anonymizerweb.anonymizerweb.entities.Loinc;
+import com.anonymizerweb.anonymizerweb.enums.CollectionUsageTyp;
 import com.anonymizerweb.anonymizerweb.enums.ColumnDataTyp;
 import com.anonymizerweb.anonymizerweb.enums.ColumnTyp;
 import com.anonymizerweb.anonymizerweb.repositories.CollectionRepository;
@@ -81,6 +82,8 @@ public class CollectionService {
         }
 
         collection.setName(command.getName());
+        collection.setTargetK(command.getTargetK());
+        collection.setUsageTyp(CollectionUsageTyp.getByCode(command.getUsageTyp()));
         collection.setFileName(command.getFile().getOriginalFilename());
         collection.setColumns(collectionColumnList);
 
@@ -99,6 +102,8 @@ public class CollectionService {
         if (collectionOptional.isPresent()) {
             Collection collection = collectionOptional.get();
             editCollectionCommand.setName(collection.getName());
+            editCollectionCommand.setTargetK(collection.getTargetK());
+            editCollectionCommand.setUsageTyp(collection.getUsageTyp().getCode());
             List<CollectionColumn> collectionColumns = new LinkedList<>(collection.getColumns());
             Collections.sort(collectionColumns);
             List<EditCollectionCommandColumn> editCollectionCommandColumns = new LinkedList<>();
@@ -128,6 +133,8 @@ public class CollectionService {
         if (collectionOptional.isPresent()) {
             Collection collection = collectionOptional.get();
             collection.setName(editCollectionCommand.getName());
+            collection.setTargetK(editCollectionCommand.getTargetK());
+            collection.setUsageTyp(CollectionUsageTyp.getByCode(editCollectionCommand.getUsageTyp()));
             Set<CollectionColumn> collectionColumns = collection.getColumns();
             collectionColumns.clear();
             List<CollectionColumn> collectionColumnList = new LinkedList<>();

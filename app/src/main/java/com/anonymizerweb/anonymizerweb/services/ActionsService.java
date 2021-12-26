@@ -3,7 +3,9 @@ package com.anonymizerweb.anonymizerweb.services;
 import com.anonymizerweb.anonymizerweb.commands.CombineCommand;
 import com.anonymizerweb.anonymizerweb.commands.MatchCommand;
 import com.anonymizerweb.anonymizerweb.dto.*;
+import com.anonymizerweb.anonymizerweb.entities.Collection;
 import com.anonymizerweb.anonymizerweb.entities.*;
+import com.anonymizerweb.anonymizerweb.enums.CollectionUsageTyp;
 import com.anonymizerweb.anonymizerweb.repositories.DefinitionRepository;
 import com.anonymizerweb.anonymizerweb.repositories.OptionsRepository;
 import com.google.gson.Gson;
@@ -15,8 +17,6 @@ import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import javax.xml.bind.JAXBContext;
@@ -28,10 +28,7 @@ import java.io.StringWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -104,10 +101,13 @@ public class ActionsService {
 
         for (Definition definition : definitions) {
             for (Collection collection : collections) {
-                CombineCommand combineCommand = new CombineCommand();
-                combineCommand.setCollectionId(collection.getId());
-                combineCommand.setDefinitionId(definition.getId());
-                combineCommands.add(combineCommand);
+                if (collection.getUsageTyp().getCode().equals(CollectionUsageTyp.FOR_INDEXES.getCode()) ||
+                        collection.getUsageTyp().getCode().equals(CollectionUsageTyp.SUPPORT_BOTH.getCode())) {
+                    CombineCommand combineCommand = new CombineCommand();
+                    combineCommand.setCollectionId(collection.getId());
+                    combineCommand.setDefinitionId(definition.getId());
+                    combineCommands.add(combineCommand);
+                }
             }
         }
         for (CombineCommand combineCommand : combineCommands) {
@@ -116,33 +116,58 @@ public class ActionsService {
                 anonymizationService.saveFromMatch(matchCommand);
             }
         }
+
+        for (Collection collection : collections) {
+            if (collection.getUsageTyp().getCode().equals(CollectionUsageTyp.COMPLETE_COLLECTION.getCode()) ||
+                    collection.getUsageTyp().getCode().equals(CollectionUsageTyp.SUPPORT_BOTH.getCode())) {
+                anonymizationService.saveFromCollection(collection);
+            }
+        }
     }
 
     @Async
-    public Future<String> anonymizeAll() throws InterruptedException, ExecutionException {
+    public Future<List<Anonymization>> anonymizeAll() throws InterruptedException, ExecutionException {
         List<Anonymization> anonymizations = anonymizationService.findAll();
-        List<Future<String>> futureList = new LinkedList<>();
+        List<Future<Anonymization>> futureList = new LinkedList<>();
 
         for (Anonymization anonymization : anonymizations) {
             if (anonymization.getAnonymized() == null || !anonymization.getAnonymized()) {
                 if (anonymization.getRunning() == null || !anonymization.getRunning()) {
-                    Future<String> anonymize = anonymizeService.anonymize(anonymization.getId());
+                    Future<Anonymization> anonymize = anonymizeService.anonymize(anonymization.getId());
                     futureList.add(anonymize);
                 }
             }
         }
 
-        for (Future<String> stringFuture : futureList) {
-            stringFuture.get();
+        List<Anonymization> anonymizationList = new LinkedList<>();
+        for (Future<Anonymization> future : futureList) {
+            anonymizationList.add(future.get());
         }
 
-        return new AsyncResult<>("done");
+        return new AsyncResult<>(anonymizationList);
     }
 
-    public ApiAnonymizationDtoList sendAllAnonymizations() throws JAXBException, IOException {
+    public ApiAnonymizationDtoList sendAllAnonymizations(List<Anonymization> anonymizations) throws JAXBException, IOException {
         logger.error("DONE WITH ALL ANONYMIZATIONS ----- SEND HTTP");
+        if(anonymizations == null || anonymizations.size() == 0){
+            anonymizations = anonymizationService.findAll();
+        }
+        List<Anonymization> anonymizationsTmp = new LinkedList<>();
+        for (Anonymization anonymization : anonymizations) {
+            logger.error("id: " + anonymization.getId());
+            logger.error("loss: " + anonymization.getLoss());
+            logger.error("outputdata: " + anonymization.getOutputData().size());
+            logger.error("anonymized: " + anonymization.getAnonymized() + " running: " + anonymization.getRunning());
+            if (anonymization.getAnonymized() != null && anonymization.getAnonymized()) {
+                if (anonymization.getRunning() != null && !anonymization.getRunning()) {
+                    anonymizationsTmp.add(anonymization);
+                }
+            }
+        }
+        anonymizations = anonymizationsTmp;
+        logger.error("SIZE: " + anonymizations.size());
 
-        List<Anonymization> anonymizations = anonymizationService.findAll();
+
         ApiAnonymizationDtoList dtoList = getApiAnonymizationListDtoFromIds(anonymizations);
         JAXBContext context = JAXBContext.newInstance(ApiAnonymizationDtoList.class);
         Marshaller mar = context.createMarshaller();
@@ -151,22 +176,26 @@ public class ActionsService {
         mar.marshal(dtoList, sw);
         String xmlString = sw.toString();
 
-        Optional<Options> indexCollOptional = optionsRepository.findById("indexColl");
-        if (indexCollOptional.isPresent()) {
-            String indexCollUrl = indexCollOptional.get().getOptValue();
-            URL url = new URL(indexCollUrl);
-            HttpURLConnection http = (HttpURLConnection) url.openConnection();
-            http.setRequestMethod("POST");
-            http.setDoOutput(true);
-            http.setRequestProperty("Content-Type", "application/xml");
-            http.setRequestProperty("Accept", "application/xml");
+        try {
+            Optional<Options> indexCollOptional = optionsRepository.findById("indexColl");
+            if (indexCollOptional.isPresent()) {
+                String indexCollUrl = indexCollOptional.get().getOptValue();
+                URL url = new URL(indexCollUrl);
+                HttpURLConnection http = (HttpURLConnection) url.openConnection();
+                http.setRequestMethod("POST");
+                http.setDoOutput(true);
+                http.setRequestProperty("Content-Type", "application/xml");
+                http.setRequestProperty("Accept", "application/xml");
 
-            byte[] out = xmlString.getBytes(StandardCharsets.UTF_8);
+                byte[] out = xmlString.getBytes(StandardCharsets.UTF_8);
 
-            OutputStream stream = http.getOutputStream();
-            stream.write(out);
+                OutputStream stream = http.getOutputStream();
+                stream.write(out);
 
-            http.disconnect();
+                http.disconnect();
+            }
+        } catch (IOException e) {
+            logger.error("Error while sending Anonymizations: " + e.toString());
         }
         return dtoList;
     }
@@ -178,6 +207,7 @@ public class ActionsService {
             ApiAnonymizationDto anonymizationDto = new ApiAnonymizationDto();
             anonymizationDto.setName(anonymization.getName());
             anonymizationDto.setTargetK(anonymization.getTargetK());
+            anonymizationDto.setAnonymizationTyp(anonymization.getAnonymizationTyp().getCode());
             anonymizationDto.setDefinitionUid(anonymization.getDefinitionUid());
             List<ApiAnonymizationDtoColumn> columnDtoList = new LinkedList<>();
             for (AnonymizationColumn column : anonymization.getColumns()) {
@@ -197,9 +227,24 @@ public class ActionsService {
             Collections.sort(columnDtoList);
             anonymizationDto.setColumns(columnDtoList);
             anonymizationDto.setData(new LinkedList<>());
+            Map<String, Integer> rowMap = new HashMap<>();
             for (String outputDatum : anonymization.getOutputData()) {
-                anonymizationDto.getData().add(outputDatum.replace("\n", ""));
+                if(rowMap.containsKey(outputDatum)){
+                    Integer val = rowMap.get(outputDatum);
+                    val = val + 1;
+                    rowMap.put(outputDatum,val);
+                }else {
+                    rowMap.put(outputDatum, 1);
+                }
             }
+            List<ApiAnonymizationDtoDataDto> dtoDataDtoList = new LinkedList<>();
+            for (Map.Entry<String, Integer> entry : rowMap.entrySet()) {
+                ApiAnonymizationDtoDataDto dataDto = new ApiAnonymizationDtoDataDto();
+                dataDto.setRow(entry.getKey());
+                dataDto.setRowAmount(entry.getValue());
+                dtoDataDtoList.add(dataDto);
+            }
+            anonymizationDto.setData(dtoDataDtoList);
             dtoList.getAnonymizations().add(anonymizationDto);
         }
 

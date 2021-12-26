@@ -4,11 +4,13 @@ import javax.xml.bind.annotation.*;
 import java.util.List;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(propOrder = {"name", "targetK", "definitionUid", "columns", "data"})
+@XmlType(propOrder = {"name", "targetK", "anonymizationTyp", "definitionUid", "columns", "data"})
 public class ApiAnonymizationDto {
     private String name;
 
     private Integer targetK;
+
+    private String anonymizationTyp;
 
     private String definitionUid;
 
@@ -18,7 +20,7 @@ public class ApiAnonymizationDto {
 
     @XmlElement(name = "dat", type = String.class)
     @XmlElementWrapper(name = "data")
-    private List<String> data;
+    private List<ApiAnonymizationDtoDataDto> data;
 
     public String getName() {
         return name;
@@ -34,6 +36,14 @@ public class ApiAnonymizationDto {
 
     public void setTargetK(Integer targetK) {
         this.targetK = targetK;
+    }
+
+    public String getAnonymizationTyp() {
+        return anonymizationTyp;
+    }
+
+    public void setAnonymizationTyp(String anonymizationTyp) {
+        this.anonymizationTyp = anonymizationTyp;
     }
 
     public String getDefinitionUid() {
@@ -52,11 +62,11 @@ public class ApiAnonymizationDto {
         this.columns = columns;
     }
 
-    public List<String> getData() {
+    public List<ApiAnonymizationDtoDataDto> getData() {
         return data;
     }
 
-    public void setData(List<String> data) {
+    public void setData(List<ApiAnonymizationDtoDataDto> data) {
         this.data = data;
     }
 }

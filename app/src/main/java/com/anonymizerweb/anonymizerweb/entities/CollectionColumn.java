@@ -17,8 +17,10 @@ public class CollectionColumn implements Comparable<CollectionColumn>{
 
     private String code;
 
+    @Enumerated(EnumType.STRING)
     private ColumnTyp typ;
 
+    @Enumerated(EnumType.STRING)
     private ColumnDataTyp dataTyp;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade=CascadeType.ALL)
