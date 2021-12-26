@@ -1,9 +1,8 @@
 package com.anonymizerweb.anonymizerweb.services;
 
 import com.anonymizerweb.anonymizerweb.commands.NewDefinitionCommand;
-import com.anonymizerweb.anonymizerweb.dto.UploadDefinitionColumnDto;
-import com.anonymizerweb.anonymizerweb.dto.UploadDefinitionDto;
-import com.anonymizerweb.anonymizerweb.dto.UploadDefinitionListDto;
+import com.anonymizerweb.anonymizerweb.dto.*;
+import com.anonymizerweb.anonymizerweb.entities.Anonymization;
 import com.anonymizerweb.anonymizerweb.entities.Definition;
 import com.anonymizerweb.anonymizerweb.entities.DefinitionColumn;
 import com.anonymizerweb.anonymizerweb.entities.Options;
@@ -15,14 +14,17 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.Future;
 
 @Service
 public class DefinitionService {
@@ -98,7 +100,7 @@ public class DefinitionService {
         return definition;
     }
 
-    private Definition uploadDtoToDefinition(String originalFilename, UploadDefinitionDto dto) {
+    public Definition uploadDtoToDefinition(String originalFilename, UploadDefinitionDto dto) {
         Definition definition = new Definition();
         definition.setuId(dto.getuId());
         definition.setName(dto.getName());
@@ -123,43 +125,4 @@ public class DefinitionService {
     public void delete(Long id) {
         definitionRepository.deleteById(id);
     }
-
-    @Async
-    public void importDefinitions() throws InterruptedException {
-        Optional<Options> indexGen = optionsRepository.findById("indexGen");
-        if (indexGen.isPresent()) {
-            RestTemplateBuilder builder = new RestTemplateBuilder();
-            RestTemplate restTemplate = builder.build();
-            String url = indexGen.get().getOptValue() + "/api/definitions/get/all";
-            UploadDefinitionListDto dto = restTemplate.getForObject(url, UploadDefinitionListDto.class);
-            List<Long> ids = new LinkedList<>();
-            for (Definition definition : definitionRepository.findAll()) {
-                Boolean delete = false;
-                for (UploadDefinitionDto definitionDto : dto.getDefinitions()) {
-                    if (definition.getuId() != null && definition.getuId().equals(definitionDto.getuId())) {
-                        delete = true;
-                        break;
-                    }
-                }
-                if (delete) {
-                    ids.add(definition.getId());
-                }
-            }
-
-            for (Long id : ids) {
-                definitionRepository.deleteById(id);
-            }
-
-            List<Long> importedIds = new LinkedList<>();
-            for (UploadDefinitionDto definitionDto : dto.getDefinitions()) {
-                Definition definition = uploadDtoToDefinition("From Import", definitionDto);
-                definitionRepository.save(definition);
-                importedIds.add(definition.getId());
-            }
-
-            anonymizationService.anonymzieFromImport(importedIds);
-        }
-    }
-
-
 }

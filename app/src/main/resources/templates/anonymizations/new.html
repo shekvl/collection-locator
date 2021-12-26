@@ -20,7 +20,7 @@
                     <a class="nav-link active" th:href="@{/anonymizations}">Anonymizations</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link active" th:href="@{/anonymizations/new}">Add new Anonymization</a>
+                    <a class="nav-link active" th:href="@{/anonymizations/new}">New Anonymization</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link active" th:href="@{/combine}">New Combination</a>
@@ -38,28 +38,18 @@
         <form method="post" th:action="@{/anonymizations/new} " th:object="${command}" enctype="multipart/form-data">
             <table style="width: 100%">
                 <tr class="form-group">
-                    <td>Name:</td>
-                    <td><input type="text" th:field="*{name}" class="form-control"></td>
-                </tr>
-                <tr class="form-group">
-                    <td>Target K:</td>
-                    <td><input type="text" th:field="*{targetk}" class="form-control"></td>
-                </tr>
-                <tr class="form-group">
-                    <td>Fast Mode:</td>
-                    <td><input type="checkbox" th:field="*{fast}" class="form-check"></td>
-                </tr>
-                <tr class="form-group">
-                    <td>Batch Size:</td>
-                    <td><input type="text" th:field="*{batch}" class="form-control"></td>
-                </tr>
-                <tr class="form-group">
-                    <td>File:</td>
-                    <td><input type="file" th:field="*{file}" class="form-control"></td>
+                    <td>Collection:</td>
+                    <td class="input-element">
+                        <select class="form-select" th:field="*{collectionId}">
+                            <option th:each="collection : ${collections}" th:value="${collection.id}"
+                                    th:text="${collection.name}">
+                            </option>
+                        </select>
+                    </td>
                 </tr>
                 <tr>
                     <td colspan="2">
-                        <button type="submit" class="btn btn-primary">Upload</button>
+                        <button type="submit" class="btn btn-primary">Save</button>
                     </td>
                 </tr>
             </table>

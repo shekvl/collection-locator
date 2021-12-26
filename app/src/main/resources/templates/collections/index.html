@@ -37,6 +37,8 @@
             <div class="card-body">
                 <p class="card-text">Filename: <span th:text="${element.fileName}"/></p>
                 <p class="card-text">Heading: <span th:text="${element.heading}"/></p>
+                <p class="card-text">Usage: <span th:text="${element.usageTyp.description}"/></p>
+                <p class="card-text">Default Target k: <span th:text="${element.targetK}"/></p>
                 <br>
                 <a class="btn btn-outline-primary"
                    th:href="@{/collections/{id}(id=${element.id})}">Open Collection</a>
