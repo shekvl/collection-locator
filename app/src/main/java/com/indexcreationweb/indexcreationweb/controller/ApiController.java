@@ -11,6 +11,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.xml.bind.JAXBException;
+import java.io.IOException;
+
 @RestController
 @RequestMapping("/api")
 public class ApiController {
@@ -27,5 +30,10 @@ public class ApiController {
     @GetMapping(value = "/definitions/get/{id}/json", produces = MediaType.APPLICATION_JSON_VALUE)
     public ApiDefinitionListDto definitionGetJson(@PathVariable String id) {
         return apiService.getApiDataFromId(id);
+    }
+
+    @GetMapping(value = "/getXmlSchema",  produces = MediaType.APPLICATION_XML_VALUE)
+    public String getXmlSchema() throws JAXBException, IOException {
+        return apiService.getAnoXmlSchema();
     }
 }

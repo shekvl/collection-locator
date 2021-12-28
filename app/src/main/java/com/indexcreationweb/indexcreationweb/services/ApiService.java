@@ -4,11 +4,15 @@ import com.indexcreationweb.indexcreationweb.dto.ApiDefinitionListDto;
 import com.indexcreationweb.indexcreationweb.dto.DefinitionDownloadDto;
 import com.indexcreationweb.indexcreationweb.entities.Definition;
 import com.indexcreationweb.indexcreationweb.repositories.DefinitionRepository;
+import com.indexcreationweb.indexcreationweb.xml.IndexgenSchemaOutputResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -35,5 +39,13 @@ public class ApiService {
 
         apiDefinitionListDto.setDefinitions(downloadDtoList);
         return apiDefinitionListDto;
+    }
+
+    public String getAnoXmlSchema() throws JAXBException, IOException {
+        JAXBContext jaxbContext = JAXBContext.newInstance(ApiDefinitionListDto.class);
+        IndexgenSchemaOutputResolver sor = new IndexgenSchemaOutputResolver();
+        jaxbContext.generateSchema(sor);
+
+        return sor.getSchema();
     }
 }
