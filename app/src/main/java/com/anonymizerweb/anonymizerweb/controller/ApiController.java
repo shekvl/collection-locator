@@ -35,4 +35,9 @@ public class ApiController {
         Future<List<Anonymization>> future = actionsService.anonymizeAll();
         return actionsService.sendAllAnonymizations(future.get());
     }
+
+    @GetMapping(value = "/getXmlSchema",  produces = MediaType.APPLICATION_XML_VALUE)
+    public String getXmlSchema() throws JAXBException, IOException {
+        return actionsService.getAnoXmlSchema();
+    }
 }

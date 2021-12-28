@@ -46,22 +46,17 @@
 
 <div class="card">
     <div class="card-header">
-        Collections
+        Actions
     </div>
     <div class="card-body">
         <a class="btn btn-outline-secondary" th:href="@{/actions/importDefinitions}">Import Definitions</a>
-    </div>
-    <div class="card-body">
         <a class="btn btn-outline-secondary" th:href="@{/actions/createAnonymizations}">Create Anonymizations</a>
-    </div>
-    <div class="card-body">
         <a class="btn btn-outline-secondary" th:href="@{/actions/anonymizeAll}">Anonymize All</a>
-    </div>
-    <div class="card-body">
         <a class="btn btn-outline-secondary" th:href="@{/actions/sendAnonymization}">Send Anonymization</a>
+        <a class="btn btn-outline-primary" target="_blank" th:href="@{/api/sendAllData}">Send All Data</a>
     </div>
     <div class="card-body">
-        <a class="btn btn-outline-primary" th:href="@{/api/sendAllData}">Send All Data</a>
+        <a class="btn btn-outline-primary" target="_blank" th:href="@{/api/getXmlSchema}">Get XML Schema</a>
     </div>
 </div>
 
