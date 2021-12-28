@@ -55,6 +55,7 @@
                     <a class="btn btn-outline-success" th:href="@{/anonymize/{id}(id=${element.id})}">Start Anonymization</a>
                     <span th:if="${element.anonymized}">
                         <a class="btn btn-outline-secondary" th:href="@{/anonymize/{id}/download(id=${element.id})}">Download Anonymized Data</a>
+                        <a class="btn btn-outline-secondary" target="_blank" th:href="@{/api/sendData/{id}(id=${element.id})}">Send Anonymized Data</a>
                     </span>
                 </span>
 
