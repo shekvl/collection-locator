@@ -2,11 +2,10 @@ package com.indexcreationweb.indexcreationweb.dto;
 
 import javax.xml.bind.annotation.*;
 import java.util.List;
-import java.util.Set;
 
 @XmlRootElement(name = "definition")
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(propOrder = {"uId", "name", "targetK", "fast", "batch", "columns" })
+@XmlType(propOrder = {"uId", "name", "targetK", "fast", "batch", "columns"})
 public class DefinitionDownloadDto {
     private String uId;
 
@@ -18,9 +17,9 @@ public class DefinitionDownloadDto {
 
     private Integer batch;
 
-    @XmlElement(name="column", type=DefinitionColumnDownloadDto.class)
-    @XmlElementWrapper(name="columns")
-    private List<DefinitionColumnDownloadDto> columns;
+    @XmlElement(name = "column", type = DefinitionDownloadDtoColumnDto.class)
+    @XmlElementWrapper(name = "columns")
+    private List<DefinitionDownloadDtoColumnDto> columns;
 
     public String getuId() {
         return uId;
@@ -62,11 +61,11 @@ public class DefinitionDownloadDto {
         this.batch = batch;
     }
 
-    public List<DefinitionColumnDownloadDto> getColumns() {
+    public List<DefinitionDownloadDtoColumnDto> getColumns() {
         return columns;
     }
 
-    public void setColumns(List<DefinitionColumnDownloadDto> columns) {
+    public void setColumns(List<DefinitionDownloadDtoColumnDto> columns) {
         this.columns = columns;
     }
 }

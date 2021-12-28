@@ -6,7 +6,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 @Entity
-public class DefinitionColumn implements Comparable<DefinitionColumn>{
+public class DefinitionColumn implements Comparable<DefinitionColumn> {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

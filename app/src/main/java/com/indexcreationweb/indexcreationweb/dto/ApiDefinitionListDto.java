@@ -5,9 +5,9 @@ import java.util.List;
 
 @XmlRootElement(name = "definitions")
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(propOrder = { "definitions"})
+@XmlType(propOrder = {"definitions"})
 public class ApiDefinitionListDto {
-    @XmlElement(name="definition", type=DefinitionDownloadDto.class)
+    @XmlElement(name = "definition", type = DefinitionDownloadDto.class)
     private List<DefinitionDownloadDto> definitions;
 
     public List<DefinitionDownloadDto> getDefinitions() {
