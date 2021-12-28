@@ -8,6 +8,7 @@ import com.anonymizerweb.anonymizerweb.entities.*;
 import com.anonymizerweb.anonymizerweb.enums.CollectionUsageTyp;
 import com.anonymizerweb.anonymizerweb.repositories.DefinitionRepository;
 import com.anonymizerweb.anonymizerweb.repositories.OptionsRepository;
+import com.anonymizerweb.anonymizerweb.xml.AnoSchemaOutputResolver;
 import com.google.gson.Gson;
 import org.hibernate.Hibernate;
 import org.slf4j.Logger;
@@ -249,5 +250,13 @@ public class ActionsService {
         }
 
         return dtoList;
+    }
+
+    public String getAnoXmlSchema() throws JAXBException, IOException {
+        JAXBContext jaxbContext = JAXBContext.newInstance(ApiAnonymizationDtoList.class);
+        AnoSchemaOutputResolver sor = new AnoSchemaOutputResolver();
+        jaxbContext.generateSchema(sor);
+
+        return sor.getSchema();
     }
 }
