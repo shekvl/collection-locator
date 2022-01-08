@@ -77,6 +77,7 @@ public class AnonymizationService {
         anonymization.setName("Full collection ++++ " + collection.getName());
         anonymization.setFileName("Full collection ++++ " + collection.getName());
         anonymization.setHeading(collection.getHeading());
+        anonymization.setCollectionUid(collection.getName() + "_" + collection.getId());
         anonymization.setDefinitionUid(null);
         anonymization.setAnonymizationTyp(AnonymizationTyp.FROM_COLLECTION);
         anonymization.setTargetK(collection.getTargetK());
@@ -169,6 +170,7 @@ public class AnonymizationService {
         anonymization.setFileName(definition.getFileName() + " ++++ " + collection.getFileName());
         anonymization.setFast((definition.getFast() != null ? definition.getFast() : false));
         anonymization.setBatch((definition.getBatch() != null && definition.getBatch() >= definition.getTargetK() ? definition.getBatch() : 5000));
+        anonymization.setCollectionUid(null);
         anonymization.setDefinitionUid(definition.getuId());
         anonymization.setAnonymizationTyp(AnonymizationTyp.FROM_DEFINITION);
         Anonymization save = anonymizationRepository.save(anonymization);

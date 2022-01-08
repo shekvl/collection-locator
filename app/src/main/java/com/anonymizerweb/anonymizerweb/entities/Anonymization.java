@@ -23,6 +23,8 @@ public class Anonymization {
 
     private String definitionUid;
 
+    private String collectionUid;
+
     @Enumerated(EnumType.STRING)
     private AnonymizationTyp anonymizationTyp;
 
@@ -162,6 +164,14 @@ public class Anonymization {
 
     public void setDefinitionUid(String definitionUid) {
         this.definitionUid = definitionUid;
+    }
+
+    public String getCollectionUid() {
+        return collectionUid;
+    }
+
+    public void setCollectionUid(String collectionUid) {
+        this.collectionUid = collectionUid;
     }
 
     public AnonymizationTyp getAnonymizationTyp() {
