@@ -52,8 +52,10 @@
         <a class="btn btn-outline-secondary" th:href="@{/actions/importDefinitions}">Import Definitions</a>
         <a class="btn btn-outline-secondary" th:href="@{/actions/createAnonymizations}">Create Anonymizations</a>
         <a class="btn btn-outline-secondary" th:href="@{/actions/anonymizeAll}">Anonymize All</a>
-        <a class="btn btn-outline-secondary" th:href="@{/actions/sendAnonymization}">Send Anonymization</a>
-        <a class="btn btn-outline-primary" target="_blank" th:href="@{/api/sendAllData}">Send All Data</a>
+        <a class="btn btn-outline-secondary" th:href="@{/actions/sendAnonymization/xml}">Send Anonymization XML</a>
+        <a class="btn btn-outline-secondary" th:href="@{/actions/sendAnonymization/json}">Send Anonymization JSON</a>
+        <a class="btn btn-outline-primary" target="_blank" th:href="@{/api/sendAllData/xml}">Send All Data XML</a>
+        <a class="btn btn-outline-primary" target="_blank" th:href="@{/api/sendAllData/json}">Send All Data JSON</a>
     </div>
     <div class="card-body">
         <a class="btn btn-outline-primary" target="_blank" th:href="@{/api/getXmlSchema}">Get XML Schema</a>

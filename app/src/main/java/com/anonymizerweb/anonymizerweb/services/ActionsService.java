@@ -148,17 +148,60 @@ public class ActionsService {
         return new AsyncResult<>(anonymizationList);
     }
 
-    public ApiAnonymizationDtoList sendAllAnonymizations(List<Anonymization> anonymizations) throws JAXBException, IOException {
-        logger.error("DONE WITH ALL ANONYMIZATIONS ----- SEND HTTP");
+    public ApiAnonymizationDtoList sendAllAnonymizationsXml(List<Anonymization> anonymizations) throws JAXBException, IOException {
+            logger.info("DONE WITH ALL ANONYMIZATIONS ----- SEND HTTP");
+            if(anonymizations == null || anonymizations.size() == 0){
+                anonymizations = anonymizationService.findAll();
+            }
+            List<Anonymization> anonymizationsTmp = new LinkedList<>();
+            for (Anonymization anonymization : anonymizations) {
+                if (anonymization.getAnonymized() != null && anonymization.getAnonymized()) {
+                    if (anonymization.getRunning() != null && !anonymization.getRunning()) {
+                        anonymizationsTmp.add(anonymization);
+                    }
+                }
+            }
+            anonymizations = anonymizationsTmp;
+
+            ApiAnonymizationDtoList dtoList = getApiAnonymizationListDtoFromIds(anonymizations);
+            JAXBContext context = JAXBContext.newInstance(ApiAnonymizationDtoList.class);
+            Marshaller mar = context.createMarshaller();
+            mar.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+            StringWriter sw = new StringWriter();
+            mar.marshal(dtoList, sw);
+            String xmlString = sw.toString();
+
+            try {
+                Optional<Options> indexCollOptional = optionsRepository.findById("indexColl");
+                if (indexCollOptional.isPresent()) {
+                    String indexCollUrl = indexCollOptional.get().getOptValue();
+                    URL url = new URL(indexCollUrl);
+                    HttpURLConnection http = (HttpURLConnection) url.openConnection();
+                    http.setRequestMethod("POST");
+                    http.setDoOutput(true);
+                    http.setRequestProperty("Content-Type", "application/xml");
+                    http.setRequestProperty("Accept", "application/xml");
+
+                    byte[] out = xmlString.getBytes(StandardCharsets.UTF_8);
+
+                    OutputStream stream = http.getOutputStream();
+                    stream.write(out);
+
+                    http.disconnect();
+                }
+            } catch (IOException e) {
+                logger.error("Error while sending Anonymizations: " + e.toString());
+            }
+            return dtoList;
+        }
+
+    public ApiAnonymizationDtoList sendAllAnonymizationsJson(List<Anonymization> anonymizations){
+        logger.info("DONE WITH ALL ANONYMIZATIONS ----- SEND HTTP");
         if(anonymizations == null || anonymizations.size() == 0){
             anonymizations = anonymizationService.findAll();
         }
         List<Anonymization> anonymizationsTmp = new LinkedList<>();
         for (Anonymization anonymization : anonymizations) {
-            logger.error("id: " + anonymization.getId());
-            logger.error("loss: " + anonymization.getLoss());
-            logger.error("outputdata: " + anonymization.getOutputData().size());
-            logger.error("anonymized: " + anonymization.getAnonymized() + " running: " + anonymization.getRunning());
             if (anonymization.getAnonymized() != null && anonymization.getAnonymized()) {
                 if (anonymization.getRunning() != null && !anonymization.getRunning()) {
                     anonymizationsTmp.add(anonymization);
@@ -166,16 +209,10 @@ public class ActionsService {
             }
         }
         anonymizations = anonymizationsTmp;
-        logger.error("SIZE: " + anonymizations.size());
-
 
         ApiAnonymizationDtoList dtoList = getApiAnonymizationListDtoFromIds(anonymizations);
-        JAXBContext context = JAXBContext.newInstance(ApiAnonymizationDtoList.class);
-        Marshaller mar = context.createMarshaller();
-        mar.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-        StringWriter sw = new StringWriter();
-        mar.marshal(dtoList, sw);
-        String xmlString = sw.toString();
+        Gson gson = new Gson();
+        String jsonString = gson.toJson(dtoList);
 
         try {
             Optional<Options> indexCollOptional = optionsRepository.findById("indexColl");
@@ -185,10 +222,10 @@ public class ActionsService {
                 HttpURLConnection http = (HttpURLConnection) url.openConnection();
                 http.setRequestMethod("POST");
                 http.setDoOutput(true);
-                http.setRequestProperty("Content-Type", "application/xml");
-                http.setRequestProperty("Accept", "application/xml");
+                http.setRequestProperty("Content-Type", "application/json");
+                http.setRequestProperty("Accept", "application/json");
 
-                byte[] out = xmlString.getBytes(StandardCharsets.UTF_8);
+                byte[] out = jsonString.getBytes(StandardCharsets.UTF_8);
 
                 OutputStream stream = http.getOutputStream();
                 stream.write(out);
@@ -201,14 +238,21 @@ public class ActionsService {
         return dtoList;
     }
 
-    private ApiAnonymizationDtoList getApiAnonymizationListDtoFromIds(List<Anonymization> anonymizations) {
-        ApiAnonymizationDtoList dtoList = new ApiAnonymizationDtoList();
-        dtoList.setAnonymizations(new LinkedList<>());
+        private ApiAnonymizationDtoList getApiAnonymizationListDtoFromIds(List<Anonymization> anonymizations) {
+            ApiAnonymizationDtoList dtoList = new ApiAnonymizationDtoList();
+            dtoList.setAnonymizations(new LinkedList<>());
         for (Anonymization anonymization : anonymizations) {
             ApiAnonymizationDto anonymizationDto = new ApiAnonymizationDto();
             anonymizationDto.setName(anonymization.getName());
             anonymizationDto.setTargetK(anonymization.getTargetK());
+            Optional<Options> biobankId = optionsRepository.findById("biobankId");
+            if (biobankId.isPresent()) {
+                anonymizationDto.setBiobankUid(biobankId.get().getOptValue());
+            }else {
+                anonymizationDto.setBiobankUid(null);
+            }
             anonymizationDto.setAnonymizationTyp(anonymization.getAnonymizationTyp().getCode());
+            anonymizationDto.setCollectionUid(anonymization.getCollectionUid());
             anonymizationDto.setDefinitionUid(anonymization.getDefinitionUid());
             List<ApiAnonymizationDtoColumn> columnDtoList = new LinkedList<>();
             for (AnonymizationColumn column : anonymization.getColumns()) {
