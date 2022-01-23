@@ -1,10 +1,6 @@
 package com.anonymizerweb.anonymizerweb.services;
 
 import com.anonymizerweb.anonymizerweb.commands.*;
-import com.anonymizerweb.anonymizerweb.dto.ApiAnonymizationDto;
-import com.anonymizerweb.anonymizerweb.dto.ApiAnonymizationDtoColumn;
-import com.anonymizerweb.anonymizerweb.dto.ApiAnonymizationDtoHierarchyNodeDto;
-import com.anonymizerweb.anonymizerweb.dto.ApiAnonymizationDtoList;
 import com.anonymizerweb.anonymizerweb.entities.Collection;
 import com.anonymizerweb.anonymizerweb.entities.*;
 import com.anonymizerweb.anonymizerweb.enums.AnonymizationTyp;
@@ -19,9 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.stereotype.Service;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
 import java.io.*;
 import java.util.*;
 
@@ -72,7 +65,6 @@ public class AnonymizationService {
 
     public Anonymization saveFromCollection(Collection collection) {
         Anonymization anonymization = new Anonymization();
-        Gson gson = new Gson();
 
         anonymization.setName("Full collection ++++ " + collection.getName());
         anonymization.setFileName("Full collection ++++ " + collection.getName());
@@ -99,8 +91,7 @@ public class AnonymizationService {
             anonymizationColumn.setTyp(column.getTyp());
             anonymizationColumn.setDataTyp(column.getDataTyp());
             Hibernate.initialize(column.getHierarchyRoot());
-            String jsonString = gson.toJson((CollectionHierarchyNode) Hibernate.unproxy(column.getHierarchyRoot()));
-            AnonymizationHierarchyNode anonymizationHierarchyNode = gson.fromJson(jsonString, AnonymizationHierarchyNode.class);
+            AnonymizationHierarchyNode anonymizationHierarchyNode = copyCustomHierarchy((CollectionHierarchyNode) Hibernate.unproxy(column.getHierarchyRoot()));
             anonymizationColumn.setHierarchyRoot(anonymizationHierarchyNode);
 
             anonymizationColumns.add(anonymizationColumn);
@@ -119,7 +110,6 @@ public class AnonymizationService {
         LinkedList<DefinitionColumn> definitionColumns = new LinkedList<>(definition.getColumns());
         Integer cnt = 0;
         String heading = "";
-        Gson gson = new Gson();
         Collections.sort(command.getColumns());
         List<AnonymizationColumn> columns = new LinkedList<>();
         for (MatchColumnCommand column : command.getColumns()) {
@@ -132,8 +122,7 @@ public class AnonymizationService {
                     property.setTyp(collectionColumn.getTyp());
                     property.setDataTyp(collectionColumn.getDataTyp());
                     Hibernate.initialize(collectionColumn.getHierarchyRoot());
-                    String jsonString = gson.toJson((CollectionHierarchyNode) Hibernate.unproxy(collectionColumn.getHierarchyRoot()));
-                    AnonymizationHierarchyNode anonymizationHierarchyNode = gson.fromJson(jsonString, AnonymizationHierarchyNode.class);
+                    AnonymizationHierarchyNode anonymizationHierarchyNode = copyCustomHierarchy((CollectionHierarchyNode) Hibernate.unproxy(collectionColumn.getHierarchyRoot()));
                     property.setHierarchyRoot(anonymizationHierarchyNode);
                     break;
                 }
@@ -170,7 +159,7 @@ public class AnonymizationService {
         anonymization.setFileName(definition.getFileName() + " ++++ " + collection.getFileName());
         anonymization.setFast((definition.getFast() != null ? definition.getFast() : false));
         anonymization.setBatch((definition.getBatch() != null && definition.getBatch() >= definition.getTargetK() ? definition.getBatch() : 5000));
-        anonymization.setCollectionUid(null);
+        anonymization.setCollectionUid(collection.getName() + "_" + collection.getId());
         anonymization.setDefinitionUid(definition.getuId());
         anonymization.setAnonymizationTyp(AnonymizationTyp.FROM_DEFINITION);
         Anonymization save = anonymizationRepository.save(anonymization);
@@ -268,4 +257,20 @@ public class AnonymizationService {
         }
         return file;
     }
+
+
+    private AnonymizationHierarchyNode copyCustomHierarchy(CollectionHierarchyNode node) {
+        if (node != null) {
+            AnonymizationHierarchyNode anonymizationHierarchyNode = new AnonymizationHierarchyNode();
+            anonymizationHierarchyNode.setChildren(new LinkedList<>());
+            anonymizationHierarchyNode.setValue(node.getValue());
+            anonymizationHierarchyNode.setSort(node.getSort());
+            for (CollectionHierarchyNode child : node.getChildren()) {
+                anonymizationHierarchyNode.getChildren().add(copyCustomHierarchy(child));
+            }
+            return anonymizationHierarchyNode;
+        }
+        return null;
+    }
+
 }
