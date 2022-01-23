@@ -285,7 +285,7 @@ public class ActionsService {
             List<ApiAnonymizationDtoDataDto> dtoDataDtoList = new LinkedList<>();
             for (Map.Entry<String, Integer> entry : rowMap.entrySet()) {
                 ApiAnonymizationDtoDataDto dataDto = new ApiAnonymizationDtoDataDto();
-                dataDto.setRow(entry.getKey());
+                dataDto.setRow(entry.getKey().trim());
                 dataDto.setRowAmount(entry.getValue());
                 dtoDataDtoList.add(dataDto);
             }
