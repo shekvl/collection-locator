@@ -348,6 +348,22 @@ public class AnonymizerThread implements Runnable {
                 }
             }
 
+            char[] mergeKeyPrevArr = mergeKey.toCharArray();
+            Integer supressedMergePrev = 0;
+            for (Integer i = 0; i < mergeKeyPrevArr.length; i++) {
+                if (mergeKeyPrevArr[i] == '*') {
+                    supressedMergePrev++;
+                }
+            }
+
+            char[] candKeyPrevArr = candidateKey.toCharArray();
+            Integer supressedCandPrev = 0;
+            for (Integer j = 0; j < candKeyPrevArr.length; j++) {
+                if (mergeKeyPrevArr[j] == '*') {
+                    supressedCandPrev++;
+                }
+            }
+
             while (!mergeKey.equals(candidateKey)) {
                 char[] mergeKeyChars = mergeKey.toCharArray();
                 char[] candidateKeyChars = candidateKey.toCharArray();
@@ -373,15 +389,15 @@ public class AnonymizerThread implements Runnable {
             char[] mergeKeyArr = mergeKey.toCharArray();
             Integer numbers = 0;
             Integer supressed = 0;
-            for (Integer i = 0; i < mergeKeyArr.length; i++) {
+            for (Integer k = 0; k < mergeKeyArr.length; k++) {
                 numbers++;
-                if (mergeKeyArr[i] == '*') {
+                if (mergeKeyArr[k] == '*') {
                     supressed++;
                 }
             }
 
-            result.setLoss(Double.valueOf((supressed / numbers) * mergeGroup.getRows().size() +
-                    (supressed / numbers) * candidateGroup.getRows().size()));
+            result.setLoss(Double.valueOf(((supressed - supressedMergePrev) / numbers) * mergeGroup.getRows().size() +
+                    ((supressed - supressedCandPrev) / numbers) * candidateGroup.getRows().size()));
             result.setNewKey(mergeKey);
         }
         return result;
@@ -417,9 +433,18 @@ public class AnonymizerThread implements Runnable {
             candidateNode.setValue(candidateKey);
             AnonymizationHierarchyNode generalizationForStep = findGeneralizationForStep(column.getPosition(), mergeNode, candidateNode, column.getHierarchyRootNode());
 
+            Integer mergeNodeDescendants = mergeNode.getDescendants();
+            Integer candidateNodeDescendants = candidateNode.getDescendants();
+            if(mergeNodeDescendants == null){
+                mergeNodeDescendants = 0;
+            }
+            if(candidateNodeDescendants == null){
+                candidateNodeDescendants = 0;
+            }
+
             if (generalizationForStep != null) {
-                result.setLoss(Double.valueOf((generalizationForStep.getDescendants() / column.getHierarchyRootNode().getDescendants()) * mergeGroup.getRows().size()) +
-                        Double.valueOf((generalizationForStep.getDescendants() / column.getHierarchyRootNode().getDescendants()) * mergeGroup.getRows().size()));
+                result.setLoss(Double.valueOf(((generalizationForStep.getDescendants() - mergeNodeDescendants) / column.getHierarchyRootNode().getDescendants()) * mergeGroup.getRows().size()) +
+                        Double.valueOf(((generalizationForStep.getDescendants() - candidateNodeDescendants) / column.getHierarchyRootNode().getDescendants()) * candidateGroup.getRows().size()));
                 result.setNewKey(generalizationForStep.getValue());
             } else {
                 result.setLoss((1.1 * mergeGroup.getRows().size()) + (1.1 * mergeGroup.getRows().size()));
