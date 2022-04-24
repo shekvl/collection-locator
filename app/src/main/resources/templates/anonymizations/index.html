@@ -17,10 +17,10 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="nav">
                 <li class="nav-item">
-                    <a class="nav-link active" th:href="@{/anonymizations}">Anonymizations</a>
+                    <a class="nav-link active" th:href="@{/anonymizations}">Anonymized Datasets</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link active" th:href="@{/anonymizations/new}">New Anonymization</a>
+                    <a class="nav-link active" th:href="@{/anonymizations/new}">New Anonymized Dataset</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link active" th:href="@{/combine}">New Combination</a>
@@ -33,7 +33,7 @@
 <span th:if="${all!=null and !all.empty}">
      <div class="card" th:each="element: ${all}">
             <div class="card-header">
-                Anonymization: <span th:text="${element.name} + ' (' + ${element.id} + ')'"/>
+                Anonymized Dataset: <span th:text="${element.name} + ' (' + ${element.id} + ')'"/>
             </div>
             <div class="card-body">
                 <p class="card-text">Target K: <span th:text="${element.targetK}"/></p>
@@ -60,14 +60,14 @@
                 </span>
 
                 <a class="btn btn-outline-primary"
-                   th:href="@{/anonymizations/{id}(id=${element.id})}">Open Anonymization</a>
+                   th:href="@{/anonymizations/{id}(id=${element.id})}">Open Anonymized Dataset</a>
                 <a class="btn btn-outline-danger"
-                   th:href="@{/anonymizations/{id}/delete(id=${element.id})}">Delete Anonymization</a>
+                   th:href="@{/anonymizations/{id}/delete(id=${element.id})}">Delete Anonymized Dataset</a>
             </div>
     </div>
 </span>
 <span th:unless="${all!=null and !all.empty}">
-    <div class="alert alert-primary" role="alert"> No Anonymizations found! </div>
+    <div class="alert alert-primary" role="alert"> No Anonymized Datasets found! </div>
 </span>
 
 <script src=https://code.jquery.com/jquery-3.6.0.min.js></script>

@@ -2,7 +2,7 @@
 <html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
-    <title>Anonymization</title>
+    <title>New Combination</title>
     <link th:rel="stylesheet" th:href="@{/webjars/bootstrap/4.0.0-2/css/bootstrap.min.css} "/>
 </head>
 <body>
@@ -17,10 +17,10 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="nav">
                 <li class="nav-item">
-                    <a class="nav-link active" th:href="@{/anonymizations}">Anonymizations</a>
+                    <a class="nav-link active" th:href="@{/anonymizations}">Anonymized Datasets</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link active" th:href="@{/anonymizations/new}">New Anonymization</a>
+                    <a class="nav-link active" th:href="@{/anonymizations/new}">New Anonymized Dataset</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link active" th:href="@{/combine}">New Combination</a>
@@ -32,7 +32,7 @@
 
 <div class="card">
     <div class="card-header">
-        New Anonymization
+        New Anonymized Dataset
     </div>
     <div class="card-body">
         <form method="post" th:action="@{/combine/match}" th:object="${command}" enctype="multipart/form-data">

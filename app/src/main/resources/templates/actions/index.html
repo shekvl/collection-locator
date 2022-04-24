@@ -27,7 +27,7 @@
             </ul>
             <ul class="nav">
                 <li class="nav-item">
-                    <a class="nav-link active" th:href="@{/anonymizations}">Anonymizations</a>
+                    <a class="nav-link active" th:href="@{/anonymizations}">Anonymized Datasets</a>
                 </li>
             </ul>
             <ul class="nav">
@@ -50,10 +50,10 @@
     </div>
     <div class="card-body">
         <a class="btn btn-outline-secondary" th:href="@{/actions/importDefinitions}">Import Definitions</a>
-        <a class="btn btn-outline-secondary" th:href="@{/actions/createAnonymizations}">Create Anonymizations</a>
+        <a class="btn btn-outline-secondary" th:href="@{/actions/createAnonymizations}">Create Datasets</a>
         <a class="btn btn-outline-secondary" th:href="@{/actions/anonymizeAll}">Anonymize All</a>
-        <a class="btn btn-outline-secondary" th:href="@{/actions/sendAnonymization/xml}">Send Anonymization XML</a>
-        <a class="btn btn-outline-secondary" th:href="@{/actions/sendAnonymization/json}">Send Anonymization JSON</a>
+        <a class="btn btn-outline-secondary" th:href="@{/actions/sendAnonymization/xml}">Send Anonymized Datasets XML</a>
+        <a class="btn btn-outline-secondary" th:href="@{/actions/sendAnonymization/json}">Send Anonymized Datasets JSON</a>
         <a class="btn btn-outline-primary" target="_blank" th:href="@{/api/sendAllData/xml}">Send All Data XML</a>
         <a class="btn btn-outline-primary" target="_blank" th:href="@{/api/sendAllData/json}">Send All Data JSON</a>
     </div>
