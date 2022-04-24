@@ -2,7 +2,7 @@
 <html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
-    <title>Anonymization</title>
+    <title>Options</title>
     <link th:rel="stylesheet" th:href="@{/webjars/bootstrap/4.0.0-2/css/bootstrap.min.css} "/>
 </head>
 <body>
@@ -17,13 +17,27 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="nav">
                 <li class="nav-item">
-                    <a class="nav-link active" th:href="@{/anonymizations}">Anonymizations</a>
+                    <a class="nav-link active" th:href="@{/collections}">Collections</a>
                 </li>
+            </ul>
+            <ul class="nav">
                 <li class="nav-item">
-                    <a class="nav-link active" th:href="@{/anonymizations/new}">New Anonymization</a>
+                    <a class="nav-link active" th:href="@{/definitions}">Definitions</a>
                 </li>
+            </ul>
+            <ul class="nav">
                 <li class="nav-item">
-                    <a class="nav-link active" th:href="@{/combine}">New Combination</a>
+                    <a class="nav-link active" th:href="@{/anonymizations}">Anonymized Datasets</a>
+                </li>
+            </ul>
+            <ul class="nav">
+                <li class="nav-item">
+                    <a class="nav-link active" th:href="@{/actions}">Actions</a>
+                </li>
+            </ul>
+            <ul class="nav">
+                <li class="nav-item">
+                    <a class="nav-link active" th:href="@{/options}">Options</a>
                 </li>
             </ul>
         </div>

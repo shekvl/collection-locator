@@ -2,7 +2,7 @@
 <html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
-    <title>Anonymization</title>
+    <title>Anonymized Dataset</title>
     <link th:rel="stylesheet" th:href="@{/webjars/bootstrap/4.0.0-2/css/bootstrap.min.css} "/>
 </head>
 <body>
@@ -17,10 +17,10 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="nav">
                 <li class="nav-item">
-                    <a class="nav-link active" th:href="@{/anonymizations}">Anonymizations</a>
+                    <a class="nav-link active" th:href="@{/anonymizations}">Anonymized Datasets</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link active" th:href="@{/anonymizations/new}">New Anonymization</a>
+                    <a class="nav-link active" th:href="@{/anonymizations/new}">New Anonymized Dataset</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link active" th:href="@{/combine}">New Combination</a>
@@ -32,7 +32,7 @@
 
 <div class="card">
     <div class="card-header">
-        Anonymization: <span th:text="${anonymization.name}  + ' (' + ${anonymization.id} + ')'"/>
+        Anonymized Dataset: <span th:text="${anonymization.name}  + ' (' + ${anonymization.id} + ')'"/>
     </div>
     <div class="card-body">
         <div class="card-text">Target K: <span th:text="${anonymization.targetK}"/></div>
@@ -51,8 +51,8 @@
             <br>
         </span>
         <span th:if="!${anonymization.running}">
-            <a class="btn btn-outline-primary" th:href="@{/anonymizations/{id}/edit(id=${anonymization.id})}">Edit Anonymization</a>
-            <a class="btn btn-outline-secondary" th:href="@{/anonymizations/{id}/columns(id=${anonymization.id})}">Edit Anonymization Columns</a>
+            <a class="btn btn-outline-primary" th:href="@{/anonymizations/{id}/edit(id=${anonymization.id})}">Edit Anonymized Dataset</a>
+            <a class="btn btn-outline-secondary" th:href="@{/anonymizations/{id}/columns(id=${anonymization.id})}">Edit Anonymized Dataset Columns</a>
         </span>
     </div>
 </div>
