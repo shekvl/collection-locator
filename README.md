@@ -38,6 +38,15 @@ The application exposes two different url and port combination for users and dev
 #### Application
 The first one is the application itself, which runs on `localhost:8080/index`.
 
+- Definitions
+    - Add Definition (Lets the user add a new definition)
+    - For each definition
+        - Edit Definition (Lets the user edit a definition)
+        - Download files (Lets the user download the definition as a file)
+        - Delete Definition (Lets the user delete a definition)
+- Actions
+    - Get XML schema (Opens the XML schema of the definitions sent via the API)
+
 #### Database
 The second one is the database administration tool, which runs on `localhost:8081`.
 - Database system -> MySQL
