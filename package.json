@@ -3,7 +3,10 @@
   "version": "1.0.0",
   "author": "ISYS@aau.at",
   "description": "",
-  "repository": {},
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
   "private": true,
   "scripts": {
     "init": "concurrently \"npm i\" \"cd client && npm i\" \"cd server && npm i\"",
