@@ -43,7 +43,7 @@ Connect to your database (psql terminal):
 Create schema for specific OMOP CDM version:
 
 ```sql
-create schema "omop_cdm_5.4";
+create schema cdm;
 ```
 
 ## Prepare Downloaded Files
@@ -150,20 +150,20 @@ To load data into the vocabulary tables, we can use the [`\copy`](https://www.po
 Files complying to the CSV format can be imported via `CSV mode`:
 
 ```psql
-\copy "omop_cdm_5.4".drug_strength from ./db/AthenaVocabDownloads/LOINC+/DRUG_STRENGTH.csv DELIMITER E'\t' CSV HEADER;
-\copy "omop_cdm_5.4".vocabulary from ./db/AthenaVocabDownloads/LOINC+/VOCABULARY.csv DELIMITER E'\t' CSV HEADER;
-\copy "omop_cdm_5.4".relationship from ./db/AthenaVocabDownloads/LOINC+/RELATIONSHIP.csv DELIMITER E'\t' CSV HEADER;
-\copy "omop_cdm_5.4".concept_ancestor from ./db/AthenaVocabDownloads/LOINC+/CONCEPT_ANCESTOR.csv DELIMITER E'\t' CSV HEADER;
-\copy "omop_cdm_5.4".concept_class from ./db/AthenaVocabDownloads/LOINC+/CONCEPT_CLASS.csv DELIMITER E'\t' CSV HEADER;
-\copy "omop_cdm_5.4".concept_relationship from ./db/AthenaVocabDownloads/LOINC+/CONCEPT_RELATIONSHIP.csv DELIMITER E'\t' CSV HEADER;
-\copy "omop_cdm_5.4".domain from ./db/AthenaVocabDownloads/LOINC+/DOMAIN.csv DELIMITER E'\t' CSV HEADER;
+\copy cdm.drug_strength from ./db/AthenaVocabDownloads/LOINC+/DRUG_STRENGTH.csv DELIMITER E'\t' CSV HEADER;
+\copy cdm.vocabulary from ./db/AthenaVocabDownloads/LOINC+/VOCABULARY.csv DELIMITER E'\t' CSV HEADER;
+\copy cdm.relationship from ./db/AthenaVocabDownloads/LOINC+/RELATIONSHIP.csv DELIMITER E'\t' CSV HEADER;
+\copy cdm.concept_ancestor from ./db/AthenaVocabDownloads/LOINC+/CONCEPT_ANCESTOR.csv DELIMITER E'\t' CSV HEADER;
+\copy cdm.concept_class from ./db/AthenaVocabDownloads/LOINC+/CONCEPT_CLASS.csv DELIMITER E'\t' CSV HEADER;
+\copy cdm.concept_relationship from ./db/AthenaVocabDownloads/LOINC+/CONCEPT_RELATIONSHIP.csv DELIMITER E'\t' CSV HEADER;
+\copy cdm.domain from ./db/AthenaVocabDownloads/LOINC+/DOMAIN.csv DELIMITER E'\t' CSV HEADER;
 ```
 
 Other files have to be imported via `text mode`:
 
 ```psql
-\copy "omop_cdm_5.4".concept from ./db/AthenaVocabDownloads/LOINC+/CONCEPT.csv DELIMITER E'\t';
-\copy "omop_cdm_5.4".concept_synonym from ./db/AthenaVocabDownloads/LOINC+/CONCEPT_SYNONYM.csv DELIMITER E'\t';
+\copy cdm.concept from ./db/AthenaVocabDownloads/LOINC+/CONCEPT.csv DELIMITER E'\t';
+\copy cdm.concept_synonym from ./db/AthenaVocabDownloads/LOINC+/CONCEPT_SYNONYM.csv DELIMITER E'\t';
 ```
 
 Foreign key constraints have to be established `after` the vocabulary tables have been populated (previous step). Otherwise, we would get the message: `"update violates foreign key constraint"`
@@ -181,6 +181,6 @@ To check whether the OMOP CDM is now functional, run the folloing query:
 
 ```sql
 select *
-from "omop_cdm_5.4".concept
+from cdm.concept
 where concept_id in (45884349, 45884274, 44818516);
 ```

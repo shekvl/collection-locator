@@ -14,7 +14,7 @@ export const pool = new Pool({
 // }
 
 // pool
-//     .query('SELECT * from $1', ['"omop_cdm_5.4".test'])
+//     .query('SELECT * from $1', ['cdm.test'])
 //     .then((res) => console.log(res.rows[0].name))
 //     .catch((err) => console.error('Error executing query', err.stack))
 

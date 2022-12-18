@@ -60,7 +60,7 @@ create table collection (
     last_modified timestamp with time zone NOT NULL DEFAULT NOW()
 );
 
-create table dataset_attribute (
+create table attribute (
     id bigserial PRIMARY KEY,
     collection_id integer REFERENCES collection ON DELETE CASCADE ON UPDATE CASCADE NOT NULL,
     attribute_name varchar (255) NOT NULL,
@@ -88,18 +88,20 @@ create table dataset_attribute (
     UNIQUE (collection_id, attribute_name)
 );
 
-create table cdm_concept (
+create table concept (
     code varchar (50) NOT NULL,
-    vocabulary_id varchar (20) REFERENCES "omop_cdm_5.4".vocabulary ON DELETE CASCADE ON UPDATE CASCADE NOT NULL,
-    concept_id integer REFERENCES "omop_cdm_5.4".concept ON DELETE CASCADE ON UPDATE CASCADE,
+    vocabulary_id varchar (20) REFERENCES cdm.vocabulary ON DELETE CASCADE ON UPDATE CASCADE NOT NULL,
+    concept_id integer REFERENCES cdm.concept ON DELETE CASCADE ON UPDATE CASCADE,
+    reference_count integer,
     PRIMARY KEY (code, vocabulary_id)
 );
 
 create table attribute_concept (
-    attribute_id BIGINT REFERENCES dataset_attribute ON DELETE CASCADE ON UPDATE CASCADE,
+    attribute_id BIGINT REFERENCES attribute ON DELETE CASCADE ON UPDATE CASCADE,
     code varchar (50) NOT NULL,
-    vocabulary_id varchar (20) REFERENCES "omop_cdm_5.4".vocabulary ON DELETE CASCADE ON UPDATE CASCADE NOT NULL,
-    created_at timestamp with time zone NOT NULL DEFAULT NOW()
+    vocabulary_id varchar (20) REFERENCES cdm.vocabulary ON DELETE CASCADE ON UPDATE CASCADE NOT NULL,
+    created_at timestamp with time zone NOT NULL DEFAULT NOW(),
+    PRIMARY KEY(attribute_id, code, vocabulary_id)
 );
 
 create table person_institution (

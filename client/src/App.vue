@@ -3,6 +3,8 @@ nav
     router-link(to="/") Home
     router-link(to="/about") About
 
+    https://ohdsi.github.io/CommonDataModel/
+
 router-view
 </template>
 
