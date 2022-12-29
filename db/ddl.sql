@@ -5,7 +5,8 @@ create table address (
     street_name varchar (255),
     house_number varchar (255),
     zip varchar (255) NOT NULL,
-    country_code varchar (3) NOT NULL
+    country_code varchar (3) NOT NULL,
+    UNIQUE (town, street_name, house_number, zip, country_code)
 );
 
 create table person (
@@ -15,7 +16,10 @@ create table person (
     email varchar (255),
     phone varchar (255),
     address_id integer REFERENCES address ON DELETE CASCADE ON UPDATE CASCADE,
-    last_modified timestamp with time zone NOT NULL DEFAULT NOW()
+    last_modified timestamp with time zone NOT NULL DEFAULT NOW(),
+    UNIQUE (first_name, last_name, email),
+    UNIQUE (first_name, last_name, phone),
+    UNIQUE (first_name, last_name, address_id)
 );
 
 create table institution (
@@ -27,7 +31,7 @@ create table institution (
     phone varchar (255),
     address_id integer REFERENCES address ON DELETE CASCADE ON UPDATE CASCADE,
     added_by integer REFERENCES person ON DELETE CASCADE ON UPDATE CASCADE NOT NULL,
-    last_modified timestamp with time zone NOT NULL DEFAULT NOW()
+    last_modified timestamp with time zone NOT NULL DEFAULT NOW(),
 );
 
 create table collection (
@@ -57,7 +61,8 @@ create table collection (
     ),
     added_by integer REFERENCES person ON DELETE CASCADE ON UPDATE CASCADE NOT NULL,
     created_at timestamp with time zone NOT NULL DEFAULT NOW(),
-    last_modified timestamp with time zone NOT NULL DEFAULT NOW()
+    last_modified timestamp with time zone NOT NULL DEFAULT NOW(),
+    UNIQUE (name, institution_id, number_of_records)
 );
 
 create table attribute (

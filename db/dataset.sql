@@ -62,6 +62,40 @@ RETURNS real AS $$
 $$ LANGUAGE plpgsql;
 
 
+--generated dataset with attributed collection name
+CREATE OR REPLACE FUNCTION generate_dataset(collection_name varchar(255), size int)
+RETURNS TABLE (
+	collection_name varchar(255),
+	attribute_name varchar(255),
+	code varchar(50),
+	vocabulary_id varchar(20),
+	completeness real,
+	accuracy real,
+	reliability real,
+	timeliness real,
+	consistancy real
+) AS $$
+SELECT
+	collection_name,
+	concept_name,
+	concept_code,
+	vocabulary_id,
+	random(0.3,1),
+	random(0.7,1),
+	random(0.7,1),
+	random(0.7,1),
+	random(0.7,1)
+FROM
+	cdm.concept
+WHERE
+	vocabulary_id IN ('LOINC')
+	AND domain_id IN ('Measurement')
+	AND invalid_reason = ''
+ORDER BY random()
+LIMIT size
+$$ LANGUAGE SQL;
+
+
 --generated dataset
 CREATE OR REPLACE FUNCTION generate_dataset(size int)
 RETURNS TABLE (
@@ -92,7 +126,6 @@ WHERE
 ORDER BY random()
 LIMIT size
 $$ LANGUAGE SQL;
-
 
 -- generate collection
 -- parameters: collection name, number of annotated attributes, the person adding the collection and the institution the collection is associated with
@@ -138,3 +171,8 @@ RETURNS table(collection_id integer, first_attribute_id bigint, last_attribute_i
 			select collection_id, first_attribute_id, attribute_id;
 	END;
 $$ LANGUAGE plpgsql;
+
+
+--TODO generate_collection from imput data ... probably not necessary
+-- make generation downlaodable
+-- upload excel sheet (collection sheet, table sheet)
