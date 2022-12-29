@@ -3,8 +3,7 @@
 import { pool } from './postgres'
 
 
-//call tablefunctions TODO
-export const omop = {
+export const omop = { //TODO
 
     /**
      * some description

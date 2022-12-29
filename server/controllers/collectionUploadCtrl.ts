@@ -1,6 +1,6 @@
 import fs from 'fs'
 import { parseFile } from 'fast-csv'
-import { attribute, collection, transaction } from '../tableFunctions'
+import { transaction } from '../tableFunctions'
 
 const options = {
     headers: true,
@@ -11,7 +11,7 @@ const options = {
 }
 
 /**
- * Parse uploaded csv files
+ * Parse uploaded csv files. Collections, attributes, collection count and attribute count get attached to req.
  */
 export function parseCsv(req, res, next) {
     req.parsed = {}
@@ -56,14 +56,47 @@ export function parseCsv(req, res, next) {
         promises.push(promise)
     }
 
-
-    //TODO check whether collection names unique
-    //TODO check whether attributes only refer to given collection names
-
     Promise.all(promises)
         .then(() => next())
-        .catch(err => console.log(err))
+        .catch(err => {
+            console.log(err.name)
+            err.name = 'FAST_CSV_PARSING_EXCEPTION'
+            console.log(err.name)
+            next(err)
+        })
 }
+
+
+export function assertUniqueCollectionNames(req, res, next) {
+    const collectionNames = req.parsed.collections.map((c) => c.name)
+
+    if (collectionNames.length !== new Set(collectionNames).size) {
+        const err = new Error('Distinct collection names required')
+        err.name = 'UNIQUE_NAME_VIOLATION'
+        next(err)
+    } else {
+        next()
+    }
+}
+
+/**
+ * Assert all attributes reference collection name of upload file
+ */
+export function assertCollectionReferencesProvided(req, res, next) {
+    const collectionNames: [] = req.parsed.collections.map((c) => c.name)
+    const collectionReferences: [] = req.parsed.attributes.map((c) => c.collection_name)
+
+    const unknownReference = collectionReferences.filter((ref) => !collectionNames.includes(ref))
+
+    if (unknownReference.length != 0) {
+        const err = new Error('Attributes must refer to collection given in uploades collection files')
+        err.name = 'UNKNOWN_REFERENCE_EXCEPTION'
+        next(err)
+    } else {
+        next()
+    }
+}
+
 
 /**
  * Insert parsed data into db
@@ -74,11 +107,16 @@ export function insertRecords(req, res, next) {
         .then((dict) => {
             res.send(`uploaded (collections: ${req.parsed.collectionCount}, attributes: ${req.parsed.attributeCount}, dict: ${JSON.stringify(dict)})`)
         })
-        .catch()
+        .catch(err => {
+            err.name = 'POSTGRES_EXCEPTION'
+            next(err)
+        })
         .finally(next())
 }
 
-
+/**
+ * Delete all files uploaded by multer
+ */
 export async function deleteFiles(req, res, next) {
 
     const fields: object[][] = Object.values(req.files)

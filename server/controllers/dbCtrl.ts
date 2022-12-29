@@ -1,7 +1,5 @@
-//HERE???!
 
-// functionallity somwhere in a route TODO
-import { omop, generate, collection } from '../tableFunctions'
+import { omop, generate } from '../tableFunctions'
 import { gaussianRandom, uniformRandomInt } from '../random';
 const csv = require("fast-csv");
 

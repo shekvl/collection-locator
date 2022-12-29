@@ -171,8 +171,3 @@ RETURNS table(collection_id integer, first_attribute_id bigint, last_attribute_i
 			select collection_id, first_attribute_id, attribute_id;
 	END;
 $$ LANGUAGE plpgsql;
-
-
---TODO generate_collection from imput data ... probably not necessary
--- make generation downlaodable
--- upload excel sheet (collection sheet, table sheet)
