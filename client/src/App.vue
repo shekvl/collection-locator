@@ -3,10 +3,21 @@ nav
     router-link(to="/") Home
     router-link(to="/about") About
 
-    https://ohdsi.github.io/CommonDataModel/
+    //- https://ohdsi.github.io/CommonDataModel/
 
 router-view
+Toast(position="bottom-left")
 </template>
+
+<script lang="ts">
+import { defineComponent } from "vue";
+import Toast from "primevue/toast";
+
+export default defineComponent({
+    components:{Toast}
+})
+</script>
+
 
 <style>
 #app {
