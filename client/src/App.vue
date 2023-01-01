@@ -1,21 +1,16 @@
 <template lang="pug">
-nav
-    router-link(to="/") Home
-    router-link(to="/about") About
-
-    //- https://ohdsi.github.io/CommonDataModel/
+TopMenubar.mb-5
 
 router-view
 Toast(position="bottom-left")
+
+//- https://ohdsi.github.io/CommonDataModel/
 </template>
 
-<script lang="ts">
-import { defineComponent } from "vue";
-import Toast from "primevue/toast";
 
-export default defineComponent({
-    components:{Toast}
-})
+<script setup lang="ts">
+import Toast from "primevue/toast";
+import TopMenubar from "./components/TopMenubar.vue";
 </script>
 
 
@@ -38,6 +33,6 @@ nav a {
 }
 
 nav a.router-link-exact-active {
-    color: #42b983;
+    color: #b95e42;
 }
 </style>

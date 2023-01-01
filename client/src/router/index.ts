@@ -19,6 +19,11 @@ const routes: Array<RouteRecordRaw> = [
     path: '/upload',
     name: 'upload',
     component: () => import('../views/UploadView.vue')
+  },
+  {
+    path: '/browser',
+    name: 'browser',
+    component: () => import('../views/BrowserView.vue')
   }
 ]
 
