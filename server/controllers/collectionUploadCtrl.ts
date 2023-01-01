@@ -1,6 +1,6 @@
 import fs from 'fs'
 import { parseFile } from 'fast-csv'
-import { transaction } from '../tableFunctions'
+import { collection, transaction } from '../tableFunctions'
 
 const options = {
     headers: true,
@@ -14,11 +14,19 @@ const options = {
  * Parse uploaded csv files. Collections, attributes, collection count and attribute count get attached to req.
  */
 export function parseCsv(req, res, next) {
-    req.parsed = {}
-    req.parsed.collections = []
-    req.parsed.attributes = []
-    req.parsed.collectionCount = 0
-    req.parsed.attributeCount = 0
+    req.parsed = {
+        collections: {
+            records: [],
+            headers: [],
+            perFileCount:[],
+            total: 0
+        }, attributes: {
+            records: [],
+            headers: [],
+            perFileCount:[],
+            total: 0
+        }
+    }
     const promises = []
 
     for (const file of req.files.collections) { //parse collections
@@ -28,9 +36,11 @@ export function parseCsv(req, res, next) {
                 .on('error', err => {
                     reject(err)
                 })
-                .on('data', row => req.parsed.collections.push(row))
+                .on('headers', row => req.parsed.collections.headers.push(row))
+                .on('data', row => req.parsed.collections.records.push(row))
                 .on('end', (rowCount: number) => {
-                    req.parsed.collectionCount += rowCount
+                    req.parsed.collections.perFileCount.push(rowCount)
+                    req.parsed.collections.total += rowCount
                     resolve(null)
                 })
         })
@@ -46,9 +56,11 @@ export function parseCsv(req, res, next) {
                 .on('error', err => {
                     reject(err)
                 })
-                .on('data', row => req.parsed.attributes.push(row))
+                .on('headers', row => req.parsed.attributes.headers.push(row))
+                .on('data', row => req.parsed.attributes.records.push(row))
                 .on('end', (rowCount: number) => {
-                    req.parsed.attributeCount += rowCount
+                    req.parsed.attributes.perFileCount.push(rowCount)
+                    req.parsed.attributes.total += rowCount
                     resolve(null)
                 })
         })
@@ -59,16 +71,62 @@ export function parseCsv(req, res, next) {
     Promise.all(promises)
         .then(() => next())
         .catch(err => {
-            console.log(err.name)
             err.name = 'FAST_CSV_PARSING_EXCEPTION'
-            console.log(err.name)
             next(err)
         })
 }
 
+const compareArrays = (a: any[], b: any[]) => {
+    return a.toString() === b.toString();
+};
+
+
+/**
+ * Assert that all collection and attributes apply to csv schema (resp. uploaded via correct form-data name)
+ */
+export function assertFileSchema(req, res, next) {
+    const collection = [
+        'name',
+        'number_of_records',
+        'completeness',
+        'accuracy',
+        'reliability',
+        'timeliness',
+        'consistancy'
+    ]
+
+    const attribute = [
+        'collection_name',
+        'attribute_name',
+        'code',
+        'vocabulary_id',
+        'completeness',
+        'accuracy',
+        'reliability',
+        'timeliness',
+        'consistancy'
+    ]
+
+    for (const header of req.parsed.collections.headers) {
+        if (!compareArrays(header, collection)) {
+            const err = new Error('Files do not apply to collection/attribute schema')
+            err.name = 'FILE_SCHEMA_VIOLATION'
+            next(err)
+        }
+    }
+    for (const header of req.parsed.attributes.headers) {
+        if (!compareArrays(header, attribute)) {
+            const err = new Error('Files do not apply to collection/attribute schema')
+            err.name = 'FILE_SCHEMA_VIOLATION'
+            next(err)
+        }
+    }
+
+    next()
+}
 
 export function assertUniqueCollectionNames(req, res, next) {
-    const collectionNames = req.parsed.collections.map((c) => c.name)
+    const collectionNames = req.parsed.collections.records.map((c) => c.name)
 
     if (collectionNames.length !== new Set(collectionNames).size) {
         const err = new Error('Distinct collection names required')
@@ -83,8 +141,8 @@ export function assertUniqueCollectionNames(req, res, next) {
  * Assert all attributes reference collection name of upload file
  */
 export function assertCollectionReferencesProvided(req, res, next) {
-    const collectionNames: [] = req.parsed.collections.map((c) => c.name)
-    const collectionReferences: [] = req.parsed.attributes.map((c) => c.collection_name)
+    const collectionNames: [] = req.parsed.collections.records.map((c) => c.name)
+    const collectionReferences: [] = req.parsed.attributes.records.map((c) => c.collection_name)
 
     const unknownReference = collectionReferences.filter((ref) => !collectionNames.includes(ref))
 
@@ -103,9 +161,19 @@ export function assertCollectionReferencesProvided(req, res, next) {
  */
 export function insertRecords(req, res, next) {
 
-    transaction.uploadCollection(req.parsed.collections, req.parsed.attributes)
-        .then((dict) => {
-            res.send(`uploaded (collections: ${req.parsed.collectionCount}, attributes: ${req.parsed.attributeCount}, dict: ${JSON.stringify(dict)})`)
+    transaction.uploadCollection(req.parsed.collections.records, req.parsed.attributes.records)
+        .then(async (collection_ids: any) => {
+            const collectionStrings: string[] = []
+
+            const attributeCounts = await collection.getAttributeCount(collection_ids)
+
+            for (const i of attributeCounts.rows)
+                collectionStrings.push(`${i.collection_name} (id: ${i.collection_id}, attribute_count: ${i.attribute_count})`)
+
+            res.json({
+                parsed: req.parsed,
+                message: `${req.parsed.collections.total} New Collections: ${collectionStrings.join(' | ')}`
+            })
         })
         .catch(err => {
             err.name = 'POSTGRES_EXCEPTION'

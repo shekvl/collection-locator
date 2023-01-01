@@ -29,6 +29,10 @@ export const omop = { //TODO
 
 export const collection = {
 
+    async getAttributeCount(collection_ids: number[]): Promise<any> {
+        console.log(typeof collection_ids, collection_ids)
+        return pool.query('select * from get_attribute_counts($1)', [collection_ids])
+    },
 
 }
 
@@ -39,6 +43,12 @@ export const attribute = {
 
 export const transaction = {
 
+    /**
+     * Transaction inserting collections and their attributes
+     * @param collections
+     * @param attributes
+     * @returns collection ids of inserted collections
+     */
     async uploadCollection(collections, attributes) {
 
         const client = await pool.connect()
@@ -85,7 +95,7 @@ export const transaction = {
             }
 
             await client.query('COMMIT')
-            return dict
+            return Object.values(dict)
 
         } catch (err) {
             await client.query('ROLLBACK')

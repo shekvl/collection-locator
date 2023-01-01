@@ -36,3 +36,23 @@ $$ language sql;
 
 
 separate function for getting children -> in(...)
+
+
+
+
+
+
+-- Get attribute count for each collection of a list
+create
+or replace function get_attribute_counts(collection_ids int[]) RETURNS table (
+  collection_id integer,
+  collection_name varchar(255),
+  attribute_count bigint
+) as $$
+SELECT c.id, c.name, count(a.id)
+FROM attribute a, collection c
+WHERE a.collection_id = c.id
+AND c.id = ANY (collection_ids)
+GROUP BY c.id
+ORDER BY c.id ASC
+$$ language sql;

@@ -1,5 +1,5 @@
 
-import { omop, generate } from '../tableFunctions'
+import { omop, generate, collection } from '../tableFunctions'
 import { gaussianRandom, uniformRandomInt } from '../random';
 const csv = require("fast-csv");
 
@@ -77,4 +77,15 @@ export const generateCollectionSheet = (req, res) => {
     csvStream.write(fields)
 
     csvStream.end()
+}
+
+
+export const getAttributeCount = (req, res) => {
+    collection.getAttributeCount(req.query.collection_ids)
+        .then((table) => {
+            res.send(table.rows);
+        })
+        .catch((err) => {
+            console.error('Error executing query', err.stack) //TODO
+        })
 }

@@ -5,6 +5,7 @@ import express from 'express'
 
 const app = express()
 const port = 3000
+app.use(express.json());
 
 import indexRoutes from './routes'
 import generateRoutes from './routes/generate'

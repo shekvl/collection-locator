@@ -34,10 +34,10 @@ const i18n = createI18n({
 const app = createApp(App)
 app.use(router)
 app.use(i18n)
-app.mount('#app')
-
 app.use(vuetify)
 app.use(ElementPlus)
 app.use(Equal)
 app.use(PrimeVue)
 app.use(ToastService)
+
+app.mount('#app')
