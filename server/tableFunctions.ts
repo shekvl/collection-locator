@@ -36,6 +36,17 @@ export const collection = {
 
 }
 
+export const concepts ={
+
+    async all(): Promise<any> {
+        return pool.query('select * from concept')
+    },
+
+    async allFromCdm(): Promise<any> {
+        return pool.query('select concept_id from cdm.concept where vocabulary_id = \'LOINC\'')
+    },
+}
+
 export const attribute = {
 
 

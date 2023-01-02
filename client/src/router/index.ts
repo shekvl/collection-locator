@@ -16,8 +16,8 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import(/* webpackChunkName: "about" */ '../views/AboutView.vue')
   },
   {
-    path: '/upload',
-    name: 'upload',
+    path: '/fileupload',
+    name: 'fileupload',
     component: () => import('../views/UploadView.vue')
   },
   {

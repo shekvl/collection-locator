@@ -4,7 +4,6 @@ TopMenubar.mb-5
 router-view
 Toast(position="bottom-left")
 
-//- https://ohdsi.github.io/CommonDataModel/
 </template>
 
 

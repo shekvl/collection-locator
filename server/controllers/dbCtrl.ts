@@ -1,5 +1,5 @@
 
-import { omop, generate, collection } from '../tableFunctions'
+import { omop, generate, collection, concepts } from '../tableFunctions'
 import { gaussianRandom, uniformRandomInt } from '../random';
 const csv = require("fast-csv");
 
@@ -82,6 +82,27 @@ export const generateCollectionSheet = (req, res) => {
 
 export const getAttributeCount = (req, res) => {
     collection.getAttributeCount(req.query.collection_ids)
+        .then((table) => {
+            res.send(table.rows);
+        })
+        .catch((err) => {
+            console.error('Error executing query', err.stack) //TODO
+        })
+}
+
+
+export const getAllConcepts = (req, res) => {
+    concepts.all()
+        .then((table) => {
+            res.send(table.rows);
+        })
+        .catch((err) => {
+            console.error('Error executing query', err.stack) //TODO
+        })
+}
+
+export const getAllCdmConcepts = (req, res) => {
+    concepts.allFromCdm()
         .then((table) => {
             res.send(table.rows);
         })

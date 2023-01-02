@@ -1,12 +1,21 @@
 <template lang="pug">
 Menubar#menubar(:model="items")
     template(#start)
-        #label(@click="go") Collection Locator
+        #logo(@click="go") Collection Locator
+    template(#end)
+        Button.p-button-rounded.p-button-text(
+            icon="pi pi-language",
+            @click="openLangContextMenu"
+        )
+        ContextMenu(ref="langContextMenu", :model="langList")
 </template>
 
 
 <script lang="ts" setup>
 import Menubar from "primevue/menubar";
+import Button from "primevue/button";
+import SpeedDial from "primevue/speeddial";
+import ContextMenu from "primevue/contextmenu";
 import { useRouter } from "vue-router";
 const router = useRouter();
 
@@ -14,44 +23,53 @@ const go = function () {
     router.push({ path: "/" });
 };
 
+const langList = [
+    {
+        label: "english",
+    },
+    {
+        label: "german",
+    },
+];
+
 const items = [
     {
         label: "Browser",
-        icon: "pi pi-fw pi-search",
+        icon: "pi pi-search",
         to: "/browser",
     },
     {
         label: "Upload",
-        icon: "pi pi-fw pi-upload",
-        to: "/upload",
+        icon: "pi pi-upload",
+        to: "/fileupload",
     },
     {
         label: "About",
-        icon: "pi pi-fw pi-info-circle",
+        icon: "pi pi-info-circle",
         to: "/about",
     },
     {
         label: "Profile",
-        icon: "pi pi-fw pi-user",
+        icon: "pi pi-user",
         items: [
             {
                 label: "My Collections",
-                icon: "pi pi-fw pi-folder-open",
+                icon: "pi pi-folder-open",
             },
             {
                 label: "Bookmarks",
-                icon: "pi pi-fw pi-star-fill",
+                icon: "pi pi-star-fill",
             },
             {
                 label: "Settings",
-                icon: "pi pi-fw pi-cog",
+                icon: "pi pi-cog",
             },
             {
                 separator: true,
             },
             {
                 label: "logout",
-                icon: "pi pi-fw pi-sign-out",
+                icon: "pi pi-sign-out",
             },
         ],
     },
@@ -71,11 +89,22 @@ import { defineComponent } from "vue";
 
 export default defineComponent({
     name: "TopMenubar",
+    methods: {
+        openLangContextMenu(event: any) {
+            const langContextMenu: any = this.$refs.langContextMenu;
+            langContextMenu.show(event);
+        },
+    },
 });
 </script>
 
 <style>
-#label {
+.p-speeddial {
+    position: absolute;
+    right: 50px;
+}
+
+#logo {
     font-size: larger;
     margin-inline-start: 10px;
     margin-inline-end: 10px;
@@ -84,7 +113,7 @@ export default defineComponent({
     font-weight: 600;
     /* border: solid 2px var(--primary-color);
     border-radius: 5px; */
-    text-shadow: rgb(126, 126, 126) 0.5px 0.5px;
+    text-shadow: var(--primary-color) -0.5px -0.5px;
     cursor: pointer;
 }
 
