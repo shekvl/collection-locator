@@ -6,7 +6,13 @@ create table address (
     house_number varchar (255),
     zip varchar (255) NOT NULL,
     country_code varchar (3) NOT NULL,
-    UNIQUE (town, street_name, house_number, zip, country_code)
+    UNIQUE (
+        town,
+        street_name,
+        house_number,
+        zip,
+        country_code
+    )
 );
 
 create table person (
@@ -142,5 +148,17 @@ create table session (
     expires timestamp with time zone NOT NULL,
     data text NOT NULL,
     created_at timestamp with time zone NOT NULL DEFAULT NOW(),
+    last_modified timestamp with time zone NOT NULL DEFAULT NOW()
+);
+
+create table query_relationship (
+    id SERIAL PRIMARY KEY,
+    "group" varchar(255),
+    name varchar(255),
+    relationship_concept_id integer,
+    relationship_id varchar(20) REFERENCES cdm.relationship ON DELETE CASCADE ON UPDATE CASCADE NOT NULL,
+    distinct_values varchar [],
+    distinct_value_count bigint,
+    vocabulary_id varchar(20) REFERENCES cdm.vocabulary ON DELETE CASCADE ON UPDATE CASCADE NOT NULL,
     last_modified timestamp with time zone NOT NULL DEFAULT NOW()
 );

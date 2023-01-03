@@ -1,27 +1,45 @@
 <template lang="pug">
-div tags:
-.tag-container
-    n-tag(
-        v-for="tag in state.tags",
-        size="small",
-        type="info",
-        @close="removeTag",
-        closable
-    ) {{ tag }}
+//- div tags:
+//- .tag-container
+//-     n-tag(
+//-         v-for="tag in state.tags",
+//-         size="large",
+//-         type="info",
+//-         @close="removeTag",
+//-         closable
+//-     ) {{ tag }}
 
 a(href="https://ohdsi.github.io/CommonDataModel/", target="_blank") Ohdsi
 <br>
 a(href="https://athena.ohdsi.org/search-terms/start", target="_blank") Athena
 
-
 AutoComplete(
     forceSelection,
-    minLength="1",
+    minLength="2",
     delay="0",
+    multiple,
     placeholder="search for concept..",
     v-model="selectedConcepts",
     :suggestions="filteredConcepts",
-    @complete="searchCountry($event)"
+    @complete="searchConcepts($event)",
+    @item-select="(event) => { addTag(event.value), log.delete(event.value), log.add(event.value); printLog(); }",
+    :virtualScrollerOptions="{ items: concepts, itemSize: 40 }"
+)
+
+div recent log:
+div(v-for="item in Array.from(log).reverse()") {{ item }}
+
+AutoComplete(
+    v-for="axis in axes",
+    forceSelection,
+    multiple,
+    minLength="1",
+    delay="0",
+    :placeholder="axis.name",
+    v-model="axis.selectedValues",
+    :suggestions="axis.filteredValues",
+    @complete="filter($event, axis)",
+    :virtualScrollerOptions="{ items: axis.distinct_values, itemSize: 40 }"
 )
 </template>
 
@@ -33,7 +51,9 @@ AutoComplete(
 
 //filter result
 //bookmark results
-
+//composite descriptor selection panel
+//browse all concepts (sort hierachy)
+//show recent concept list
 
 //TODO extra component for search..
 
@@ -43,6 +63,7 @@ AutoComplete(
 import { reactive } from "vue";
 import { NTag } from "naive-ui";
 import AutoComplete from "primevue/autocomplete";
+import VirtualScroller from "primevue/virtualscroller";
 
 let state = reactive({ tags: new Set(["37020651", "1003901"]) });
 
@@ -57,41 +78,63 @@ const addTag = function (tag: string) {
     state.tags.add(tag);
     console.log("tag added:", tag);
 };
+
+const log = new Set();
+function printLog() {
+    console.log(log);
+}
 </script>
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { getAllConcepts } from "../requests/getReq";
+import { getAllConcepts, getQueryRelationships } from "../requests/getReq";
 
 export default defineComponent({
     async mounted() {
-        const result = await getAllConcepts();
-        // console.log("mount", result);
-        this.concepts = result;
+        const concepts = await getAllConcepts();
+        this.concepts = concepts;
+
+        const axes = await getQueryRelationships("axes", "LOINC");
+        for (const axis of axes) {
+            axis.selectedValues = [];
+            axis.filteredValues = [];
+        }
+        this.axes = axes;
     },
     data() {
         return {
-            selectedConcepts: null,
+            selectedConcepts: ["37020651", "1003901"],
             filteredConcepts: null,
             concepts: [],
+            axes: null,
         };
     },
     methods: {
-        searchCountry(event: any) {
+        searchConcepts(event: any) {
             const filtered: any = this.concepts.filter((concept: string) => {
                 return concept.startsWith(event.query);
             });
-            // console.log(filtered)
             this.filteredConcepts = filtered;
+        },
+        filter(event: any, object: any) {
+            const filtered: any = object.distinct_values.filter(
+                (value: string) => {
+                    return value
+                        .toLowerCase()
+                        .startsWith(event.query.toLowerCase());
+                }
+            );
+            object.filteredValues = filtered;
         },
     },
 });
 </script>
 
 
-<style scoped >
+<style >
 .n-tag {
     margin: 2px;
+    size: large;
 }
 
 .tag-container {
@@ -99,4 +142,13 @@ export default defineComponent({
     display: flex;
     justify-content: flex-start;
 }
+
+.p-autocomplete {
+    padding-block: 3px;
+    margin: 2px;
+}
+
+/* .p-autocomplete-token{
+    border-radius: 5px !important;
+} */
 </style>

@@ -7,6 +7,7 @@ router.get('/children/:id', dbController.children )
 router.get('/collections/attributeCount', dbController.getAttributeCount )
 router.get('/concepts', dbController.getAllConcepts )
 router.get('/cdmconcepts', dbController.getAllCdmConcepts )
+router.get('/queryRelationships', dbController.getQueryRelationships )
 
 
 export default router;

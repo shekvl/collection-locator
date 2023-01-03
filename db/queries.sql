@@ -87,3 +87,88 @@ view:
 -- get all vocabs OK
 -- get all concepts ??
 -- get all collections ??
+
+
+
+----- new year ------
+
+
+-- all relationships between from loinc codes
+select c1.concept_name,
+c1.vocabulary_id,
+c2.concept_name,
+c2.vocabulary_id,
+r.relationship_id,
+r.relationship_concept_id
+from
+cdm.concept c1,
+cdm.concept c2,
+cdm.concept_relationship cr,
+cdm.relationship r
+where
+cr.concept_id_1 = c1.concept_id
+and cr.concept_id_2 = c2.concept_id
+and cr.relationship_id = r.relationship_id
+
+and c1.vocabulary_id = 'LOINC'
+and c2.vocabulary_id != 'LOINC'
+
+
+-- relationship with aggregated values (+)
+-- has scale type | 44818773 | {-,*,Doc,Multi,Nar,Nom,Ord,OrdQn,Qn,Set}
+select
+r.relationship_id,
+r.relationship_concept_id,
+array_agg(distinct c2.concept_name)
+from
+cdm.concept c1,
+cdm.concept c2,
+cdm.concept_relationship cr,
+cdm.relationship r
+where
+cr.concept_id_1 = c1.concept_id
+and cr.concept_id_2 = c2.concept_id
+and cr.relationship_id = r.relationship_id
+and c1.vocabulary_id = 'LOINC'
+group by r.relationship_id, r.relationship_concept_id
+
+
+-- all relationship_ids of LOINC vocabulary_id
+select
+r.relationship_id,
+r.relationship_concept_id
+from
+cdm.concept c1,
+cdm.concept c2,
+cdm.concept_relationship cr,
+cdm.relationship r
+where
+cr.concept_id_1 = c1.concept_id
+and cr.concept_id_2 = c2.concept_id
+and cr.relationship_id = r.relationship_id
+and c1.vocabulary_id = 'LOINC'
+group by r.relationship_id, r.relationship_concept_id
+
+
+-- insert relationship into query_relationship
+insert into query_relationship("group", "name", "relationship_concept_id", "relationship_id", "distinct_values", "distinct_value_count", "vocabulary_id")
+select
+'axes',
+'scale',
+r.relationship_concept_id,
+r.relationship_id,
+array_agg(distinct c2.concept_name),
+count(distinct c2.concept_name),
+'LOINC'
+from
+cdm.concept c1,
+cdm.concept c2,
+cdm.concept_relationship cr,
+cdm.relationship r
+where
+cr.concept_id_1 = c1.concept_id
+and cr.concept_id_2 = c2.concept_id
+and cr.relationship_id = r.relationship_id
+and c1.vocabulary_id = 'LOINC'
+and r.relationship_id = 'Has scale type'
+group by r.relationship_id, r.relationship_concept_id

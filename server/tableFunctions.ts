@@ -36,7 +36,7 @@ export const collection = {
 
 }
 
-export const concepts ={
+export const concepts = {
 
     async all(): Promise<any> {
         return pool.query('select * from concept')
@@ -47,7 +47,14 @@ export const concepts ={
     },
 }
 
-export const attribute = {
+export const query = {
+
+    async getQueryRelationships(group: string, vocabulary_id: string): Promise<any> {
+        return pool.query('select name, distinct_values from query_relationship where "group" = $1 and vocabulary_id = $2', [group, vocabulary_id])
+    },
+}
+
+export const attributes = {
 
 
 }

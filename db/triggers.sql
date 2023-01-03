@@ -43,6 +43,12 @@ CREATE TRIGGER update_last_modified
     FOR EACH ROW
     EXECUTE FUNCTION update_last_modified ();
 
+DROP TRIGGER IF EXISTS update_last_modified ON query_relationship;
+CREATE TRIGGER update_last_modified
+	BEFORE UPDATE ON query_relationship
+    FOR EACH ROW
+    EXECUTE FUNCTION update_last_modified ();
+
 
 -- INSERT CONCEPT_ID from OMOP CDM into concept table
 CREATE OR REPLACE FUNCTION insert_concept ()
