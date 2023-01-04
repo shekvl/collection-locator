@@ -1,7 +1,12 @@
 <template lang="pug">
-.home(@click="toast()") {{ $t('a.b') }}
-.test {{ a }}
+DeferredContent
+    .home(@click="toast()") {{ $t('a.b') }}
+    .test {{ a }}
 </template>
+
+<script setup lang="ts">
+import DeferredContent from 'primevue/deferredcontent';
+</script>
 
 <script lang="ts">
 import { defineComponent } from "vue";

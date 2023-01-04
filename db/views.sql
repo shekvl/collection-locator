@@ -1,6 +1,6 @@
 -- Vocabularies select for Athena Download
 -- Relies on Reference CDM 'omop_cdm_5.4_loinc_only'
-create or replace view onthology
+create or replace view ontology
 as
     select * from cdm.vocabulary where vocabulary_id not in ('Type Concept', 'None')
     except

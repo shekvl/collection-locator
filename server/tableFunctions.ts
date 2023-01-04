@@ -1,5 +1,6 @@
 //interface - call db functions
 
+import { getOntologies } from './controllers/dbCtrl'
 import { pool } from './postgres'
 
 
@@ -51,6 +52,10 @@ export const query = {
 
     async getQueryRelationships(group: string, vocabulary_id: string): Promise<any> {
         return pool.query('select name, distinct_values from query_relationship where "group" = $1 and vocabulary_id = $2', [group, vocabulary_id])
+    },
+
+    async getOntologies(): Promise<any> {
+        return pool.query('select * from ontology')
     },
 }
 

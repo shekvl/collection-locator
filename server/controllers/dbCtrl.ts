@@ -120,3 +120,13 @@ export const getQueryRelationships = (req, res) => {
             console.error('Error executing query', err.stack) //TODO
         })
 }
+
+export const getOntologies = (req, res) => {
+    query.getOntologies()
+        .then((table) => {
+            res.send(table.rows);
+        })
+        .catch((err) => {
+            console.error('Error executing query', err.stack) //TODO
+        })
+}

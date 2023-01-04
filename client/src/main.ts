@@ -14,7 +14,7 @@ import 'element-plus/dist/index.css'
 import Equal from 'equal-vue'
 import 'equal-vue/dist/style.css'
 
-import PrimeVue from 'primevue/config';
+import PrimeVue from 'primevue/config'
 import 'primevue/resources/themes/saga-blue/theme.css'
 import 'primevue/resources/primevue.min.css'
 import 'primeicons/primeicons.css'
@@ -26,8 +26,8 @@ const vuetify = createVuetify({
 })
 
 const i18n = createI18n({
-    locale: "en",
-    fallbackLocale: 'en',
+  locale: "en",
+  fallbackLocale: 'en',
 })
 
 

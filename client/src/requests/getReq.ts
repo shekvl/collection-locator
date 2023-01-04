@@ -35,3 +35,13 @@ export async function getQueryRelationships(group: string, vocabulary_id: string
         return error
     }
 }
+
+export async function getOntologies() {
+    try {
+        const response = await axios.get('/db/ontologies')
+        return response.data
+    } catch (error: any) {
+        console.trace(error)
+        return error
+    }
+}
