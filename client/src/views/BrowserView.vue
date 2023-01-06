@@ -20,20 +20,8 @@
                 )
         .links.w-50.d-flex
             .d-flex.justify-end.align-center.w-100
-                a(
-                    href="https://ohdsi.github.io/CommonDataModel/",
-                    target="_blank"
-                )
-                    .d-flex.align-center
-                        | Ohdsi&nbsp;
-                        i.pi.pi-external-link
-                a(
-                    href="https://athena.ohdsi.org/search-terms/start",
-                    target="_blank"
-                )
-                    .d-flex.align-center
-                        | Athena&nbsp;
-                        i.pi.pi-external-link
+                ExternalLink(href="https://ohdsi.github.io/CommonDataModel/", text="Ohdsi")
+                ExternalLink(href="https://athena.ohdsi.org/search-terms/start", text="Athena")
 
     .d-flex
         TabView.w-75(lazy)
@@ -218,6 +206,7 @@ import ColumnGroup from "primevue/columngroup";
 import Row from "primevue/row";
 import InputText from "primevue/inputtext";
 import MultiSelect from "primevue/multiselect";
+import ExternalLink from "../components/ExternalLink.vue"
 
 let tags = ref(new Set(["37020651", "1003901"]));
 
@@ -531,16 +520,16 @@ export default defineComponent({
 
 
 <style>
-.n-tag {
+/* .n-tag {
     margin: 2px;
     size: large;
-}
+} */
 
-.tag-container {
+/* .tag-container {
     width: 30px;
     display: flex;
     justify-content: flex-start;
-}
+} */
 
 .p-tabview-panel {
     display: flex;
@@ -564,7 +553,6 @@ export default defineComponent({
 <style scoped>
 a {
     margin-right: 20px;
-    text-decoration: none;
 }
 
 .most-recents {

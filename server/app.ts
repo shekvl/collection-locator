@@ -7,6 +7,9 @@ const app = express()
 const port = 3000
 app.use(express.json());
 
+const cors = require('cors')
+app.use(cors())
+
 import indexRoutes from './routes'
 import generateRoutes from './routes/generate'
 import dbRoutes from './routes/db'

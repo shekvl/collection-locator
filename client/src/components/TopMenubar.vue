@@ -23,15 +23,6 @@ const go = function () {
     router.push({ path: "/" });
 };
 
-const langList = [
-    {
-        label: "english",
-    },
-    {
-        label: "german",
-    },
-];
-
 const items = [
     {
         label: "Browser",
@@ -95,6 +86,26 @@ export default defineComponent({
             langContextMenu.show(event);
         },
     },
+    data() {
+        return {
+            langList: [
+                {
+                    label: "English",
+                    command: () => {
+                        const i18n: any = this.$i18n;
+                        i18n.locale = "en";
+                    },
+                },
+                {
+                    label: "Deutsch",
+                    command: () => {
+                        const i18n: any = this.$i18n;
+                        i18n.locale = "de";
+                    },
+                },
+            ],
+        };
+    },
 });
 </script>
 
@@ -113,7 +124,7 @@ export default defineComponent({
     font-weight: 600;
     /* border: solid 2px var(--primary-color);
     border-radius: 5px; */
-    text-shadow: var(--primary-color) -0.5px -0.5px;
+    /* text-shadow: var(--primary-color) -0.5px -0.5px; */
     cursor: pointer;
 }
 

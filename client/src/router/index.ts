@@ -29,7 +29,10 @@ const routes: Array<RouteRecordRaw> = [
 
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
-  routes
+  routes,
+  scrollBehavior(to, from, savePosition) {
+    return { top: 0 } // always scroll to top
+  }
 })
 
 export default router
