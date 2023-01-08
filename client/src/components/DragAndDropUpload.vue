@@ -1,6 +1,9 @@
 <template lang="pug">
+
+.d-flex.flex-column.align-start.mb-4
+    h3 # Upload
 .d-flex.flex-row.justify-center
-    el-upload.w-25.pr-5(
+    el-upload.w-50.pr-5(
         drag,
         multiple,
         auto-upload=false,
@@ -27,7 +30,7 @@
             el-icon.el-icon--upload
                 arrow-right
 
-    el-upload.w-25.pl-5(
+    el-upload.w-50.pl-5(
         drag,
         multiple,
         auto-upload=false,

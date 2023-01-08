@@ -168,7 +168,6 @@ section {
     margin-block: 30px;
     padding-inline: 10px;
 
-    font-size: larger;
     text-align: justify;
 }
 
@@ -182,8 +181,6 @@ p {
 }
 
 h1 {
-    /* font-style: italic; */
-    font-size: xx-large;
     margin-bottom: 7px;
 }
 

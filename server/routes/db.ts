@@ -9,6 +9,7 @@ router.get('/concepts', dbController.getAllConcepts )
 router.get('/cdmconcepts', dbController.getAllCdmConcepts )
 router.get('/queryRelationships', dbController.getQueryRelationships )
 router.get('/ontologies', dbController.getOntologies )
+router.get('/queryAny', dbController.queryAny )
 
 
 export default router;

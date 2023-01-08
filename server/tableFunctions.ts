@@ -57,6 +57,15 @@ export const query = {
     async getOntologies(): Promise<any> {
         return pool.query('select * from ontology')
     },
+
+    async queryAny(concept_ids): Promise<any> {
+        return pool.query('select * from queryAny($1)', [concept_ids])
+    },
+
+    async queryAttributes(collection_ids): Promise<any> {
+        return pool.query('select * from queryAttributes($1)', [collection_ids])
+    },
+
 }
 
 export const attributes = {
@@ -85,11 +94,11 @@ export const transaction = {
                     collection.name,
                     'biobank klagenfurt', //institution_id,
                     collection.number_of_records,
-                    collection.completeness,
-                    collection.accuracy,
-                    collection.reliability,
-                    collection.timeliness,
-                    collection.consistancy,
+                    collection.completeness || null,
+                    collection.accuracy || null,
+                    collection.reliability || null,
+                    collection.timeliness || null,
+                    collection.consistancy || null,
                     1 //added_by TODO get from GUI
                 ])
 
@@ -103,17 +112,20 @@ export const transaction = {
                 let result = await client.query('select id from insert_record_attribute($1, $2, $3, $4, $5, $6, $7)', [
                     dict[attribute.collection_name],
                     attribute.attribute_name,
-                    attribute.completeness,
-                    attribute.accuracy,
-                    attribute.reliability,
-                    attribute.timeliness,
-                    attribute.consistancy,
+                    attribute.completeness || null,
+                    attribute.accuracy || null,
+                    attribute.reliability || null,
+                    attribute.timeliness || null,
+                    attribute.consistancy || null,
                 ])
 
+                console.log(result.rows[0].id,
+                    attribute.code,
+                    attribute.vocab)
                 await client.query('select insert_record_attribute_concept($1, $2, $3)', [
                     result.rows[0].id,
                     attribute.code,
-                    attribute.vocab
+                    attribute.vocabulary_id
                 ])
             }
 
@@ -126,7 +138,8 @@ export const transaction = {
         } finally {
             client.release()
         }
-    }
+    },
+
 }
 
 // get json object with meta data field of specific concept (or patch?)

@@ -6,6 +6,7 @@ RETURNS setof attribute_concept AS $$
 	insert into attribute_concept (attribute_id, code, vocabulary_id) values(id, code, vocab)
 	returning *;
 $$ LANGUAGE sql;
+--TODO now error returned when nothing is inserted (row count == 0); should rollback transaction
 
 
 -- delete record from attribute_concept table

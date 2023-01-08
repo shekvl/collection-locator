@@ -37,7 +37,7 @@ create table institution (
     phone varchar (255),
     address_id integer REFERENCES address ON DELETE CASCADE ON UPDATE CASCADE,
     added_by integer REFERENCES person ON DELETE CASCADE ON UPDATE CASCADE NOT NULL,
-    last_modified timestamp with time zone NOT NULL DEFAULT NOW(),
+    last_modified timestamp with time zone NOT NULL DEFAULT NOW()
 );
 
 create table collection (
@@ -95,8 +95,9 @@ create table attribute (
         0 <= consistancy
         AND consistancy <= 1
     ),
-    last_modified timestamp with time zone NOT NULL DEFAULT NOW(),
-    UNIQUE (collection_id, attribute_name)
+    last_modified timestamp with time zone NOT NULL DEFAULT NOW()
+    -- ,
+    -- UNIQUE (collection_id, attribute_name)
 );
 
 create table concept (

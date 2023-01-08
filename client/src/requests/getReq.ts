@@ -45,3 +45,14 @@ export async function getOntologies() {
         return error
     }
 }
+
+export async function queryAny(concept_ids: any) {
+    try {
+        console.log(concept_ids)
+        const response = await axios.get('/db/queryAny', { params: {concept_ids}})
+        return { success: true, message: response.data.message, data: response.data }
+    } catch (error: any) {
+        console.trace(error)
+        return { success: false, message: error.response.data.message }
+    }
+}

@@ -96,13 +96,13 @@ export default defineComponent({
                         i18n.locale = "en";
                     },
                 },
-                {
-                    label: "Deutsch",
-                    command: () => {
-                        const i18n: any = this.$i18n;
-                        i18n.locale = "de";
-                    },
-                },
+                // { //not yet translated
+                //     label: "Deutsch",
+                //     command: () => {
+                //         const i18n: any = this.$i18n;
+                //         i18n.locale = "de";
+                //     },
+                // },
             ],
         };
     },

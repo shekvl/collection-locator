@@ -47,7 +47,7 @@
                             iconPos="right",
                             icon="pi pi-search",
                             :loading="false",
-                            @click=""
+                            @click="doQueryAny()"
                         )
 
                 #most-recent-panel.d-flex.w-33.flex-column.align-start.mx-5.px-4.py-2
@@ -189,6 +189,11 @@
 
 //context menu -> favorites... although separate star button could also visualize state.. (how to visualize that already in a bookmark folder?)
 //select checkboxes (download only selected, bookmark [sets, only add once])
+
+//allow missing quality metadata
+//infor about how to use table
+//componentinize BrowserView()
+
 
 <script setup lang="ts">
 import { ref } from "vue";
@@ -367,6 +372,7 @@ import {
     getAllConcepts,
     getOntologies,
     getQueryRelationships,
+    queryAny
 } from "../requests/getReq";
 import { FilterMatchMode, FilterOperator } from "primevue/api";
 
@@ -413,7 +419,7 @@ export default defineComponent({
     },
     data() {
         return {
-            selectedConcepts: ["37020651", "1003901"],
+            selectedConcepts: ["36033638", "45458440"],
             filteredConcepts: null,
             concepts: [],
             axes: null,
@@ -451,6 +457,13 @@ export default defineComponent({
             : Object.assign(this.columns);
     },
     methods: {
+        async doQueryAny(){
+            //start loading
+            const result = await queryAny(Object.values(this.selectedConcepts))
+            console.log(result)
+            //create table
+            //loading finished
+        },
         onToggle(value: any) {
             const filteredColumns: any = this.columns.filter((col: any) => {
                 return value.includes(col);
