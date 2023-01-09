@@ -59,11 +59,11 @@ export const query = {
     },
 
     async queryAny(concept_ids): Promise<any> {
-        return pool.query('select * from queryAny($1)', [concept_ids])
+        return pool.query('select * from query_any($1)', [concept_ids])
     },
 
     async queryAttributes(collection_ids): Promise<any> {
-        return pool.query('select * from queryAttributes($1)', [collection_ids])
+        return pool.query('select * from query_attributes($1)', [collection_ids])
     },
 
 }

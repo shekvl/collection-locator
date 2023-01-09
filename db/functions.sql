@@ -60,14 +60,14 @@ $$ language sql;
 
 -- get collections that contains any concept of a list of concepts
 create
-or replace function queryAny(concept_ids int[]) RETURNS table (
+or replace function query_any(concept_ids int[]) RETURNS table (
 	id integer,
   	name varchar(255),
   	institution_id varchar(255),
   	number_of_records integer,
   	completeness real,
   	accuracy real,
-  	realiability real,
+  	reliability real,
   	timeliness real,
   	consistancy real,
 	added_by integer,
@@ -87,7 +87,7 @@ $$ language sql;
 
 -- fetch all attributes for each collection_id in the list, including code, vocab and concept_id
 create
-or replace function queryAttributes(collection_ids int[]) RETURNS table (
+or replace function query_attributes(collection_ids int[]) RETURNS table (
 	collection_id integer,
 	concept_id integer,
   	code varchar(50),
@@ -95,7 +95,7 @@ or replace function queryAttributes(collection_ids int[]) RETURNS table (
   	attribute_name varchar(255),
   	completeness real,
   	accuracy real,
-  	realiability real,
+  	reliability real,
   	timeliness real,
   	consistancy real
 ) as $$

@@ -11,7 +11,7 @@
 .px-5
     .d-flex
         .w-50
-            .d-flex.justify-start
+            //- .d-flex.justify-start
                 Dropdown(
                     v-model="selectedOntology",
                     :options="ontologies",
@@ -20,7 +20,7 @@
                 )
         .links.w-50.d-flex
             .d-flex.justify-end.align-center.w-100
-                ExternalLink(href="https://ohdsi.github.io/CommonDataModel/", text="Ohdsi")
+                //- ExternalLink(href="https://ohdsi.github.io/CommonDataModel/", text="Ohdsi")
                 ExternalLink(href="https://athena.ohdsi.org/search-terms/start", text="Athena")
 
     .d-flex
@@ -49,6 +49,10 @@
                             :loading="false",
                             @click="doQueryAny()"
                         )
+                        SelectButton(v-model="selectedSearchMode" :options="SEARCH_MODE" )
+                        //get children
+                        //any -> set of children
+                        //all -> all of any of children
 
                 #most-recent-panel.d-flex.w-33.flex-column.align-start.mx-5.px-4.py-2
                     div most recent concepts:
@@ -73,13 +77,13 @@
 
     DataTable.p-datatable-sm(
         ref="dt",
-        :value="products",
+        :value="resultCollections",
         v-model:selection="tableSelection",
         v-model:filters="filters",
         v-model:expandedRows="expandedRows",
         filterDisplay="menu",
-        :globalFilterFields="columns.map((col) => col.field)",
-        :dataKey="products.id",
+        :globalFilterFields="columns.collection.map((col) => col.field)",
+        :dataKey="resultCollections.id",
         responsiveLayout="scroll",
         rowHover,
         showGridlines,
@@ -101,7 +105,7 @@
                 .d-flex.align-center
                     .table-header.mx-5 Collections
                     div(style="text-align:left")
-                        MultiSelect(:modelValue="selectedColumns" :options="columns" optionLabel="header" @update:modelValue="onToggle" placeholder="Select columns" style="width: 10em")
+                        MultiSelect(:modelValue="selectedColumns" :options="columns.collection" optionLabel="header" @update:modelValue="onToggle" placeholder="Select columns" style="width: 10em")
                 .d-flex.align-center
                     Button.p-button-outlined.p-button-sm.mx-2(
                         icon="pi pi-plus",
@@ -135,7 +139,22 @@
                             placeholder="Keyword Search"
                         )
         template(#expansion="slotProps")
-            div to be done..
+            DataTable.p-datatable-sm(
+                :value="resultAttributes",
+                :dataKey="resultAttributes.concept_id",
+                responsiveLayout="scroll",
+                rowHover,
+                showGridlines,
+                removableSort,
+                stripedRows
+            )
+                Column(
+                    v-for="col of columns.attribute",
+                    :field="col.field",
+                    :header="col.header",
+                    :key="col.field",
+                    sortable,
+                )
         //- template.d-flex(#footer) //conflicts with paginator
         //-     div asdf
 
@@ -149,7 +168,6 @@
             :header="col.header",
             :key="col.field",
             sortable,
-            :dataType="col.type || 'text'"
         )
             template(#filter="{ filterModel }")
                 InputText.p-column-filter(
@@ -211,7 +229,8 @@ import ColumnGroup from "primevue/columngroup";
 import Row from "primevue/row";
 import InputText from "primevue/inputtext";
 import MultiSelect from "primevue/multiselect";
-import ExternalLink from "../components/ExternalLink.vue"
+import ExternalLink from "../components/ExternalLink.vue";
+import SelectButton from "primevue/selectbutton";
 
 let tags = ref(new Set(["37020651", "1003901"]));
 
@@ -231,139 +250,6 @@ const mostRecentConcepts = new Set();
 function print(string) {
     console.log(string);
 }
-
-const products = [
-    {
-        id: "1000",
-        code: "f230fh0g3",
-        name: "Bamboo Watch",
-        description: "Product Description",
-        image: "bamboo-watch.jpg",
-        price: 65,
-        category: "Accessories",
-        quantity: 24,
-        inventoryStatus: "INSTOCK",
-        rating: 5,
-    },
-    {
-        id: "1001",
-        code: "nvklal433",
-        name: "Black Watch",
-        description: "Product Description",
-        image: "black-watch.jpg",
-        price: 72,
-        category: "Accessories",
-        quantity: 61,
-        inventoryStatus: "INSTOCK",
-        rating: 4,
-    },
-    {
-        id: "1002",
-        code: "zz21cz3c1",
-        name: "Blue Band",
-        description: "Product Description",
-        image: "blue-band.jpg",
-        price: 79,
-        category: "Fitness",
-        quantity: 2,
-        inventoryStatus: "LOWSTOCK",
-        rating: 3,
-    },
-    {
-        id: "1003",
-        code: "244wgerg2",
-        name: "Blue T-Shirt",
-        description: "Product Description",
-        image: "blue-t-shirt.jpg",
-        price: 29,
-        category: "Clothing",
-        quantity: 25,
-        inventoryStatus: "INSTOCK",
-        rating: 5,
-    },
-    {
-        id: "1004",
-        code: "h456wer53",
-        name: "Bracelet",
-        description: "Product Description",
-        image: "bracelet.jpg",
-        price: 15,
-        category: "Accessories",
-        quantity: 73,
-        inventoryStatus: "INSTOCK",
-        rating: 4,
-    },
-    {
-        id: "1005",
-        code: "av2231fwg",
-        name: "Brown Purse",
-        description: "Product Description",
-        image: "brown-purse.jpg",
-        price: 120,
-        category: "Accessories",
-        quantity: 0,
-        inventoryStatus: "OUTOFSTOCK",
-        rating: 4,
-    },
-    {
-        id: "1006",
-        code: "bib36pfvm",
-        name: "Chakra Bracelet",
-        description: "Product Description",
-        image: "chakra-bracelet.jpg",
-        price: 32,
-        category: "Accessories",
-        quantity: 5,
-        inventoryStatus: "LOWSTOCK",
-        rating: 3,
-    },
-    {
-        id: "1007",
-        code: "mbvjkgip5",
-        name: "Galaxy Earrings",
-        description: "Product Description",
-        image: "galaxy-earrings.jpg",
-        price: 34,
-        category: "Accessories",
-        quantity: 23,
-        inventoryStatus: "INSTOCK",
-        rating: 5,
-    },
-    {
-        id: "1008",
-        code: "vbb124btr",
-        name: "Game Controller",
-        description: "Product Description",
-        image: "game-controller.jpg",
-        price: 99,
-        category: "Electronics",
-        quantity: 2,
-        inventoryStatus: "LOWSTOCK",
-        rating: 4,
-    },
-    {
-        id: "1009",
-        code: "cm230f032",
-        name: "Gaming Set",
-        description: "Product Description",
-        image: "gaming-set.jpg",
-        price: 299,
-        category: "Electronics",
-        quantity: 63,
-        inventoryStatus: "INSTOCK",
-        rating: 3,
-    },
-];
-
-const tableSelection = ref([]);
-const expandedRows = ref([]);
-
-const expandAll = function () {
-    expandedRows.value = products.filter((p) => p.id);
-};
-const collapseAll = function () {
-    expandedRows.value = null;
-};
 </script>
 
 <script lang="ts">
@@ -372,7 +258,7 @@ import {
     getAllConcepts,
     getOntologies,
     getQueryRelationships,
-    queryAny
+    queryAny,
 } from "../requests/getReq";
 import { FilterMatchMode, FilterOperator } from "primevue/api";
 
@@ -380,6 +266,11 @@ const enum COLUMNTYPE {
     TEXT = "text",
     NUMERIC = "numeric",
     DATE = "date",
+}
+
+const enum SEARCH_MODE {
+    ANY = "ANY",
+    ALL = "ALL",
 }
 
 export default defineComponent({
@@ -399,7 +290,7 @@ export default defineComponent({
 
         //add dynamically generate filters for each column
         let filters: any = Object.assign(this.filters);
-        for (const column of this.columns) {
+        for (const column of this.columns.collection) {
             filters[column.field] = {
                 operator: FilterOperator.AND,
                 constraints: [
@@ -429,22 +320,101 @@ export default defineComponent({
             filters: {
                 global: { value: null, matchMode: FilterMatchMode.CONTAINS },
             },
-            columns: [
-                //TODO get from db {columns:{{field, header, type},..}, data:{}}
-                { field: "code", header: "Code", type: COLUMNTYPE.TEXT },
-                { field: "name", header: "Name", type: COLUMNTYPE.TEXT },
-                {
-                    field: "category",
-                    header: "Category",
-                    type: COLUMNTYPE.TEXT,
-                },
-                {
-                    field: "quantity",
-                    header: "Quantity",
-                    type: COLUMNTYPE.NUMERIC,
-                },
-            ],
+            columns: {
+                collection: [
+                    //probably on the client side after all
+                    { field: "name", header: "Name", type: COLUMNTYPE.TEXT },
+                    {
+                        field: "number_of_records",
+                        header: "Number of Records",
+                        type: COLUMNTYPE.NUMERIC,
+                    },
+                    {
+                        field: "person_name",
+                        header: "Submitted By",
+                        type: COLUMNTYPE.TEXT,
+                    }, //name not id
+                    {
+                        field: "institution_id",
+                        header: "Institution",
+                        type: COLUMNTYPE.TEXT,
+                    },
+                    {
+                        field: "completeness",
+                        header: "Completeness",
+                        type: COLUMNTYPE.NUMERIC,
+                    },
+                    {
+                        field: "accuracy",
+                        header: "Accuracy",
+                        type: COLUMNTYPE.NUMERIC,
+                    },
+                    {
+                        field: "reliability",
+                        header: "Reliability",
+                        type: COLUMNTYPE.NUMERIC,
+                    },
+                    {
+                        field: "timeliness",
+                        header: "Timeliness",
+                        type: COLUMNTYPE.NUMERIC,
+                    },
+                    {
+                        field: "consistancy",
+                        header: "Consistancy",
+                        type: COLUMNTYPE.NUMERIC,
+                    },
+                ],
+                attribute: [
+                    {
+                        field: "concept_id",
+                        header: "Concept ID",
+                        type: COLUMNTYPE.NUMERIC,
+                    },
+                    {
+                        field: "attribute_name",
+                        header: "Column Name",
+                        type: COLUMNTYPE.TEXT,
+                    },
+                    { field: "code", header: "Code", type: COLUMNTYPE.TEXT },
+                    {
+                        field: "vocabulary_id",
+                        header: "Vocabulary",
+                        type: COLUMNTYPE.TEXT,
+                    },
+                    {
+                        field: "completeness",
+                        header: "Completeness",
+                        type: COLUMNTYPE.NUMERIC,
+                    },
+                    {
+                        field: "accuracy",
+                        header: "Accuracy",
+                        type: COLUMNTYPE.NUMERIC,
+                    },
+                    {
+                        field: "reliability",
+                        header: "Reliability",
+                        type: COLUMNTYPE.NUMERIC,
+                    },
+                    {
+                        field: "timeliness",
+                        header: "Timeliness",
+                        type: COLUMNTYPE.NUMERIC,
+                    },
+                    {
+                        field: "consistancy",
+                        header: "Consistancy",
+                        type: COLUMNTYPE.NUMERIC,
+                    },
+                ],
+            },
             selectedColumns: [],
+            tableSelection: [],
+            expandedRows: [],
+            resultCollections: [],
+            resultAttributes: [],
+            selectedSearchMode: SEARCH_MODE.ANY,
         };
     },
     created() {
@@ -454,20 +424,32 @@ export default defineComponent({
 
         this.selectedColumns = objectString
             ? JSON.parse(objectString)
-            : Object.assign(this.columns);
+            : Object.assign(this.columns.collection);
     },
     methods: {
-        async doQueryAny(){
+        expandAll() {
+            this.expandedRows = this.resultCollections.filter((p: any) => p.id);
+        },
+        collapseAll() {
+            this.expandedRows = [];
+        },
+        async doQueryAny() {
             //start loading
-            const result = await queryAny(Object.values(this.selectedConcepts))
-            console.log(result)
+            const result: any = await queryAny(
+                Object.values(this.selectedConcepts)
+            );
+            console.log(result);
+            this.resultCollections = result.data.collections;
+            this.resultAttributes = result.data.attributes;
             //create table
             //loading finished
         },
         onToggle(value: any) {
-            const filteredColumns: any = this.columns.filter((col: any) => {
-                return value.includes(col);
-            });
+            const filteredColumns: any = this.columns.collection.filter(
+                (col: any) => {
+                    return value.includes(col);
+                }
+            );
             this.selectedColumns = Object.assign(filteredColumns);
             console.log(this.selectedColumns);
             localStorage.setItem(
@@ -504,7 +486,7 @@ export default defineComponent({
                 if (key === "global") {
                     this.filters.global.value = null;
                 } else {
-                    const column: any = this.columns.filter(
+                    const column: any = this.columns.collection.filter(
                         (c) => c.field === key
                     )[0];
                     this.clearColumnFilter(column);
