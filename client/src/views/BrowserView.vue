@@ -12,7 +12,10 @@
         .links.w-50.d-flex
             .d-flex.justify-end.align-center.w-100
                 //- ExternalLink(href="https://ohdsi.github.io/CommonDataModel/", text="Ohdsi")
-                ExternalLink(href="https://athena.ohdsi.org/search-terms/start", text="Athena")
+                ExternalLink(
+                    href="https://athena.ohdsi.org/search-terms/start",
+                    text="Athena"
+                )
 
     .d-flex
         TabView.w-75(lazy)
@@ -28,7 +31,7 @@
                             v-model="selectedConcepts",
                             :suggestions="filteredConcepts",
                             @complete="searchConcepts($event)",
-                            @item-select="(event) => { mostRecentConcepts.delete(event.value), mostRecentConcepts.add(event.value); }",
+                            @item-select="(event) => addToMostRecentConcepts(event.value)",
                             :virtualScrollerOptions="{ items: concepts, itemSize: 40 }"
                         )
                         Button#search-button(
@@ -40,7 +43,11 @@
                             :loading="false",
                             @click="doQueryAny()"
                         )
-                        SelectButton(v-model="selectedSearchMode" :options="SEARCH_MODE" )
+                        SelectButton#search-mode.ml-2(
+                            v-model="selectedSearchMode",
+                            :options="SEARCH_MODE",
+                            :unselectable="false"
+                        )
                         //get children
                         //any -> set of children
                         //all -> all of any of children
@@ -49,7 +56,7 @@
                     div most recent concepts:
                     .most-recents(
                         v-for="item in Array.from(mostRecentConcepts).reverse()",
-                        @click="selectedConcepts.push(item)"
+                        @click="selectConcept(item)"
                     ) {{ item }}
 
             TabPanel(header="Axes")
@@ -66,7 +73,11 @@
                     :virtualScrollerOptions="{ items: axis.distinct_values, itemSize: 40 }"
                 )
 
-    CollectionTable(:collections="resultCollections", :attributes="resultAttributes")
+    CollectionTable(
+        :collections="resultCollections",
+        :attributes="resultAttributes",
+        @conceptIdSelected="(value) => selectConceptOfAttribute(value)"
+    )
 
     ScrollTop
 </template>
@@ -97,9 +108,7 @@ import Dropdown from "primevue/dropdown";
 import Button from "primevue/button";
 import ExternalLink from "../components/ExternalLink.vue";
 import SelectButton from "primevue/selectbutton";
-import CollectionTable from "../components/CollectionTable.vue"
-
-const mostRecentConcepts = new Set(["36033638", "45458440"]);
+import CollectionTable from "../components/CollectionTable.vue";
 </script>
 
 <script lang="ts">
@@ -110,13 +119,6 @@ import {
     getQueryRelationships,
     queryAny,
 } from "../requests/getReq";
-// import { FilterMatchMode, FilterOperator } from "primevue/api";
-
-// const enum COLUMNTYPE {
-//     TEXT = "text",
-//     NUMERIC = "numeric",
-//     DATE = "date",
-// }
 
 const enum SEARCH_MODE {
     ANY = "ANY",
@@ -140,7 +142,7 @@ export default defineComponent({
     },
     data() {
         return {
-            selectedConcepts: [],
+            selectedConcepts: ["36033638"],
             filteredConcepts: null,
             concepts: [],
             axes: null,
@@ -149,9 +151,21 @@ export default defineComponent({
             resultCollections: [],
             resultAttributes: [],
             selectedSearchMode: SEARCH_MODE.ANY,
+            mostRecentConcepts: new Set(["36033638", "45458440"]),
         };
     },
     methods: {
+        selectConceptOfAttribute(concept_id: string) {
+            this.selectConcept(concept_id);
+            this.addToMostRecentConcepts(concept_id);
+        },
+        selectConcept(concept_id: string) {
+            this.selectedConcepts.push(concept_id);
+        },
+        addToMostRecentConcepts(concept_id: string) {
+            this.mostRecentConcepts.delete(concept_id);
+            this.mostRecentConcepts.add(concept_id);
+        },
         async doQueryAny() {
             //TODO start loading (show loading process if fetching from db takes some time)
             const result: any = await queryAny(
@@ -215,7 +229,8 @@ a {
     background-color: rgba(213, 213, 213, 0.541);
 }
 
-#search-button {
+#search-button,
+#search-mode{
     margin: 2px;
     min-width: fit-content;
     height: 42px;
@@ -234,4 +249,5 @@ a {
     overflow-y: auto;
     min-width: fit-content;
 }
+
 </style>

@@ -63,7 +63,7 @@ DataTable.p-datatable-sm(
                         placeholder="Keyword Search"
                     )
     template(#expansion="slotProps")
-        AttributeTable(:attributes="attributes.filter((a)=> a.collection_id === slotProps.data.id)")
+        AttributeTable(:attributes="attributes.filter((a)=> a.collection_id === slotProps.data.id)", @conceptIdSelected="(value) => $emit('conceptIdSelected', value)")
 
     template(#empty) No collections found
     template(#loading) Loading collections..
@@ -188,6 +188,9 @@ export default defineComponent({
         this.fetchSelectedColumnsFromLocalStorage();
     },
     methods: {
+        print(value: any) {
+            console.log(value);
+        },
         setupFilters() {
             //add dynamically generated filters for each column
             let filters: any = Object.assign(this.filters);

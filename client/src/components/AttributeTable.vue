@@ -15,6 +15,16 @@ DataTable.p-datatable-sm(
         :key="col.field",
         sortable
     )
+        template(#body="slotProps")
+            .d-flex.concept_id(v-if="col.field === 'concept_id'")
+                div {{ slotProps.data.concept_id }}
+                button(
+                    @click="$emit('conceptIdSelected', slotProps.data.concept_id)",
+                    title="Add concept id to searchbar"
+                ) add
+                //- todo tooltip?
+
+            div(v-else) {{ slotProps.data[col.field] }}
 </template>
 
 
@@ -24,6 +34,7 @@ import DataTable from "primevue/datatable";
 import Column from "primevue/column";
 import ColumnGroup from "primevue/columngroup";
 import Row from "primevue/row";
+import Button from "primevue/button"
 </script>
 
 <script lang="ts">
@@ -88,3 +99,17 @@ export default defineComponent({
     },
 });
 </script>
+
+
+<style scoped>
+.concept_id {
+    /* cursor: pointer; */
+    /* font-weight: bold;
+    font-size: large; */
+}
+
+button{
+    margin-left:10px;
+    color: var(--primary-color);
+}
+</style>
