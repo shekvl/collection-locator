@@ -172,7 +172,10 @@ export default defineComponent({
             resultCollections: [],
             resultAttributes: [],
             selectedSearchMode: SEARCH_MODE.ANY,
-            mostRecentConcepts: new Set(["36033638", "45458440"]),
+            mostRecentConcepts: new Set(["36033638", "45458440",
+            "45876191", //descendent (36033638)
+            "3667069", //maps to (940658)
+            ]),
         };
     },
     methods: {
@@ -199,7 +202,7 @@ export default defineComponent({
         async doQueryRelationship() {
             const relationships = [];
             for (const a of this.axes ) { //TODO:generatlize
-                const axis: any = a 
+                const axis: any = a
                 if (axis.selectedValues.length > 0) {
                     relationships.push({
                         relationship_id: axis.relationship_id,

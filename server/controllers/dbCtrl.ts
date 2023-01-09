@@ -136,7 +136,7 @@ export const queryAny = (req, res) => {
     // console.log(req.query.concept_ids)
     query.queryAny(req.query.concept_ids)
         .then((result) => {
-            const collection_ids = Array.from(new Set(result.rows.map((r) => r.id)))
+            const collection_ids = Array.from(new Set(result.rows?.map((r) => r.id)))
             const collections = result.rows
             query.queryAttributes(collection_ids)
                 .then((result) => {

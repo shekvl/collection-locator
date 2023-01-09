@@ -59,7 +59,37 @@ export const query = {
     },
 
     async queryAny(concept_ids): Promise<any> {
+        if (!concept_ids){
+            return []
+        }
+
+        //parse strings to integer, so Set works
+        concept_ids = concept_ids.map(c=> parseInt(c))
+
+        //include 'Maps to' concepts
+        const mapsResult = await pool.query('select * from get_maps($1)', [concept_ids])
+        concept_ids = Array.from(
+            new Set(
+                concept_ids.concat(mapsResult.rows.map((r) => r.concept_id))
+            )
+        )
+
+        //include descendent concepts
+        const descResult = await pool.query('select * from get_descendents($1)', [concept_ids])
+        concept_ids = Array.from(
+            new Set(
+                concept_ids.concat(descResult.rows.map((r) => r.concept_id))
+            )
+        )
+        console.log(concept_ids)
+
+        //get collections containing any of passed concept_ids
         return pool.query('select * from query_any($1)', [concept_ids])
+    },
+
+    async queryAll(concept_ids): Promise<any> {
+
+
     },
 
     async queryAttributes(collection_ids): Promise<any> {
@@ -82,7 +112,7 @@ export const query = {
                 and cr.concept_id_1 = c.concept_id
                 and cr.concept_id_2 = cc.concept_id
                 and cr.relationship_id = \'${r.relationship_id}\'
-                and cc.concept_name = Any(Array[${r.concept_names.map((r)=>`\'${r}\'`)}])
+                and cc.concept_name = Any(Array[${r.concept_names.map((r) => `\'${r}\'`)}])
                 `
             subqueries.push(subquerie)
         }

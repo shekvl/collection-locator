@@ -73,7 +73,7 @@ or replace function query_any(concept_ids int[]) RETURNS table (
 	added_by integer,
 	person_name varchar(255)
 ) as $$
-select c.id, c.name, c.institution_id, c.number_of_records, c.completeness, c.accuracy,
+select distinct c.id, c.name, c.institution_id, c.number_of_records, c.completeness, c.accuracy,
 c.reliability, c.timeliness, c.consistancy, c.added_by, (p.first_name || ' ' || p.last_name)::varchar(255)
 from collection c, attribute a, attribute_concept ac, concept cn, person p
 where c.id = a.collection_id
@@ -99,11 +99,42 @@ or replace function query_attributes(collection_ids int[]) RETURNS table (
   	timeliness real,
   	consistancy real
 ) as $$
-select a.collection_id, cn.concept_id, cn.code, cn.vocabulary_id, a.attribute_name, a.completeness, a.accuracy, a.reliability, a.timeliness, a.consistancy
+select a.collection_id, distinct cn.concept_id, cn.code, cn.vocabulary_id, a.attribute_name, a.completeness, a.accuracy, a.reliability, a.timeliness, a.consistancy
 from collection c, attribute a, attribute_concept ac, concept cn
 where c.id = a.collection_id
 and a.id = ac.attribute_id
 and cn.code = ac.code
 and cn.vocabulary_id = ac.vocabulary_id
 and c.id = ANY (collection_ids)
+$$ language sql;
+
+
+//1. lateral mappings
+//2. vertical descendence
+//3. queryAny
+
+
+-- return all concepts that have a 'Maps to' relationship to any of the concept_ids from the passed array
+create
+or replace function get_maps(concept_ids int[]) RETURNS table (
+	concept_id int
+) as $$
+	select distinct c2.concept_id
+	from cdm.concept_relationship cr
+	join cdm.concept c1 ON cr.concept_id_1 = c1.concept_id
+	join cdm.concept c2 ON cr.concept_id_2 = c2.concept_id
+	where cr.relationship_id in ('Maps to', 'Mapped from')
+	and c1.concept_id = any(concept_ids);
+$$ language sql;
+
+-- returns all descending concept_ids of parent concept_id
+create
+or replace function get_descendents(concept_ids int[]) RETURNS table (
+	concept_id int
+) as $$
+	select distinct c.concept_id
+	from cdm.concept_ancestor a, cdm.concept c
+	where a.descendant_concept_id = c.concept_id
+	and a.ancestor_concept_id <> a.descendant_concept_id
+	and a.ancestor_concept_id = any (concept_ids);
 $$ language sql;

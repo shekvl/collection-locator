@@ -17,7 +17,7 @@ axios.defaults.baseURL = `http://localhost:${port}`
 
 export async function getAllConcepts() {
     try {
-        const response = await axios.get('/db/concepts')
+        const response = await axios.get('/db/cdmconcepts') //TODO if only concepts of collections shown, no parenting possible
         return response.data.map((a: any) => a.concept_id.toString())
     } catch (error: any) {
         console.trace(error)
