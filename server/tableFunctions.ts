@@ -51,7 +51,7 @@ export const concepts = {
 export const query = {
 
     async getQueryRelationships(group: string, vocabulary_id: string): Promise<any> {
-        return pool.query('select name, distinct_values from query_relationship where "group" = $1 and vocabulary_id = $2', [group, vocabulary_id])
+        return pool.query('select "group", name, relationship_id, distinct_values as value_names, vocabulary_id from query_relationship where "group" = $1 and vocabulary_id = $2', [group, vocabulary_id])
     },
 
     async getOntologies(): Promise<any> {
@@ -66,6 +66,29 @@ export const query = {
         return pool.query('select * from query_attributes($1)', [collection_ids])
     },
 
+
+    // let relationshipsa = [
+    //     { relationship_id: 'Has property', concept_names: ['Finding', 'Time (e.g. seconds)', 'Ratio'] },
+    //     { relationship_id: 'Has scale type', concept_names: ['Doc', 'Qn'] },
+    // ]
+    // get concept_ids of specified vocabulary that have any of the given values for all given relationships
+    async queryRelationship(vocabulary_id: string, relationships: any): Promise<any> {
+        const subqueries = []
+        for (const r of relationships) {
+            let subquerie = `
+                select c.concept_id
+                from concept c, cdm.concept_relationship cr, cdm.concept cc
+                where c.vocabulary_id = \'${vocabulary_id}\'
+                and cr.concept_id_1 = c.concept_id
+                and cr.concept_id_2 = cc.concept_id
+                and cr.relationship_id = \'${r.relationship_id}\'
+                and cc.concept_name = Any(Array[${r.concept_names.map((r)=>`\'${r}\'`)}])
+                `
+            subqueries.push(subquerie)
+        }
+        const query = subqueries.join(' intersect ')
+        return pool.query(query)
+    },
 }
 
 export const attributes = {

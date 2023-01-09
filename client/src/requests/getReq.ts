@@ -55,3 +55,16 @@ export async function queryAny(concept_ids: any) {
         return { success: false, message: error.response.data.message }
     }
 }
+
+export async function queryRelationships(vocabulary_id:string, relationships:any) {
+    try {
+        const response = await axios.post('/db/queryRelationships', {
+            vocabulary_id,
+            relationships
+        })
+        return { success: true, message: response.data.message, data: response.data }
+    } catch (error: any) {
+        console.trace(error)
+        return { success: false, message: error.response.data.message }
+    }
+}

@@ -133,7 +133,7 @@ export const getOntologies = (req, res) => {
 
 
 export const queryAny = (req, res) => {
-    console.log(req.query.concept_ids)
+    // console.log(req.query.concept_ids)
     query.queryAny(req.query.concept_ids)
         .then((result) => {
             const collection_ids = Array.from(new Set(result.rows.map((r) => r.id)))
@@ -143,6 +143,17 @@ export const queryAny = (req, res) => {
                     const attributes = result.rows
                     res.send({ collections, attributes });
                 })
+        })
+        .catch((err) => {
+            console.error('Error executing query', err.stack) //TODO
+        })
+}
+
+export const queryRelationships = (req, res) => {
+    query.queryRelationship(req.body.vocabulary_id, req.body.relationships)
+        .then((result) => {
+            console.log(result.rows)
+            res.send(result.rows.map((r)=> r.concept_id));
         })
         .catch((err) => {
             console.error('Error executing query', err.stack) //TODO

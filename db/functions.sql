@@ -61,15 +61,15 @@ $$ language sql;
 -- get collections that contains any concept of a list of concepts
 create
 or replace function query_any(concept_ids int[]) RETURNS table (
-	id integer,
-  	name varchar(255),
-  	institution_id varchar(255),
-  	number_of_records integer,
-  	completeness real,
-  	accuracy real,
-  	reliability real,
-  	timeliness real,
-  	consistancy real,
+  id integer,
+  name varchar(255),
+  institution_id varchar(255),
+  number_of_records integer,
+  completeness real,
+  accuracy real,
+  reliability real,
+  timeliness real,
+  consistancy real,
 	added_by integer,
 	person_name varchar(255)
 ) as $$

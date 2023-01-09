@@ -2,13 +2,6 @@
 .px-5
     .d-flex
         .w-50
-            //- .d-flex.justify-start
-                Dropdown(
-                    v-model="selectedOntology",
-                    :options="ontologies",
-                    placeholder="Select Vocabulary",
-                    :virtualScrollerOptions="{ items: ontologies, itemSize: 40 }"
-                )
         .links.w-50.d-flex
             .d-flex.justify-end.align-center.w-100
                 //- ExternalLink(href="https://ohdsi.github.io/CommonDataModel/", text="Ohdsi")
@@ -18,9 +11,9 @@
                 )
 
     .d-flex
-        TabView.w-75(lazy)
+        TabView.w-100(lazy)
             TabPanel(header="Concepts")
-                .d-flex.w-66
+                .d-flex.w-50
                     .d-flex
                         AutoComplete(
                             forceSelection,
@@ -41,7 +34,7 @@
                             iconPos="right",
                             icon="pi pi-search",
                             :loading="false",
-                            @click="doQueryAny()"
+                            @click="doQueryAny(selectedConcepts)"
                         )
                         SelectButton#search-mode.ml-2(
                             v-model="selectedSearchMode",
@@ -52,27 +45,54 @@
                         //any -> set of children
                         //all -> all of any of children
 
-                #most-recent-panel.d-flex.w-33.flex-column.align-start.mx-5.px-4.py-2
+                .selection-panel.d-flex.w-25.flex-column.align-start.mx-5.px-4.py-2
                     div most recent concepts:
                     .most-recents(
                         v-for="item in Array.from(mostRecentConcepts).reverse()",
                         @click="selectConcept(item)"
                     ) {{ item }}
+                .d-flex.flex-column.justify-start.w-25.mx-5
+                    .selection-panel.d-flex.flex-column.align-start.px-4.py-2
+                        div composite descriptors:
+                    Button.mt-2(
+                        label="create",
+                        icon="pi pi-plus",
+                        iconPos="right",
+                        style="width: fit-content"
+                    )
 
-            TabPanel(header="Axes")
-                AutoComplete(
-                    v-for="axis in axes",
-                    forceSelection,
-                    multiple,
-                    minLength="1",
-                    delay="0",
-                    :placeholder="axis.name",
-                    v-model="axis.selectedValues",
-                    :suggestions="axis.filteredValues",
-                    @complete="filter($event, axis)",
-                    :virtualScrollerOptions="{ items: axis.distinct_values, itemSize: 40 }"
-                )
-
+            TabPanel(header="Relationships")
+                .d-flex.flex-column
+                    .d-flex.justify-start
+                        Dropdown(
+                            v-model="selectedOntology",
+                            :options="ontologies",
+                            placeholder="Select Vocabulary",
+                            :virtualScrollerOptions="{ items: ontologies, itemSize: 40 }"
+                        )
+                    .d-flex.justify-start.align-center
+                        div axes:
+                        AutoComplete(
+                            v-for="axis in axes",
+                            forceSelection,
+                            multiple,
+                            minLength="1",
+                            delay="0",
+                            :placeholder="axis.name",
+                            v-model="axis.selectedValues",
+                            :suggestions="axis.filteredValues",
+                            @complete="filter($event, axis)",
+                            :virtualScrollerOptions="{ items: axis.value_names, itemSize: 40 }"
+                        )
+                    Button#search-button(
+                        type="button",
+                        label="Search",
+                        size="small",
+                        iconPos="right",
+                        icon="pi pi-search",
+                        :loading="false",
+                        @click="doQueryRelationship()"
+                    )
     CollectionTable(
         :collections="resultCollections",
         :attributes="resultAttributes",
@@ -117,6 +137,7 @@ import {
     getAllConcepts,
     getOntologies,
     getQueryRelationships,
+    queryRelationships,
     queryAny,
 } from "../requests/getReq";
 
@@ -145,9 +166,9 @@ export default defineComponent({
             selectedConcepts: ["36033638"],
             filteredConcepts: null,
             concepts: [],
-            axes: null,
+            axes: [],
             ontologies: [],
-            selectedOntology: null,
+            selectedOntology: "LOINC",
             resultCollections: [],
             resultAttributes: [],
             selectedSearchMode: SEARCH_MODE.ANY,
@@ -166,14 +187,32 @@ export default defineComponent({
             this.mostRecentConcepts.delete(concept_id);
             this.mostRecentConcepts.add(concept_id);
         },
-        async doQueryAny() {
+        async doQueryAny(concept_ids:[]) {
             //TODO start loading (show loading process if fetching from db takes some time)
             const result: any = await queryAny(
-                Object.values(this.selectedConcepts)
+                Object.values(concept_ids)
             );
             this.resultCollections = result.data.collections;
             this.resultAttributes = result.data.attributes;
             //TODO set loading finished
+        },
+        async doQueryRelationship() {
+            const relationships = [];
+            for (const a of this.axes ) { //TODO:generatlize
+                const axis: any = a 
+                if (axis.selectedValues.length > 0) {
+                    relationships.push({
+                        relationship_id: axis.relationship_id,
+                        concept_names: axis.selectedValues,
+                    });
+                }
+            }
+
+            const result: any = await queryRelationships(
+                this.selectedOntology,
+                relationships
+            );
+            this.doQueryAny(result.data)
         },
         searchConcepts(event: any) {
             const filtered: any = this.concepts.filter((concept: string) => {
@@ -182,7 +221,7 @@ export default defineComponent({
             this.filteredConcepts = filtered;
         },
         filter(event: any, object: any) {
-            const filtered: any = object.distinct_values.filter(
+            const filtered: any = object.value_names.filter(
                 (value: string) => {
                     return value
                         .toLowerCase()
@@ -230,7 +269,7 @@ a {
 }
 
 #search-button,
-#search-mode{
+#search-mode {
     margin: 2px;
     min-width: fit-content;
     height: 42px;
@@ -241,7 +280,7 @@ a {
     height: fit-content;
 }
 
-#most-recent-panel {
+.selection-panel {
     width: auto;
     height: 200px;
     border: solid 1px #e6e9ec;
@@ -249,5 +288,4 @@ a {
     overflow-y: auto;
     min-width: fit-content;
 }
-
 </style>

@@ -137,6 +137,7 @@ export default defineComponent({
                 global: { value: null, matchMode: FilterMatchMode.CONTAINS },
             },
             columns: [
+                { field: "id", header: "ID", type: COLUMNTYPE.NUMERIC },
                 { field: "name", header: "Name", type: COLUMNTYPE.TEXT },
                 {
                     field: "number_of_records",
