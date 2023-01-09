@@ -16,7 +16,7 @@ DeferredContent
                 span(v-html="$t('locator.p2a')")
                 ExternalLink(href="https://bbmri.at/", text="BBMRI.at")
                 span(v-html="$t('locator.p2b')")
-                RouterLink(href="", text="feedback")
+                SimpleLink(href="", text="feedback")
                 span(v-html="$t('locator.p2c')")
             p(v-html="$t('locator.p3')")
             ul.my-2
@@ -89,7 +89,7 @@ DeferredContent
 <script setup lang="ts">
 import DeferredContent from "primevue/deferredcontent";
 import ExternalLink from "../components/ExternalLink.vue";
-import RouterLink from "../components/RouterLink.vue";
+import SimpleLink from "../components/SimpleLink.vue";
 import Button from "primevue/button";
 </script>
 

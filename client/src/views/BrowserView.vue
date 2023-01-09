@@ -1,13 +1,4 @@
 <template lang="pug">
-//- div tags:
-//- .tag-container
-//-     n-tag(
-//-         v-for="tag in tags.value",
-//-         size="large",
-//-         type="info",
-//-         @close="removeTag",
-//-         closable
-//-     ) {{ tag }}
 .px-5
     .d-flex
         .w-50
@@ -75,124 +66,18 @@
                     :virtualScrollerOptions="{ items: axis.distinct_values, itemSize: 40 }"
                 )
 
-    DataTable.p-datatable-sm(
-        ref="dt",
-        :value="resultCollections",
-        v-model:selection="tableSelection",
-        v-model:filters="filters",
-        v-model:expandedRows="expandedRows",
-        filterDisplay="menu",
-        :globalFilterFields="columns.collection.map((col) => col.field)",
-        :dataKey="resultCollections.id",
-        responsiveLayout="scroll",
-        rowHover,
-        showGridlines,
-        :rows="10",
-        :paginator="true",
-        paginatorTemplate="CurrentPageReport FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown",
-        currentPageReportTemplate="Showing {first} to {last} of {totalRecords}",
-        :rowsPerPageOptions="[10,25,50,100]",
-        removableSort,
-        sortMode="multiple",
-        stateStorage="local",
-        stateKey="collectionBrowserTableState",
-        exportFilename="collections",
-        :exportFunction="export",
-        stripedRows
-    )
-        template.d-flex(#header)
-            .d-flex.justify-space-between.align-center
-                .d-flex.align-center
-                    .table-header.mx-5 Collections
-                    div(style="text-align:left")
-                        MultiSelect(:modelValue="selectedColumns" :options="columns.collection" optionLabel="header" @update:modelValue="onToggle" placeholder="Select columns" style="width: 10em")
-                .d-flex.align-center
-                    Button.p-button-outlined.p-button-sm.mx-2(
-                        icon="pi pi-plus",
-                        label="Expand all",
-                        @click="expandAll"
-                    )
-                    Button.p-button-outlined.p-button-sm(
-                        icon="pi pi-minus",
-                        label="Collapse all",
-                        @click="collapseAll"
-                    )
-                    Button.p-button-outlined.p-button-sm.mx-2(
-                        icon="pi pi-bookmark",
-                        label="Bookmark selected",
-                        @click=""
-                    )
-                    Button.p-button-outlined.p-button-sm(
-                        icon="pi pi-download",
-                        label="Export",
-                        @click="exportCSV($event)"
-                    )
-                    Button.p-button-outlined.p-button-sm.mx-2(
-                        icon="pi pi-filter-slash",
-                        label="Clear",
-                        @click="clearTableFilters"
-                    )
-                    span.p-input-icon-left
-                        i.pi.pi-search
-                        InputText.p-inputtext-sm(
-                            v-model="filters['global'].value",
-                            placeholder="Keyword Search"
-                        )
-        template(#expansion="slotProps")
-            DataTable.p-datatable-sm(
-                :value="resultAttributes",
-                :dataKey="resultAttributes.concept_id",
-                responsiveLayout="scroll",
-                rowHover,
-                showGridlines,
-                removableSort,
-                stripedRows
-            )
-                Column(
-                    v-for="col of columns.attribute",
-                    :field="col.field",
-                    :header="col.header",
-                    :key="col.field",
-                    sortable,
-                )
-        //- template.d-flex(#footer) //conflicts with paginator
-        //-     div asdf
-
-        template(#empty) No collections found
-        template(#loading) Loading collections..
-        Column(selectionMode="multiple", headerStyle="width: 3rem", :reorderableColumns="false")
-        Column(:expander="true", headerStyle="width: 3rem", :reorderableColumns="false")
-        Column(
-            v-for="col of selectedColumns",
-            :field="col.field",
-            :header="col.header",
-            :key="col.field",
-            sortable,
-        )
-            template(#filter="{ filterModel }")
-                InputText.p-column-filter(
-                    type="text",
-                    v-model="filterModel.value",
-                    :placeholder="`Search by ${filterModel.value} - ${filterModel.matchMode}`"
-                )
-            template(#filterclear="{ filterCallback }")
-                Button.p-button-outlined.p-button-sm(
-                    label="Primary",
-                    @click="clearColumnFilter(col)"
-                ) Clear
+    CollectionTable(:collections="resultCollections", :attributes="resultAttributes")
 
     ScrollTop
 </template>
 
+
 //TODO tooltip: info about concept (fetch and "cache"); including link to athena with code as param in url
 //real time search with suggestion(maybe restricted by vocab etc.)  => only valid concepts addable
-//all/any concept search toggle
 
-//filter result
 //bookmark results
-//composite descriptor selection panel
-//browse all concepts (sort hierachy)
-//show recent concept list
+//!composite descriptor selection panel
+//browse all concepts in use (sort hierachy)
 
 //show tabs according to query_relationships
 
@@ -200,22 +85,9 @@
 
 //! autocomplete does not scale(?) problem displaying 10000 items.. can be limited by minlength; cdm.concept vs concept
 
-//primevue datatable [https://www.primefaces.org/primevue/datatable]
-//body slotprops => make concept ids addable to search
-//download table option? use exportCSV() predefined method
-//:loading option with #loading tamplet with skeleton? im fetching takes some time (necessary with paging?)
-
-//context menu -> favorites... although separate star button could also visualize state.. (how to visualize that already in a bookmark folder?)
-//select checkboxes (download only selected, bookmark [sets, only add once])
-
-//allow missing quality metadata
-//infor about how to use table
-//componentinize BrowserView()
-
 
 <script setup lang="ts">
 import { ref } from "vue";
-import { NTag } from "naive-ui";
 import AutoComplete from "primevue/autocomplete";
 import VirtualScroller from "primevue/virtualscroller";
 import ScrollTop from "primevue/scrolltop";
@@ -223,33 +95,11 @@ import TabView from "primevue/tabview";
 import TabPanel from "primevue/tabpanel";
 import Dropdown from "primevue/dropdown";
 import Button from "primevue/button";
-import DataTable from "primevue/datatable";
-import Column from "primevue/column";
-import ColumnGroup from "primevue/columngroup";
-import Row from "primevue/row";
-import InputText from "primevue/inputtext";
-import MultiSelect from "primevue/multiselect";
 import ExternalLink from "../components/ExternalLink.vue";
 import SelectButton from "primevue/selectbutton";
+import CollectionTable from "../components/CollectionTable.vue"
 
-let tags = ref(new Set(["37020651", "1003901"]));
-
-const removeTag = function (event: any) {
-    const tag =
-        event.target.parentElement.parentElement.parentElement.textContent;
-    tags.value.delete(tag);
-    console.log("tag removed:", tag);
-};
-
-// const addTag = function (tag: string) {
-//     tags.value.add(tag);
-//     console.log("tag added:", tag);
-// };
-
-const mostRecentConcepts = new Set();
-function print(string) {
-    console.log(string);
-}
+const mostRecentConcepts = new Set(["36033638", "45458440"]);
 </script>
 
 <script lang="ts">
@@ -260,13 +110,13 @@ import {
     getQueryRelationships,
     queryAny,
 } from "../requests/getReq";
-import { FilterMatchMode, FilterOperator } from "primevue/api";
+// import { FilterMatchMode, FilterOperator } from "primevue/api";
 
-const enum COLUMNTYPE {
-    TEXT = "text",
-    NUMERIC = "numeric",
-    DATE = "date",
-}
+// const enum COLUMNTYPE {
+//     TEXT = "text",
+//     NUMERIC = "numeric",
+//     DATE = "date",
+// }
 
 const enum SEARCH_MODE {
     ANY = "ANY",
@@ -287,211 +137,29 @@ export default defineComponent({
             axis.filteredValues = [];
         }
         this.axes = axes;
-
-        //add dynamically generate filters for each column
-        let filters: any = Object.assign(this.filters);
-        for (const column of this.columns.collection) {
-            filters[column.field] = {
-                operator: FilterOperator.AND,
-                constraints: [
-                    {
-                        value: null,
-                        matchMode:
-                            column.type === COLUMNTYPE.NUMERIC
-                                ? FilterMatchMode.EQUALS
-                                : column.type === COLUMNTYPE.DATE
-                                ? FilterMatchMode.DATE_IS
-                                : FilterMatchMode.STARTS_WITH,
-                    },
-                ],
-            };
-        }
-        this.filters = filters;
     },
     data() {
         return {
-            selectedConcepts: ["36033638", "45458440"],
+            selectedConcepts: [],
             filteredConcepts: null,
             concepts: [],
             axes: null,
             ontologies: [],
             selectedOntology: null,
-
-            filters: {
-                global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-            },
-            columns: {
-                collection: [
-                    //probably on the client side after all
-                    { field: "name", header: "Name", type: COLUMNTYPE.TEXT },
-                    {
-                        field: "number_of_records",
-                        header: "Number of Records",
-                        type: COLUMNTYPE.NUMERIC,
-                    },
-                    {
-                        field: "person_name",
-                        header: "Submitted By",
-                        type: COLUMNTYPE.TEXT,
-                    }, //name not id
-                    {
-                        field: "institution_id",
-                        header: "Institution",
-                        type: COLUMNTYPE.TEXT,
-                    },
-                    {
-                        field: "completeness",
-                        header: "Completeness",
-                        type: COLUMNTYPE.NUMERIC,
-                    },
-                    {
-                        field: "accuracy",
-                        header: "Accuracy",
-                        type: COLUMNTYPE.NUMERIC,
-                    },
-                    {
-                        field: "reliability",
-                        header: "Reliability",
-                        type: COLUMNTYPE.NUMERIC,
-                    },
-                    {
-                        field: "timeliness",
-                        header: "Timeliness",
-                        type: COLUMNTYPE.NUMERIC,
-                    },
-                    {
-                        field: "consistancy",
-                        header: "Consistancy",
-                        type: COLUMNTYPE.NUMERIC,
-                    },
-                ],
-                attribute: [
-                    {
-                        field: "concept_id",
-                        header: "Concept ID",
-                        type: COLUMNTYPE.NUMERIC,
-                    },
-                    {
-                        field: "attribute_name",
-                        header: "Column Name",
-                        type: COLUMNTYPE.TEXT,
-                    },
-                    { field: "code", header: "Code", type: COLUMNTYPE.TEXT },
-                    {
-                        field: "vocabulary_id",
-                        header: "Vocabulary",
-                        type: COLUMNTYPE.TEXT,
-                    },
-                    {
-                        field: "completeness",
-                        header: "Completeness",
-                        type: COLUMNTYPE.NUMERIC,
-                    },
-                    {
-                        field: "accuracy",
-                        header: "Accuracy",
-                        type: COLUMNTYPE.NUMERIC,
-                    },
-                    {
-                        field: "reliability",
-                        header: "Reliability",
-                        type: COLUMNTYPE.NUMERIC,
-                    },
-                    {
-                        field: "timeliness",
-                        header: "Timeliness",
-                        type: COLUMNTYPE.NUMERIC,
-                    },
-                    {
-                        field: "consistancy",
-                        header: "Consistancy",
-                        type: COLUMNTYPE.NUMERIC,
-                    },
-                ],
-            },
-            selectedColumns: [],
-            tableSelection: [],
-            expandedRows: [],
             resultCollections: [],
             resultAttributes: [],
             selectedSearchMode: SEARCH_MODE.ANY,
         };
     },
-    created() {
-        const objectString = localStorage.getItem(
-            "collectionBrowserFilteredColumns"
-        );
-
-        this.selectedColumns = objectString
-            ? JSON.parse(objectString)
-            : Object.assign(this.columns.collection);
-    },
     methods: {
-        expandAll() {
-            this.expandedRows = this.resultCollections.filter((p: any) => p.id);
-        },
-        collapseAll() {
-            this.expandedRows = [];
-        },
         async doQueryAny() {
-            //start loading
+            //TODO start loading (show loading process if fetching from db takes some time)
             const result: any = await queryAny(
                 Object.values(this.selectedConcepts)
             );
-            console.log(result);
             this.resultCollections = result.data.collections;
             this.resultAttributes = result.data.attributes;
-            //create table
-            //loading finished
-        },
-        onToggle(value: any) {
-            const filteredColumns: any = this.columns.collection.filter(
-                (col: any) => {
-                    return value.includes(col);
-                }
-            );
-            this.selectedColumns = Object.assign(filteredColumns);
-            console.log(this.selectedColumns);
-            localStorage.setItem(
-                "collectionBrowserFilteredColumns",
-                JSON.stringify(filteredColumns)
-            );
-        },
-        exportCSV() {
-            const dt: any = this.$refs.dt;
-            dt.exportCSV();
-        },
-        defaultFilter(column: any) {
-            return {
-                operator: FilterOperator.AND,
-                constraints: [
-                    {
-                        value: null,
-                        matchMode:
-                            column.type === COLUMNTYPE.NUMERIC
-                                ? FilterMatchMode.EQUALS
-                                : column.type === COLUMNTYPE.DATE
-                                ? FilterMatchMode.DATE_IS
-                                : FilterMatchMode.STARTS_WITH,
-                    },
-                ],
-            };
-        },
-        clearColumnFilter(column: any) {
-            const filters: any = this.filters;
-            filters[column.field] = this.defaultFilter(column);
-        },
-        clearTableFilters() {
-            for (const key in this.filters) {
-                if (key === "global") {
-                    this.filters.global.value = null;
-                } else {
-                    const column: any = this.columns.collection.filter(
-                        (c) => c.field === key
-                    )[0];
-                    this.clearColumnFilter(column);
-                }
-            }
+            //TODO set loading finished
         },
         searchConcepts(event: any) {
             const filtered: any = this.concepts.filter((concept: string) => {
@@ -515,17 +183,6 @@ export default defineComponent({
 
 
 <style>
-/* .n-tag {
-    margin: 2px;
-    size: large;
-} */
-
-/* .tag-container {
-    width: 30px;
-    display: flex;
-    justify-content: flex-start;
-} */
-
 .p-tabview-panel {
     display: flex;
     justify-content: flex-start;
@@ -539,10 +196,6 @@ export default defineComponent({
 .p-dropdown-label {
     text-align: start;
 }
-
-/* .p-autocomplete-token{
-    border-radius: 5px !important;
-} */
 </style>
 
 <style scoped>
@@ -580,19 +233,5 @@ a {
     border-radius: 8px;
     overflow-y: auto;
     min-width: fit-content;
-}
-</style>
-
-<style>
-@media (max-width: 1300px) {
-    .p-datatable-header Button,
-    #search-button {
-        font-size: 0 !important;
-    }
-
-    .p-datatable-header .p-button-icon,
-    #search-button .p-button-icon {
-        margin: 0 !important;
-    }
 }
 </style>
