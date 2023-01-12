@@ -58,13 +58,7 @@ export const query = {
         return pool.query('select * from ontology')
     },
 
-    async queryAny(concept_ids): Promise<any> {
-        if (!concept_ids){
-            return []
-        }
-
-        //parse strings to integer, so Set works
-        concept_ids = concept_ids.map(c=> parseInt(c))
+    async addMaps(concept_ids) {
 
         //include 'Maps to' concepts
         const mapsResult = await pool.query('select * from get_maps($1)', [concept_ids])
@@ -74,6 +68,10 @@ export const query = {
             )
         )
 
+        return concept_ids
+    },
+
+    async addDescendents(concept_ids) {
         //include descendent concepts
         const descResult = await pool.query('select * from get_descendents($1)', [concept_ids])
         concept_ids = Array.from(
@@ -81,15 +79,63 @@ export const query = {
                 concept_ids.concat(descResult.rows.map((r) => r.concept_id))
             )
         )
+
+        return concept_ids
+    },
+
+    async queryAny(concept_ids): Promise<any> {
+        if (!concept_ids) {
+            return []
+        } else if (typeof concept_ids !== 'object') { //create array of single value
+            concept_ids = [concept_ids]
+            console.log(concept_ids)
+        }
+
+        //parse strings to integer, so Set works
+        concept_ids = concept_ids.map(c => parseInt(c))
+
+        concept_ids = await query.addMaps(concept_ids)
+        concept_ids = await query.addDescendents(concept_ids)
+
         console.log(concept_ids)
 
         //get collections containing any of passed concept_ids
         return pool.query('select * from query_any($1)', [concept_ids])
     },
 
+    //intersections of queryAny with every concept?redSquare11235813
     async queryAll(concept_ids): Promise<any> {
+        if (!concept_ids) {
+            return []
+        } else if (typeof concept_ids !== 'object') {
+            concept_ids = [concept_ids]
+            console.log(concept_ids)
+        }
 
+        //TODO check whether array, if only one concept.. no array
+        //TODO all qith 3667069 and 36033638 not working, okay in postman
 
+        //parse strings to integer, so Set works
+        concept_ids = concept_ids.map(c => parseInt(c))
+
+        const subqueries = []
+
+        for (const concept_id of concept_ids) {
+            let ids = []
+            ids.push(concept_id)
+
+            ids = await query.addMaps(ids)
+            ids = await query.addDescendents(ids)
+
+            const subquery = `select * from query_any(Array[${ids}])`
+            subqueries.push(subquery)
+        }
+        console.log(subqueries)
+
+        // const intersection = sets.reduce((acc, curr) => acc.intersect(curr));
+        const q = subqueries.join(' intersect ')
+        console.log(q)
+        return pool.query(q)
     },
 
     async queryAttributes(collection_ids): Promise<any> {
@@ -105,7 +151,7 @@ export const query = {
     async queryRelationship(vocabulary_id: string, relationships: any): Promise<any> {
         const subqueries = []
         for (const r of relationships) {
-            let subquerie = `
+            let subquery = `
                 select c.concept_id
                 from concept c, cdm.concept_relationship cr, cdm.concept cc
                 where c.vocabulary_id = \'${vocabulary_id}\'
@@ -114,7 +160,7 @@ export const query = {
                 and cr.relationship_id = \'${r.relationship_id}\'
                 and cc.concept_name = Any(Array[${r.concept_names.map((r) => `\'${r}\'`)}])
                 `
-            subqueries.push(subquerie)
+            subqueries.push(subquery)
         }
         const query = subqueries.join(' intersect ')
         return pool.query(query)

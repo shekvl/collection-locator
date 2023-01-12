@@ -102,11 +102,11 @@ export default defineComponent({
 
 
 <style scoped>
-.concept_id {
-    /* cursor: pointer; */
-    /* font-weight: bold;
-    font-size: large; */
-}
+/* .concept_id {
+    cursor: pointer;
+    font-weight: bold;
+    font-size: large;
+} */
 
 button{
     margin-left:10px;

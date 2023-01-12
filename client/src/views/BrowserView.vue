@@ -1,10 +1,15 @@
 <template lang="pug">
 .px-5
     .d-flex
-        .w-50
-        .links.w-50.d-flex
-            .d-flex.justify-end.align-center.w-100
+        .w-75
+            AthenaSearch(:vocabularies="ontologies", @conceptIdSelected="(value) => selectConceptOfAttribute(value)")
+        .links.w-25.d-flex
+            .d-flex.justify-end.align-start.w-100
                 //- ExternalLink(href="https://ohdsi.github.io/CommonDataModel/", text="Ohdsi")
+                ExternalLink(
+                    href="https://github.com/OHDSI/Athena",
+                    text="Athena - Search Docs"
+                )
                 ExternalLink(
                     href="https://athena.ohdsi.org/search-terms/start",
                     text="Athena"
@@ -34,7 +39,7 @@
                             iconPos="right",
                             icon="pi pi-search",
                             :loading="false",
-                            @click="doQueryAny(selectedConcepts)"
+                            @click="selectedSearchMode === SEARCH_MODE.ANY ? doQueryAny(selectedConcepts) : doQueryAll(selectedConcepts)"
                         )
                         SelectButton#search-mode.ml-2(
                             v-model="selectedSearchMode",
@@ -129,6 +134,7 @@ import Button from "primevue/button";
 import ExternalLink from "../components/ExternalLink.vue";
 import SelectButton from "primevue/selectbutton";
 import CollectionTable from "../components/CollectionTable.vue";
+import AthenaSearch from "../components/AthenaSearch.vue"
 </script>
 
 <script lang="ts">
@@ -139,6 +145,7 @@ import {
     getQueryRelationships,
     queryRelationships,
     queryAny,
+    queryAll,
 } from "../requests/getReq";
 
 const enum SEARCH_MODE {
@@ -172,9 +179,11 @@ export default defineComponent({
             resultCollections: [],
             resultAttributes: [],
             selectedSearchMode: SEARCH_MODE.ANY,
-            mostRecentConcepts: new Set(["36033638", "45458440",
-            "45876191", //descendent (36033638)
-            "3667069", //maps to (940658)
+            mostRecentConcepts: new Set([
+                "36033638",
+                "45458440",
+                "45876191", //descendent (36033638)
+                "3667069", //maps to (940658)
             ]),
         };
     },
@@ -190,19 +199,25 @@ export default defineComponent({
             this.mostRecentConcepts.delete(concept_id);
             this.mostRecentConcepts.add(concept_id);
         },
-        async doQueryAny(concept_ids:[]) {
+        async doQueryAll(concept_ids: []) {
             //TODO start loading (show loading process if fetching from db takes some time)
-            const result: any = await queryAny(
-                Object.values(concept_ids)
-            );
-            this.resultCollections = result.data.collections;
-            this.resultAttributes = result.data.attributes;
+            const result: any = await queryAll(Object.values(concept_ids));
+            this.resultCollections = result.data.collections || [];
+            this.resultAttributes = result.data.attributes || [];
+            //TODO set loading finished
+        },
+        async doQueryAny(concept_ids: []) {
+            //TODO start loading (show loading process if fetching from db takes some time)
+            const result: any = await queryAny(Object.values(concept_ids));
+            this.resultCollections = result.data.collections || [];
+            this.resultAttributes = result.data.attributes || [];
             //TODO set loading finished
         },
         async doQueryRelationship() {
             const relationships = [];
-            for (const a of this.axes ) { //TODO:generatlize
-                const axis: any = a
+            for (const a of this.axes) {
+                //TODO:generatlize
+                const axis: any = a;
                 if (axis.selectedValues.length > 0) {
                     relationships.push({
                         relationship_id: axis.relationship_id,
@@ -215,7 +230,7 @@ export default defineComponent({
                 this.selectedOntology,
                 relationships
             );
-            this.doQueryAny(result.data)
+            this.doQueryAny(result.data);
         },
         searchConcepts(event: any) {
             const filtered: any = this.concepts.filter((concept: string) => {
@@ -224,13 +239,11 @@ export default defineComponent({
             this.filteredConcepts = filtered;
         },
         filter(event: any, object: any) {
-            const filtered: any = object.value_names.filter(
-                (value: string) => {
-                    return value
-                        .toLowerCase()
-                        .startsWith(event.query.toLowerCase());
-                }
-            );
+            const filtered: any = object.value_names.filter((value: string) => {
+                return value
+                    .toLowerCase()
+                    .startsWith(event.query.toLowerCase());
+            });
             object.filteredValues = filtered;
         },
     },

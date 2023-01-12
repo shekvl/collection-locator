@@ -10,6 +10,7 @@ router.get('/cdmconcepts', dbController.getAllCdmConcepts )
 router.get('/queryRelationships', dbController.getQueryRelationships )
 router.get('/ontologies', dbController.getOntologies )
 router.get('/queryAny', dbController.queryAny )
+router.get('/queryAll', dbController.queryAll )
 router.post('/queryRelationships', dbController.queryRelationships ) //body necessary
 
 

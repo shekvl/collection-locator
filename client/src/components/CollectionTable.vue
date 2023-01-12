@@ -128,7 +128,10 @@ export default defineComponent({
         this.setupFilters();
     },
     props: {
-        collections: [],
+        collections: {
+            type: [],
+            default: [],
+        },
         attributes: [],
     },
     data() {
@@ -216,7 +219,8 @@ export default defineComponent({
             );
         },
         expandAll() {
-            this.expandedRows = this.collections.filter((p: any) => p.id);
+            const coll: [] = this.collections;
+            this.expandedRows = coll.filter((p: any) => p.id);
         },
         collapseAll() {
             this.expandedRows = [];

@@ -10,7 +10,7 @@
   "private": true,
   "scripts": {
     "init": "concurrently \"npm i\" \"cd client && npm i\" \"cd server && npm i\"",
-    "start-client": "cd client &% npm run serve",
+    "start-client": "cd client && npm run serve",
     "start-server": "cd server && npm run serve",
     "serve": "concurrently \"npm run start-client\" \"npm run start-server\""
   },

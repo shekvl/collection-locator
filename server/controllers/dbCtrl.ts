@@ -149,11 +149,28 @@ export const queryAny = (req, res) => {
         })
 }
 
+export const queryAll = (req, res) => {
+    // console.log(req.query.concept_ids)
+    query.queryAll(req.query.concept_ids)
+        .then((result) => {
+            const collection_ids = Array.from(new Set(result.rows?.map((r) => r.id)))
+            const collections = result.rows
+            query.queryAttributes(collection_ids)
+                .then((result) => {
+                    const attributes = result.rows
+                    res.send({ collections, attributes });
+                })
+        })
+        .catch((err) => {
+            console.error('Error executing query', err.stack) //TODO
+        })
+}
+
 export const queryRelationships = (req, res) => {
     query.queryRelationship(req.body.vocabulary_id, req.body.relationships)
         .then((result) => {
             console.log(result.rows)
-            res.send(result.rows.map((r)=> r.concept_id));
+            res.send(result.rows.map((r) => r.concept_id));
         })
         .catch((err) => {
             console.error('Error executing query', err.stack) //TODO
