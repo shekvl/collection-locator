@@ -2,22 +2,14 @@ import env from 'dotenv'
 env.config()
 
 import express from 'express'
+import cors from 'cors'
 
 const app = express()
-const port = 3000
 app.use(express.json());
-
-const cors = require('cors')
 app.use(cors())
 
-import indexRoutes from './routes'
-import generateRoutes from './routes/generate'
-import dbRoutes from './routes/db'
-import uploadeRoutes from './routes/upload'
+import {setup} from './router'
+setup(app)
 
-app.use('/', indexRoutes)
-app.use('/generate', generateRoutes)
-app.use('/db', dbRoutes)
-app.use('/upload', uploadeRoutes)
-
+const port = process.env.SERVER_PORT
 app.listen(port, () => console.log(`Application listening on port ${port}!`))

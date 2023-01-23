@@ -3,7 +3,6 @@
 import { getOntologies } from './controllers/dbCtrl'
 import { pool } from './postgres'
 
-
 export const omop = { //TODO
 
     /**

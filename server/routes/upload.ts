@@ -1,29 +1,8 @@
 import { Router } from 'express'
 const router = Router()
 
-
-function assertCsvMimetype(req, file, callback) {
-    if (file.mimetype !== 'text/csv') {
-        const error = new Error("Wrong file type")
-        error.name = "CSV_FILE_TYPES"
-        return callback(error, false)
-    }
-
-    callback(null, true)
-}
-
-import multer from 'multer'
-const upload = multer({
-    dest: 'uploads',
-    fileFilter: assertCsvMimetype,
-})
-const uploadFiles = upload.fields([
-    { name: 'collections' }, //TODO implement minCount on clientside: required
-    { name: 'attributes' }
-])
-
+import { uploadFiles } from '../controllers/uploadCtrl'
 import { parseCsv, insertRecords, deleteFiles, assertUniqueCollectionNames, assertCollectionReferencesProvided, assertFileSchema } from '../controllers/collectionUploadCtrl'
-
 
 router.post(
     '/collection',
@@ -36,9 +15,8 @@ router.post(
     deleteFiles
 )
 
-
 /**
- * Exception Middleware
+ * Error handler
  * Through multer uploaded files are deleted
  */
 router.use((err, req, res, next) => {
