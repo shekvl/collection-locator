@@ -1,7 +1,5 @@
 <template lang="pug">
 DeferredContent
-    //- .home(@click="toast()") {{ $t('a.b') }}
-
     #content
         section#locator.d-flex.flex-column
             h1 Collection Locator

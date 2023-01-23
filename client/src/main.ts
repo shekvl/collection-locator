@@ -11,9 +11,6 @@ import * as directives from 'vuetify/directives'
 import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
 
-import Equal from 'equal-vue'
-import 'equal-vue/dist/style.css'
-
 import PrimeVue from 'primevue/config'
 import 'primevue/resources/themes/saga-blue/theme.css'
 import 'primevue/resources/primevue.min.css'
@@ -36,7 +33,6 @@ app.use(router)
 app.use(i18n)
 app.use(vuetify)
 app.use(ElementPlus)
-app.use(Equal)
 app.use(PrimeVue)
 app.use(ToastService)
 

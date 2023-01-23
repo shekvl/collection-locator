@@ -1,0 +1,4 @@
+collection_name;attribute_name;code;vocabulary_id;completeness;accuracy;reliability;timeliness;consistancy
+blood_sample;Blood sample taken;41D0.00;Read;;0.94;0.75;0.72;0.92
+blood_sample;Bone marrow finding;250411006;SNOMED;0.83;0.86;0.96;0.74;1
+blood_sample;DNA analysis;62302004;SNOMED;0.78;0.75;;0.93;0.83

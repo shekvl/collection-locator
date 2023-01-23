@@ -1,5 +1,5 @@
 import axios from 'axios'
-import serialize from './serialize.js'
+import serialize from '../js_helpers/serialize'
 
 const port = 3000
 axios.defaults.baseURL = `http://localhost:${port}`

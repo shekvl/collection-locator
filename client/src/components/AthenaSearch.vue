@@ -1,5 +1,5 @@
 <template lang="pug">
-.d-flex.align-center
+.d-flex.align-center.mb-2
     span.p-input-icon-right
         i.pi.pi-search(@click="doAthenaQuery")
         InputText(
@@ -53,5 +53,9 @@ export default defineComponent({
 <style scoped>
 i {
     cursor: pointer;
+}
+
+input{
+    width: 500px;
 }
 </style>

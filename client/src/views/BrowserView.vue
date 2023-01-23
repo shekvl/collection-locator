@@ -18,7 +18,7 @@
     .d-flex
         TabView.w-100(lazy)
             TabPanel(header="Concepts")
-                .d-flex.w-50
+                .d-flex.w-75
                     .d-flex
                         AutoComplete(
                             forceSelection,
@@ -56,15 +56,6 @@
                         v-for="item in Array.from(mostRecentConcepts).reverse()",
                         @click="selectConcept(item)"
                     ) {{ item }}
-                .d-flex.flex-column.justify-start.w-25.mx-5
-                    .selection-panel.d-flex.flex-column.align-start.px-4.py-2
-                        div composite descriptors:
-                    Button.mt-2(
-                        label="create",
-                        icon="pi pi-plus",
-                        iconPos="right",
-                        style="width: fit-content"
-                    )
 
             TabPanel(header="Relationships")
                 .d-flex.flex-column
@@ -123,7 +114,6 @@
 
 
 <script setup lang="ts">
-import { ref } from "vue";
 import AutoComplete from "primevue/autocomplete";
 import VirtualScroller from "primevue/virtualscroller";
 import ScrollTop from "primevue/scrolltop";

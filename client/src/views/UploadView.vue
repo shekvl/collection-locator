@@ -4,49 +4,37 @@
         DragAndDropUpload
 
     .my-5.w-75
-        #info-box.d-flex.flex-column.align-start.mb-4
+        #info-box.d-flex.flex-column.align-start
             h3 # How To
+            p To upload a collection, two kinds of spreadsheets are needed. A collections.csv file containing metadata about the specific collection and an attributes.csv file containing the annotated table fields with associated quality metadata.
 
-            p(v-html="$t('howto.p1')")
+            h3 Annotation
+            p Show graphically how attributes/column headers of the original dataset are annotated and make up the attribute csv...
+            //show with arrows how collumns are annotated (dont have to annotate all fields)
 
-            h4 Annotation veranschaulichung
-            p(v-html="$t('howto.p2')")
+            h3 Spezification
+            div ...
+            //multiple annotations (single attribute can be annotated with multiple codes)
+            //parent concepts (attribute can be annotated with parent concept e.g. body measurement instead of body hight)
+            //empty fields (quality metadata is not required)
+            //on or multiple CSVs (upload as batch or separated)
+            //different vocabularies (annotation codes don't have to be of same vocabulary)
 
+            h3 Example
+            h4 Upload collections separately, each in one file
+            img(src="../assets/collections01.png")
+            img(src="../assets/collections02.png")
 
-            p(v-html="$t('howto.p3')")
-            p(v-html="$t('howto.p4')")
+            h4 Upload collections and attributes as a batch, each in one spreadsheet
+            img(src="../assets/collections_combined.png")
 
-            img(:src="collections01")
-            img(:src="collections02")
+            h3 Quality Metadata Definition
+            div ...
 
-            p(v-html="$t('howto.p5')")
-
-
-            img(:src="collectionsCombined")
-
-            div &nbsp;
-            div open questions:
-            div how are quality characteristics defined?
-            div problem incomplete mapping between vocabs
-
-        // problem null values..
-        // problem multiple annotation..
-
-        //multip annotation
-        //empty fields (required and not required)
-        //on or multiple csvs
-        //different vocabularies
-        //show with arrows how collumns are annotated (dont have to annotate all fields)
-        //covid example?
-        //biobank related content
-        //parent group (body measurement)
 </template>
 
 <script setup lang="ts">
 import DragAndDropUpload from "../components/DragAndDropUpload.vue";
-import collections01 from "../assets/collections01.png";
-import collections02 from "../assets/collections02.png";
-import collectionsCombined from "../assets/collections_combined.png";
 </script>
 
 
@@ -56,15 +44,7 @@ import { defineComponent } from "vue";
 export default defineComponent({
     i18n: {
         messages: {
-            en: {
-                howto: {
-                    p1: "To upload a collection, two kinds of spreadsheets are needed. A collections.csv and a attributes.csv file.",
-                    p2:"",
-                    p3:"Spezification:",
-                    p4:"Upload collections separately, each in one file",
-                    p5:"Upload collections and attributes combined, each in one spreadsheet",
-                },
-            },
+            en: {},
             de: {},
         },
     },
@@ -73,11 +53,15 @@ export default defineComponent({
 
 <style>
 img {
-    /* scale:80%; */
-    width: 800px;
+    width: 100%;
 }
 
 #info-box {
-    line-height: 40px;
+    line-height: 30px;
+    text-align: justify;
+}
+
+#info-box h3 {
+    margin-top: 30px;
 }
 </style>

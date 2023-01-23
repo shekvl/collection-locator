@@ -1,0 +1,2 @@
+name;number_of_records;completeness;accuracy;reliability;timeliness;consistancy
+blood_sample;134;0.86;0.79;0.83;0.86;0.97

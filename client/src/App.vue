@@ -2,8 +2,9 @@
 TopMenubar.mb-5
 
 router-view
-Toast(position="bottom-left")
 
+//- toasts get displayed globaly
+Toast(position="bottom-left")
 </template>
 
 

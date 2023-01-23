@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "outDir": "./built",
     "allowJs": true,
     "target": "esnext",
     "module": "esnext",
@@ -34,7 +35,7 @@
     "src/**/*.vue",
     "tests/**/*.ts",
     "tests/**/*.tsx"
-, "src/requests/athena.ts"  ],
+  ],
   "exclude": [
     "node_modules"
   ]
