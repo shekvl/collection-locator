@@ -43,9 +43,9 @@ CREATE TRIGGER update_last_modified
     FOR EACH ROW
     EXECUTE FUNCTION update_last_modified ();
 
-DROP TRIGGER IF EXISTS update_last_modified ON query_relationship;
+DROP TRIGGER IF EXISTS update_last_modified ON relationship_of_interest;
 CREATE TRIGGER update_last_modified
-	BEFORE UPDATE ON query_relationship
+	BEFORE UPDATE ON relationship_of_interest
     FOR EACH ROW
     EXECUTE FUNCTION update_last_modified ();
 

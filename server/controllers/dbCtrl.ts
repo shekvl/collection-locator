@@ -1,20 +1,20 @@
 
-import { omop, generate, collection, concepts, query } from '../tableFunctions'
+import {  generate,  concepts, query } from '../database/tableFunctions'
 import { gaussianRandom, uniformRandomInt } from '../random';
 const csv = require("fast-csv");
 
 
-export const children = (req, res) => {
+// export const children = (req, res) => {
 
-    //37069099
-    omop.fetchChildren(req.params.id)
-        .then((table) => {
-            res.send(table.rows[0]); //define return value; empty set => undefined
-        })
-        .catch((err) => {
-            console.error('Error executing query', err.stack) //general error message?
-        })
-}
+//     //37069099
+//     omop.fetchChildren(req.params.id)
+//         .then((table) => {
+//             res.send(table.rows[0]); //define return value; empty set => undefined
+//         })
+//         .catch((err) => {
+//             console.error(err.message, err.stack) //general error message?
+//         })
+// }
 
 
 export const generateDataset = (req, res) => {
@@ -42,7 +42,7 @@ export const generateDataset = (req, res) => {
             csvStream.end()
         })
         .catch((err) => {
-            console.error('Error executing query', err.stack) //general error message?
+            console.error(err.message, err.stack) //general error message?
         })
 }
 
@@ -80,15 +80,15 @@ export const generateCollectionSheet = (req, res) => {
 }
 
 
-export const getAttributeCount = (req, res) => {
-    collection.getAttributeCount(req.query.collection_ids)
-        .then((table) => {
-            res.send(table.rows);
-        })
-        .catch((err) => {
-            console.error('Error executing query', err.stack) //TODO
-        })
-}
+// export const getAttributeCount = (req, res) => {
+//     collection.getAttributeCount(req.query.collection_ids)
+//         .then((table) => {
+//             res.send(table.rows);
+//         })
+//         .catch((err) => {
+//             console.error(err.message, err.stack)
+//         })
+// }
 
 
 export const getAllConcepts = (req, res) => {
@@ -97,37 +97,37 @@ export const getAllConcepts = (req, res) => {
             res.send(table.rows);
         })
         .catch((err) => {
-            console.error('Error executing query', err.stack) //TODO
+            console.error(err.message, err.stack)
         })
 }
 
-export const getAllCdmConcepts = (req, res) => {
-    concepts.allFromCdm()
+// export const getAllCdmConcepts = (req, res) => {
+//     concepts.allFromCdm()
+//         .then((table) => {
+//             res.send(table.rows);
+//         })
+//         .catch((err) => {
+//             console.error(err.message, err.stack)
+//         })
+// }
+
+export const getRelationshipsOfInterest = (req, res) => {
+    query.getRelationshipsOfInterest(req.query.group, req.query.vocabulary_id)
         .then((table) => {
             res.send(table.rows);
         })
         .catch((err) => {
-            console.error('Error executing query', err.stack) //TODO
+            console.error(err.message, err.stack)
         })
 }
 
-export const getQueryRelationships = (req, res) => {
-    query.getQueryRelationships(req.query.group, req.query.vocabulary_id)
+export const getSupportedVocabularies = (req, res) => {
+    query.getSupportedVocabularies()
         .then((table) => {
             res.send(table.rows);
         })
         .catch((err) => {
-            console.error('Error executing query', err.stack) //TODO
-        })
-}
-
-export const getOntologies = (req, res) => {
-    query.getOntologies()
-        .then((table) => {
-            res.send(table.rows);
-        })
-        .catch((err) => {
-            console.error('Error executing query', err.stack) //TODO
+            console.error(err.message, err.stack)
         })
 }
 
@@ -145,7 +145,7 @@ export const queryAny = (req, res) => {
                 })
         })
         .catch((err) => {
-            console.error('Error executing query', err.stack) //TODO
+            console.error(err.message, err.stack)
         })
 }
 
@@ -162,17 +162,16 @@ export const queryAll = (req, res) => {
                 })
         })
         .catch((err) => {
-            console.error('Error executing query', err.stack) //TODO
+            console.error(err.message, err.stack)
         })
 }
 
 export const queryRelationships = (req, res) => {
     query.queryRelationship(req.body.vocabulary_id, req.body.relationships)
         .then((result) => {
-            console.log(result.rows)
             res.send(result.rows.map((r) => r.concept_id));
         })
         .catch((err) => {
-            console.error('Error executing query', err.stack) //TODO
+            console.error(err.message, err.stack)
         })
 }

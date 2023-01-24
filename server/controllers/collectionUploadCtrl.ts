@@ -1,6 +1,6 @@
 import fs from 'fs'
 import { parseFile } from 'fast-csv'
-import { collection, transaction } from '../tableFunctions'
+import { collection, transaction } from '../database/tableFunctions'
 
 const options = {
     headers: true,
@@ -161,7 +161,7 @@ export function assertCollectionReferencesProvided(req, res, next) {
  */
 export function insertRecords(req, res, next) {
 
-    transaction.uploadCollection(req.parsed.collections.records, req.parsed.attributes.records)
+    transaction.insertCollection(req.parsed.collections.records, req.parsed.attributes.records)
         .then(async (collection_ids: any) => {
             const collectionStrings: string[] = []
 

@@ -1,11 +1,11 @@
 <template lang="pug">
 .px-5
     .d-flex
+        //- TODO shift athena search to concepts tab, since not needed globaly (=> concept lookup)
         .w-75
-            AthenaSearch(:vocabularies="ontologies", @conceptIdSelected="(value) => selectConceptOfAttribute(value)")
+            AthenaSearch(:vocabularies="vocabularies", @conceptIdSelected="(value) => selectConceptOfAttribute(value)")
         .links.w-25.d-flex
             .d-flex.justify-end.align-start.w-100
-                //- ExternalLink(href="https://ohdsi.github.io/CommonDataModel/", text="Ohdsi")
                 ExternalLink(
                     href="https://github.com/OHDSI/Athena",
                     text="Athena - Search Docs"
@@ -58,13 +58,14 @@
                     ) {{ item }}
 
             TabPanel(header="Relationships")
+                //- TODO hide axes if other vocabulary is selected (axes is a relationship group specific to LOINC vocab)
                 .d-flex.flex-column
                     .d-flex.justify-start
                         Dropdown(
-                            v-model="selectedOntology",
-                            :options="ontologies",
+                            v-model="selectedVocabulary",
+                            :options="vocabularies",
                             placeholder="Select Vocabulary",
-                            :virtualScrollerOptions="{ items: ontologies, itemSize: 40 }"
+                            :virtualScrollerOptions="{ items: vocabularies, itemSize: 40 }"
                         )
                     .d-flex.justify-start.align-center
                         div axes:
@@ -72,13 +73,13 @@
                             v-for="axis in axes",
                             forceSelection,
                             multiple,
-                            minLength="1",
+                            minLength="0",
                             delay="0",
                             :placeholder="axis.name",
                             v-model="axis.selectedValues",
                             :suggestions="axis.filteredValues",
                             @complete="filter($event, axis)",
-                            :virtualScrollerOptions="{ items: axis.value_names, itemSize: 40 }"
+                            :virtualScrollerOptions="{ items: axis.distinct_values, itemSize: 40 }"
                         )
                     Button#search-button(
                         type="button",
@@ -106,7 +107,7 @@
 //!composite descriptor selection panel
 //browse all concepts in use (sort hierachy)
 
-//show tabs according to query_relationships
+//show tabs according to relationship_of_interests
 
 //TODO extra COMPONENT for search..
 
@@ -131,8 +132,8 @@ import AthenaSearch from "../components/AthenaSearch.vue"
 import { defineComponent } from "vue";
 import {
     getAllConcepts,
-    getOntologies,
-    getQueryRelationships,
+    getVocabularies,
+    getRelationshipsOfInterest,
     queryRelationships,
     queryAny,
     queryAll,
@@ -145,13 +146,13 @@ const enum SEARCH_MODE {
 
 export default defineComponent({
     async mounted() {
-        const ontologies = await getOntologies();
-        this.ontologies = ontologies.map((o: any) => o.vocabulary_id);
+        const vocabularies = await getVocabularies();
+        this.vocabularies = vocabularies.map((o: any) => o.vocabulary_id);
 
         const concepts = await getAllConcepts();
         this.concepts = concepts;
 
-        const axes = await getQueryRelationships("axes", "LOINC");
+        const axes = await getRelationshipsOfInterest("axes", "LOINC");
         for (const axis of axes) {
             axis.selectedValues = [];
             axis.filteredValues = [];
@@ -164,8 +165,8 @@ export default defineComponent({
             filteredConcepts: null,
             concepts: [],
             axes: [],
-            ontologies: [],
-            selectedOntology: "LOINC",
+            vocabularies: [],
+            selectedVocabulary: "LOINC",
             resultCollections: [],
             resultAttributes: [],
             selectedSearchMode: SEARCH_MODE.ANY,
@@ -217,7 +218,7 @@ export default defineComponent({
             }
 
             const result: any = await queryRelationships(
-                this.selectedOntology,
+                this.selectedVocabulary,
                 relationships
             );
             this.doQueryAny(result.data);
@@ -229,7 +230,7 @@ export default defineComponent({
             this.filteredConcepts = filtered;
         },
         filter(event: any, object: any) {
-            const filtered: any = object.value_names.filter((value: string) => {
+            const filtered: any = object.distinct_values.filter((value: string) => {
                 return value
                     .toLowerCase()
                     .startsWith(event.query.toLowerCase());

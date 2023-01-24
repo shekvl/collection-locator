@@ -1,3 +1,4 @@
+import multer from 'multer'
 
 function assertCsvMimetype(req, file, callback) {
     if (file.mimetype !== 'text/csv') {
@@ -9,12 +10,10 @@ function assertCsvMimetype(req, file, callback) {
     callback(null, true)
 }
 
-import multer from 'multer'
 const upload = multer({
     dest: 'uploads',
     fileFilter: assertCsvMimetype,
 })
-
 
 export const uploadFiles = upload.fields([
     { name: 'collections' },

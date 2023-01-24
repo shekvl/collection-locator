@@ -152,7 +152,7 @@ create table session (
     last_modified timestamp with time zone NOT NULL DEFAULT NOW()
 );
 
-create table query_relationship (
+create table relationship_of_interest (
     id SERIAL PRIMARY KEY,
     "group" varchar(255),
     name varchar(255),

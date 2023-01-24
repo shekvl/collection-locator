@@ -18,7 +18,8 @@ axios.defaults.baseURL = `http://localhost:${port}`
 
 export async function getAllConcepts() {
     try {
-        const response = await axios.get('/db/cdmconcepts') //TODO if only concepts of collections shown, no parenting possible
+        const response = await axios.get('/db/concepts')
+        console.log(response)
         return response.data.map((a: any) => a.concept_id.toString())
     } catch (error: any) {
         console.trace(error)
@@ -27,9 +28,9 @@ export async function getAllConcepts() {
 }
 
 
-export async function getQueryRelationships(group: string, vocabulary_id: string) {
+export async function getRelationshipsOfInterest(group: string, vocabulary_id: string) {
     try {
-        const response = await axios.get('/db/queryRelationships', {
+        const response = await axios.get('/db/relationshipsOfInterest', {
             params: { group, vocabulary_id }
         })
         return response.data
@@ -39,9 +40,9 @@ export async function getQueryRelationships(group: string, vocabulary_id: string
     }
 }
 
-export async function getOntologies() {
+export async function getVocabularies() {
     try {
-        const response = await axios.get('/db/ontologies')
+        const response = await axios.get('/db/vocabularies')
         return response.data
     } catch (error: any) {
         console.trace(error)
@@ -62,7 +63,6 @@ export async function queryAny(concept_ids: any) {
 export async function queryAll(concept_ids: any) {
     try {
         const response = await axios.get('/db/queryAll?' + serialize({ concept_ids }))
-        console.log(response.data)
         return { success: true, message: response.data.message, data: response.data }
     } catch (error: any) {
         console.trace(error)
