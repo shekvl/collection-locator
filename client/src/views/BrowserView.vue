@@ -140,8 +140,8 @@ import {
 } from "../requests/getReq";
 
 const enum SEARCH_MODE {
-    ANY = "ANY",
-    ALL = "ALL",
+    ANY = "OR",
+    ALL = "AND",
 }
 
 export default defineComponent({

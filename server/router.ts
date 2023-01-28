@@ -1,11 +1,16 @@
-import indexRoutes from './routes'
-import generateRoutes from './routes/generate'
-import dbRoutes from './routes/db'
-import uploadeRoutes from './routes/upload'
+import indexR from './routes'
+import spreadSheetR from './routes/spreadSheet'
+import dbR from './routes/db'
+import uploadeR from './routes/upload'
 
 export function setup(app: any) {
-    app.use('/', indexRoutes)
-    app.use('/generate', generateRoutes)
-    app.use('/db', dbRoutes)
-    app.use('/upload', uploadeRoutes)
+    app.use('/', indexR)
+    app.use('/db', dbR)
+    app.use('/random', spreadSheetR)
+    app.use('/upload', uploadeR)
+
+    // default error handler
+    app.use((err, req, res, next) => {
+        res.status(500).json({ message: err.message })
+    })
 }

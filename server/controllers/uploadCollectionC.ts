@@ -1,6 +1,37 @@
+import multer from 'multer'
 import fs from 'fs'
 import { parseFile } from 'fast-csv'
-import { collection, transaction } from '../database/tableFunctions'
+import * as tf from '../database/tableFunctions'
+import * as schema from '../database/schemas'
+
+/**
+ * Filter by mimetype to prevent upload of non csv files
+ * @param req Request object
+ * @param file File to be uploaded
+ * @param callback Callback passed by multer
+ */
+function assertCsvMimetype(req, file, callback) {
+    if (file.mimetype !== 'text/csv') {
+        const error = new Error("Wrong file type")
+        error.name = "CSV_FILE_TYPES"
+        return callback(error, false)
+    }
+
+    callback(null, true)
+}
+
+const upload = multer({
+    dest: 'uploads',
+    fileFilter: assertCsvMimetype,
+})
+
+/**
+ * Multer Middleware to upload files. Accepted form-data field names are specified.
+ */
+export const uploadFiles = upload.fields([
+    { name: 'collections' },
+    { name: 'attributes' }
+])
 
 const options = {
     headers: true,
@@ -11,22 +42,24 @@ const options = {
 }
 
 /**
- * Parse uploaded csv files. Collections, attributes, collection count and attribute count get attached to req.
+ * Midleware to parse uploaded csv files.
+ * @side_effect `Collections` and `attributes` are attached to req.
  */
 export function parseCsv(req, res, next) {
     req.parsed = {
         collections: {
             records: [],
             headers: [],
-            perFileCount:[],
+            perFileCount: [],
             total: 0
         }, attributes: {
             records: [],
             headers: [],
-            perFileCount:[],
+            perFileCount: [],
             total: 0
         }
     }
+
     const promises = []
 
     for (const file of req.files.collections) { //parse collections
@@ -82,65 +115,51 @@ const compareArrays = (a: any[], b: any[]) => {
 
 
 /**
- * Assert that all collection and attributes apply to csv schema (resp. uploaded via correct form-data name)
+ * Middleware to assert specific csv schema for collections and attributes. Collection or attribute files may match a schema, but may have been uploaded via an incorrect form-data field name.
+ * @param req Request object containing parsed collection and attribute records
  */
-export function assertFileSchema(req, res, next) {
-    const collection = [
-        'name',
-        'number_of_records',
-        'completeness',
-        'accuracy',
-        'reliability',
-        'timeliness',
-        'consistancy'
-    ]
+export function assertContentSchema(req, res, next) {
 
-    const attribute = [
-        'collection_name',
-        'attribute_name',
-        'code',
-        'vocabulary_id',
-        'completeness',
-        'accuracy',
-        'reliability',
-        'timeliness',
-        'consistancy'
-    ]
 
     for (const header of req.parsed.collections.headers) {
-        if (!compareArrays(header, collection)) {
+        if (!compareArrays(header, schema.collection)) {
             const err = new Error('Files do not apply to collection/attribute schema')
             err.name = 'FILE_SCHEMA_VIOLATION'
-            next(err)
+            return next(err)
         }
     }
     for (const header of req.parsed.attributes.headers) {
-        if (!compareArrays(header, attribute)) {
+        if (!compareArrays(header, schema.attribute)) {
             const err = new Error('Files do not apply to collection/attribute schema')
             err.name = 'FILE_SCHEMA_VIOLATION'
-            next(err)
+            return next(err)
         }
     }
 
     next()
 }
 
-export function assertUniqueCollectionNames(req, res, next) {
+/**
+ * Middleware to assert that all collections uploaded together have a unique name
+ * @param req Request object containing parsed collection and attribute records
+ */
+export function assertDistinctCollectionNames(req, res, next) {
     const collectionNames = req.parsed.collections.records.map((c) => c.name)
 
     if (collectionNames.length !== new Set(collectionNames).size) {
         const err = new Error('Distinct collection names required')
         err.name = 'UNIQUE_NAME_VIOLATION'
-        next(err)
-    } else {
-        next()
+        return next(err)
     }
+
+    next()
 }
 
 /**
- * Assert all attributes reference collection name of upload file
+ * Middleware to assert that all attribute records reference a collection name of the collections uploaded together
+ * @param req Request object containing parsed collection and attribute records
  */
-export function assertCollectionReferencesProvided(req, res, next) {
+export function assertCollectionReferencesOkay(req, res, next) {
     const collectionNames: [] = req.parsed.collections.records.map((c) => c.name)
     const collectionReferences: [] = req.parsed.attributes.records.map((c) => c.collection_name)
 
@@ -149,41 +168,44 @@ export function assertCollectionReferencesProvided(req, res, next) {
     if (unknownReference.length != 0) {
         const err = new Error('Attributes must refer to collection given in uploades collection files')
         err.name = 'UNKNOWN_REFERENCE_EXCEPTION'
-        next(err)
-    } else {
-        next()
+        return next(err)
     }
+
+    next()
 }
 
 
 /**
- * Insert parsed data into db
+ * Middleware to insert parsed collection and attribute records into the database. It sends a response with detailed information about the uploaded collections.
+ * @param req Request object containing parsed collection and attribute records
  */
 export function insertRecords(req, res, next) {
 
-    transaction.insertCollection(req.parsed.collections.records, req.parsed.attributes.records)
+    tf.collection.toDb(req.parsed.collections.records, req.parsed.attributes.records)
         .then(async (collection_ids: any) => {
-            const collectionStrings: string[] = []
-
-            const attributeCounts = await collection.getAttributeCount(collection_ids)
+            const collectionDetails: string[] = []
+            const attributeCounts = await tf.collection.attributeCount(collection_ids)
 
             for (const i of attributeCounts.rows)
-                collectionStrings.push(`${i.collection_name} (id: ${i.collection_id}, attribute_count: ${i.attribute_count})`)
+                collectionDetails.push(`${i.collection_name} (id: ${i.collection_id}, attribute_count: ${i.attribute_count})`)
 
             res.json({
                 parsed: req.parsed,
-                message: `${req.parsed.collections.total} New Collections: ${collectionStrings.join(' | ')}`
+                message: `${req.parsed.collections.total} New Collections: ${collectionDetails.join(' | ')}`
             })
+
+            next()
         })
         .catch(err => {
             err.name = 'POSTGRES_EXCEPTION'
             next(err)
         })
-        .finally(next())
+    // .finally(next())
 }
 
 /**
- * Delete all files uploaded by multer
+ * Delete files uploaded by multer
+ * @param req Request object containing uploaded files
  */
 export async function deleteFiles(req, res, next) {
 
@@ -193,9 +215,9 @@ export async function deleteFiles(req, res, next) {
         field.forEach((file: any) => {
             fs.unlink(file.path, (err) => {
                 if (err) {
-                    console.log(err)
+                    next(err)
                 } else {
-                    console.log("File removed:", file.path)
+                    // console.log("File removed:", file.path)
                 }
             })
         })

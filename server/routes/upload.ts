@@ -1,25 +1,21 @@
 import { Router } from 'express'
 const router = Router()
 
-import { uploadFiles } from '../controllers/uploadCtrl'
-import { parseCsv, insertRecords, deleteFiles, assertUniqueCollectionNames, assertCollectionReferencesProvided, assertFileSchema } from '../controllers/collectionUploadCtrl'
+import { uploadFiles, parseCsv, insertRecords, deleteFiles, assertDistinctCollectionNames, assertCollectionReferencesOkay, assertContentSchema } from '../controllers/uploadCollectionC'
 
-router.post(
-    '/collection',
-    uploadFiles,
+router.post('/collections', uploadFiles,
     parseCsv,
-    assertFileSchema,
-    assertUniqueCollectionNames,
-    assertCollectionReferencesProvided,
+    assertContentSchema,
+    assertDistinctCollectionNames,
+    assertCollectionReferencesOkay,
     insertRecords,
     deleteFiles
 )
 
 /**
- * Error handler
- * Through multer uploaded files are deleted
+ * Error handler for uploads. Files that have been uploaded by multer are deleted after sending a response with specific error message.
  */
-router.use((err, req, res, next) => {
+const errorHandler = (err, req, res, next) => {
 
     if (err.name === "CSV_FILE_TYPES") {
         res.status(422).json({ message: err.message + ': Files in csv format expected' })
@@ -38,6 +34,9 @@ router.use((err, req, res, next) => {
     }
 
     deleteFiles(req, res, next)
-})
+}
+
+router.use(errorHandler)
+
 
 export default router;

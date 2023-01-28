@@ -1,17 +1,5 @@
 import { pool } from './postgres'
 
-// export const omop = { //TODO
-
-//     /**
-//      * some description
-//      * @param concept_id adfasdf
-//      * @returns
-//      */
-//     async fetchChildren(concept_id: number): Promise<any> {
-//         return pool.query('select * from get_children($1)', [concept_id])
-//     },
-// }
-
 
 export const collection = {
 
@@ -20,181 +8,9 @@ export const collection = {
      * @param collection_ids Array of collection ids
      * @returns Id, name and attribute count for each collection
      */
-    async getAttributeCount(collection_ids: number[]): Promise<any> {
+    async attributeCount(collection_ids: number[]): Promise<any> {
         return pool.query('select * from get_attribute_counts($1)', [collection_ids])
     },
-}
-
-export const concepts = {
-
-    /**
-     * Get all cdm concept ids that are referenced by annotations stored in the collection locator
-     * @returns Concepts ids
-     */
-    async all(): Promise<any> {
-        return pool.query('select concept_id from concept')
-    },
-
-    // async allFromCdm(): Promise<any> {
-    //     return pool.query('select concept_id from cdm.concept where vocabulary_id = \'LOINC\'')
-    // },
-}
-
-export const query = {
-
-    /**
-     * Get relationships belonging to a group of the relationships_of_interest table
-     * @param group group of the relationships_of_interest table
-     * @param vocabulary_id cdm vocabulary id
-     * @returns Concept relationships with name and distinct values
-     */
-    async getRelationshipsOfInterest(group: string, vocabulary_id: string): Promise<any> {
-        return pool.query('select "group", name, relationship_id, distinct_values, vocabulary_id from relationship_of_interest where "group" = $1 and vocabulary_id = $2', [group, vocabulary_id])
-    },
-
-    /**
-     * Get all cdm vocabularies currently supported by the collection locator
-     * @returns List of vocabularies
-     */
-    async getSupportedVocabularies(): Promise<any> {
-        return pool.query('select * from supported_vocabulary')
-    },
-
-
-    /**
-     * Complement list of concept ids with concepts that can be directly mapped to any of the given concepts
-     * @param concept_ids Array of concept ids as integers
-     * @returns `concept_ids` extended by additional equivalent concept ids
-     */
-    async complementMaps(concept_ids) {
-        const mapsResult = await pool.query('select * from get_maps($1)', [concept_ids])
-        concept_ids = Array.from(
-            new Set(
-                concept_ids.concat(mapsResult.rows.map((r) => r.concept_id))
-            )
-        )
-
-        return concept_ids
-    },
-
-    /**
-     * Complement list of concept ids with concepts that are descendents of the given concepts
-     * @param concept_ids Array of concept ids as integers
-     * @returns `concept_ids` extended by additional descendent concept ids
-     */
-    async complementDescendents(concept_ids) {
-        const descResult = await pool.query('select * from get_descendents($1)', [concept_ids])
-        concept_ids = Array.from(
-            new Set(
-                concept_ids.concat(descResult.rows.map((r) => r.concept_id))
-            )
-        )
-
-        return concept_ids
-    },
-
-    /**
-     * Get all collections containing `ANY` of the given concept ids. Concept ids get parsed to integers and subsequently extended by mappable and descendent concepts.
-     * @param concept_ids Array of concept ids or single concept id
-     * @returns Collections containing `ANY` of the given concept ids
-     */
-    async queryAny(concept_ids): Promise<any> {
-        if (!concept_ids) {
-            return []
-        } else if (typeof concept_ids !== 'object') { //create array of single value
-            concept_ids = [concept_ids]
-            console.log(concept_ids)
-        }
-
-        //parse strings to integer,so the Set works properly
-        concept_ids = concept_ids.map(c => parseInt(c))
-
-        //include 'Maps to' concepts
-        concept_ids = await query.complementMaps(concept_ids)
-        //include descendent concepts
-        concept_ids = await query.complementDescendents(concept_ids)
-
-        //get collections containing any of passed concept_ids
-        return pool.query('select * from query_any($1)', [concept_ids])
-    },
-
-    /**
-     * Get all collections containing `ALL` of the given concept ids by performing an intersection of `ANY` subqueries.
-     * @param concept_ids Array of concept ids or single concept id
-     * @returns Collections containing `ANY` of the given concept ids
-     */
-    async queryAll(concept_ids): Promise<any> {
-        if (!concept_ids) {
-            return []
-        } else if (typeof concept_ids !== 'object') {
-            concept_ids = [concept_ids]
-            console.log(concept_ids)
-        }
-
-        //parse strings to integer, so the Set works properly
-        concept_ids = concept_ids.map(c => parseInt(c))
-
-        const subqueries = []
-
-        //create an ANY subquery for each concept id
-        for (const concept_id of concept_ids) {
-            let ids = []
-            ids.push(concept_id)
-
-            ids = await query.complementMaps(ids)
-            ids = await query.complementDescendents(ids)
-
-            const subquery = `select * from query_any(Array[${ids}])`
-            subqueries.push(subquery)
-        }
-
-        const intersectQuery = subqueries.join(' intersect ')
-        return pool.query(intersectQuery)
-    },
-
-    /**
-     * Get all attributes for each of the specified collections
-     * @param collection_ids Array of collection ids
-     * @returns Attribute records
-     */
-    async queryAttributes(collection_ids): Promise<any> {
-        return pool.query('select * from query_attributes($1)', [collection_ids])
-    },
-
-    /**
-     * Get concept ids of given vocabulary that are associated to `ALL` relationships with `ANY` given values for each relationship. Returns empty Array if no relationship objects specified.
-     *
-     * let exampleRelationships = [
-       { relationship_id: 'Has property', concept_names: ['Finding', 'Time (e.g. seconds)', 'Ratio'] },
-       { relationship_id: 'Has scale type', concept_names: ['Doc', 'Qn'] },
-       ]
-     *
-     * @param vocabulary_id cdm vocabulary id
-     * @param relationships Array of objects containing a relationship id and possible values as concept names
-     * @returns Array of concept ids
-     */
-    async queryRelationship(vocabulary_id: string, relationships: { relationship_id: any, concept_names: any }[]): Promise<any> {
-        const subqueries = []
-        for (const r of relationships) {
-            //select all concept ids in the collection locator that have the given relationship with another concept in the omop cdm and that has one of the given values
-            let subquery = `
-                select c.concept_id
-                from concept c, cdm.concept_relationship cr, cdm.concept cc
-                where c.vocabulary_id = \'${vocabulary_id}\'
-                and cr.concept_id_1 = c.concept_id
-                and cr.concept_id_2 = cc.concept_id
-                and cr.relationship_id = \'${r.relationship_id}\'
-                and cc.concept_name = Any(Array[${r.concept_names.map((r) => `\'${r}\'`)}])
-                `
-            subqueries.push(subquery)
-        }
-        const query = subqueries.join(' intersect ')
-        return pool.query(query)
-    },
-}
-
-
-export const transaction = {
 
     /**
      * Insert collections and their corresponding attributes in a transaction
@@ -202,7 +18,7 @@ export const transaction = {
      * @param attributes attribute records
      * @returns Collection ids of the inserted collections
      */
-    async insertCollection(collections, attributes) {
+    async toDb(collections, attributes) {
 
         const client = await pool.connect() //client needed for transaction
         let dict = {} //{"collection_name": collection_id}
@@ -259,7 +75,170 @@ export const transaction = {
             client.release()
         }
     },
+}
 
+export const cdm = {}
+
+export const locator = {
+
+    /**
+     * Get all cdm concept ids that are referenced by annotations stored in the collection locator
+     * @returns Concepts ids
+     */
+    async allConcepts(): Promise<any> {
+        return pool.query('select concept_id from concept')
+    },
+
+    /**
+     * Get relationships belonging to a group of the relationships_of_interest table
+     * @param group group of the relationships_of_interest table
+     * @param vocabulary_id cdm vocabulary id
+     * @returns Concept relationships with name and distinct values
+     */
+    async getRelationshipsOfInterest(group: string, vocabulary_id: string): Promise<any> {
+        return pool.query('select "group", name, relationship_id, distinct_values, vocabulary_id from relationship_of_interest where "group" = $1 and vocabulary_id = $2', [group, vocabulary_id])
+    },
+
+    /**
+     * Get all cdm vocabularies currently supported by the collection locator
+     * @returns List of vocabularies
+     */
+    async getSupportedVocabularies(): Promise<any> {
+        return pool.query('select * from supported_vocabulary')
+    },
+
+}
+
+export const query = {
+
+    /**
+     * Complement list of concept ids with concepts that can be directly mapped to any of the given concepts
+     * @param concept_ids Array of concept ids as integers
+     * @returns `concept_ids` extended by additional equivalent concept ids
+     */
+    async complementMaps(concept_ids) {
+        const mapsResult = await pool.query('select * from get_maps($1)', [concept_ids])
+        concept_ids = Array.from(
+            new Set(
+                concept_ids.concat(mapsResult.rows.map((r) => r.concept_id))
+            )
+        )
+
+        return concept_ids
+    },
+
+    /**
+     * Complement list of concept ids with concepts that are descendents of the given concepts
+     * @param concept_ids Array of concept ids as integers
+     * @returns `concept_ids` extended by additional descendent concept ids
+     */
+    async complementDescendents(concept_ids) {
+        const descResult = await pool.query('select * from get_descendents($1)', [concept_ids])
+        concept_ids = Array.from(
+            new Set(
+                concept_ids.concat(descResult.rows.map((r) => r.concept_id))
+            )
+        )
+
+        return concept_ids
+    },
+
+    /**
+     * Get all collections that contain `ANY` concept of the given concept id list extended by mappable and descendent concepts.
+     * @param concept_ids Array of concept ids or single concept id
+     * @returns Collections containing `ANY` of the given concept ids
+     */
+    async any(concept_ids): Promise<any> { //TODO: send back details on search procedure (used concepts etc.)
+        if (!concept_ids) {
+            return []
+        } else if (typeof concept_ids !== 'object') { //create array of single value
+            concept_ids = [concept_ids]
+        }
+
+        //parse strings to integer,so the Set works properly
+        concept_ids = concept_ids.map(c => parseInt(c))
+
+        //include 'Maps to' concepts
+        concept_ids = await this.complementMaps(concept_ids)
+        //include descendent concepts
+        concept_ids = await this.complementDescendents(concept_ids)
+
+        //get collections containing any of passed concept_ids
+        return pool.query('select * from query_any($1)', [concept_ids])
+    },
+
+    /**
+     * Get all collections that contain `ALL` of the given concept idd or respectively a mappable or descendent concept instead of a given concept by performing an intersection of `ANY` subqueries.
+     * @param concept_ids Array of concept ids or single concept id
+     * @returns Collections containing `ANY` of the given concept ids
+     */
+    async all(concept_ids): Promise<any> { //TODO: send back details on search procedure (used concepts etc.)
+        if (!concept_ids) {
+            return []
+        } else if (typeof concept_ids !== 'object') {
+            concept_ids = [concept_ids]
+        }
+
+        //parse strings to integer, so the Set works properly
+        concept_ids = concept_ids.map(c => parseInt(c))
+
+        const subqueries = []
+
+        //create an ANY subquery for each concept id
+        for (const concept_id of concept_ids) {
+            let ids = []
+            ids.push(concept_id)
+
+            ids = await query.complementMaps(ids)
+            ids = await query.complementDescendents(ids)
+
+            const subquery = `select * from query_any(Array[${ids}])`
+            subqueries.push(subquery)
+        }
+
+        const intersectQuery = subqueries.join(' intersect ')
+        return pool.query(intersectQuery)
+    },
+
+    /**
+     * Get all attributes for each of the specified collections
+     * @param collection_ids Array of collection ids
+     * @returns Attribute records
+     */
+    async attributes(collection_ids): Promise<any> {
+        return pool.query('select * from query_attributes($1)', [collection_ids])
+    },
+
+    /**
+     * Get concept ids of the given vocabulary that are associated to `ALL` relationships with `ANY` of the given values for each relationship. Returns empty Array if no relationship objects is specified.
+     *
+     * let exampleRelationships = [
+       { relationship_id: 'Has property', concept_names: ['Finding', 'Time (e.g. seconds)', 'Ratio'] },
+       { relationship_id: 'Has scale type', concept_names: ['Doc', 'Qn'] },
+       ]
+     *
+     * @param vocabulary_id cdm vocabulary id
+     * @param relationships Array of objects containing a relationship id and possible values as concept names
+     * @returns Array of concept ids
+     */
+    async relationships(vocabulary_id: string, relationships: { relationship_id: any, concept_names: any }[]): Promise<any> {
+        const subqueries = []
+        for (const r of relationships) {
+            //select all concept ids in the collection locator that have the given relationship with another concept in the omop cdm and that has one of the given values
+            let subquery = `
+                select c.concept_id
+                from concept c, cdm.concept_relationship cr, cdm.concept cc
+                where c.vocabulary_id = \'${vocabulary_id}\'
+                and cr.concept_id_1 = c.concept_id
+                and cr.concept_id_2 = cc.concept_id
+                and cr.relationship_id = \'${r.relationship_id}\'
+                and cc.concept_name = Any(Array[${r.concept_names.map((r) => `\'${r}\'`)}])
+                `
+            subqueries.push(subquery)
+        }
+        const query = subqueries.join(' intersect ')
+        return pool.query(query)
+    },
 }
 
 export const generate = {

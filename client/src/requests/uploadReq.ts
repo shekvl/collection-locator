@@ -14,7 +14,7 @@ export async function postCollectionFiles(collections: any, attributes: any) {
         attributes.forEach((a: any) => {
             formData.append('attributes', a)
         })
-        const response = await axios.post('/upload/collection', formData)
+        const response = await axios.post('/upload/collections', formData)
         return { success: true, message: response.data.message }
     } catch (error: any) {
         console.trace(error)

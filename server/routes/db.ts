@@ -1,17 +1,15 @@
 import { Router } from "express";
 const router = Router();
 
-import * as dbController from '../controllers/dbCtrl'
+import * as dbC from '../controllers/dbC'
 
-// router.get('/children/:id', dbController.children )
-// router.get('/collections/attributeCount', dbController.getAttributeCount )
-router.get('/concepts', dbController.getAllConcepts )
-// router.get('/cdmconcepts', dbController.getAllCdmConcepts )
-router.get('/relationshipsOfInterest', dbController.getRelationshipsOfInterest )
-router.get('/vocabularies', dbController.getSupportedVocabularies )
-router.get('/queryAny', dbController.queryAny )
-router.get('/queryAll', dbController.queryAll )
-router.post('/queryRelationships', dbController.queryRelationships ) //body necessary
+router.get('/concepts', dbC.getAllConcepts )
+router.get('/relationshipsOfInterest', dbC.getRelationshipsOfInterest )
+router.get('/vocabularies', dbC.getSupportedVocabularies )
+
+router.get('/queryAny', dbC.queryAny )
+router.get('/queryAll', dbC.queryAll )
+router.post('/queryRelationships', dbC.queryRelationships )
 
 
 export default router;
