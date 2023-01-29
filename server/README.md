@@ -32,3 +32,7 @@ PG_PASSWORD="password"
 `multer` is a middleware that handles file upload of multipart/form-data.
 
 `fast-csv` provides a library to parse and create csv files.
+
+`helmet` sets HTTP headers that help protect from well-known web vulnerabilities.
+
+`compression` compresses the HTTP response sent back to a client to save bandwidth and making loading the page faster.
