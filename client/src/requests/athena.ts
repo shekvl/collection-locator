@@ -9,6 +9,7 @@ axios.defaults.baseURL = `http://localhost:${port}`
 export type AthenaParams = {
     query: string,
     pageSize?: number | string,
+    page?: number,
     domain?: string[],
     standardConcept?: string[],
     conceptClass?: string[],

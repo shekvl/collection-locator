@@ -23,6 +23,7 @@ DataTable.p-datatable-sm(
     exportFilename="collections",
     :exportFunction="export",
     stripedRows
+    :loading="loading"
 )
     template.d-flex(#header)
         .d-flex.justify-space-between.align-center
@@ -31,20 +32,15 @@ DataTable.p-datatable-sm(
                 div(style="text-align:left")
                     MultiSelect(:modelValue="selectedColumns" :options="columns" optionLabel="header" @update:modelValue="onToggle" placeholder="Select columns" style="width: 10em")
             .d-flex.align-center
-                Button.p-button-outlined.p-button-sm.mx-2(
+                Button.p-button-outlined.p-button-sm(
                     icon="pi pi-plus",
                     label="Expand all",
                     @click="expandAll"
                 )
-                Button.p-button-outlined.p-button-sm(
+                Button.p-button-outlined.p-button-sm.mx-2(
                     icon="pi pi-minus",
                     label="Collapse all",
                     @click="collapseAll"
-                )
-                Button.p-button-outlined.p-button-sm.mx-2(
-                    icon="pi pi-bookmark",
-                    label="Bookmark selected",
-                    @click=""
                 )
                 Button.p-button-outlined.p-button-sm(
                     icon="pi pi-download",
@@ -60,14 +56,13 @@ DataTable.p-datatable-sm(
                     i.pi.pi-search
                     InputText.p-inputtext-sm(
                         v-model="filters['global'].value",
-                        placeholder="Keyword Search"
+                        placeholder="Keyword Search",
                     )
     template(#expansion="slotProps")
         AttributeTable(:attributes="attributes.filter((a)=> a.collection_id === slotProps.data.id)", @conceptIdSelected="(value) => $emit('conceptIdSelected', value)")
 
     template(#empty) No collections found
-    template(#loading) Loading collections..
-    Column(selectionMode="multiple", headerStyle="width: 3rem", :reorderableColumns="false")
+    //- Column(selectionMode="multiple", headerStyle="width: 3rem", :reorderableColumns="false")
     Column(:expander="true", headerStyle="width: 3rem", :reorderableColumns="false")
     Column(
         v-for="col of selectedColumns",
@@ -95,8 +90,7 @@ DataTable.p-datatable-sm(
 //download table option? use exportCSV() predefined method
 //:loading option with #loading tamplet with skeleton? im fetching takes some time (necessary with paging?)
 
-//context menu -> favorites... although separate star button could also visualize state.. (how to visualize that already in a bookmark folder?)
-//select checkboxes (download only selected, bookmark [sets, only add once])
+//select checkboxes (download only selected)
 
 //info about how to use table
 
@@ -133,6 +127,7 @@ export default defineComponent({
             default: [],
         },
         attributes: [],
+        loading: Boolean,
     },
     data() {
         return {

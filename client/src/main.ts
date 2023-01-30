@@ -16,6 +16,7 @@ import 'primevue/resources/themes/saga-blue/theme.css'
 import 'primevue/resources/primevue.min.css'
 import 'primeicons/primeicons.css'
 import ToastService from 'primevue/toastservice'
+import Tooltip from 'primevue/tooltip';
 
 const vuetify = createVuetify({
   components,
@@ -35,5 +36,6 @@ app.use(vuetify)
 app.use(ElementPlus)
 app.use(PrimeVue)
 app.use(ToastService)
+app.directive('tooltip', Tooltip);
 
 app.mount('#app')

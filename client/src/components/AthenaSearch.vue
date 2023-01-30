@@ -5,15 +5,30 @@
         InputText(
             type="text",
             v-model="athenaSearchString",
-            placeholder="Enter Keywords",
-            @keyup.enter="doAthenaQuery"
+            placeholder="Search Athena..",
+            @keyup.enter="doAthenaQuery",
+            v-tooltip="'Browse Athena for Concept IDs by entering Keyword into the search bar'"
         )
-    .ml-3 Search for Concepts in Athena
+    .d-flex.w-100.mx-5
+        ExternalLink.mr-3(
+            href="https://github.com/OHDSI/Athena",
+            text="Athena - Search Docs"
+        )
+        ExternalLink(
+            href="https://athena.ohdsi.org/search-terms/start",
+            text="Athena"
+        )
 
-AthenaTable.my-2(v-if="athenaConcepts", :concepts="athenaConcepts", @conceptIdSelected="(value) => $emit('conceptIdSelected', value)")
+AthenaTable.my-2(
+    v-if="athenaConcepts",
+    :concepts="athenaConcepts",
+    @conceptIdSelected="(value) => $emit('conceptIdSelected', value)",
+    :isLoading="isLoading"
+)
 </template>
 
 <script setup lang="ts">
+import ExternalLink from "./ExternalLink.vue";
 import InputText from "primevue/inputtext";
 import AthenaTable from "./AthenaTable.vue";
 </script>
@@ -23,17 +38,26 @@ import { defineComponent } from "vue";
 import * as athena from "../requests/athena";
 
 export default defineComponent({
-    props:['vocabularies'],
+    props: ["vocabularies"],
     data() {
         return {
             athenaConcepts: undefined,
             athenaSearchString: "",
+            isLoading: false,
         };
     },
     methods: {
         async doAthenaQuery() {
+            if (!this.athenaSearchString) {
+                this.athenaConcepts = undefined;
+                return;
+            }
+
+            this.isLoading = true;
+
             const result: any = await athena.queryAthena({
-                pageSize: 15,
+                pageSize: 10,
+                page: 1,
                 query: this.athenaSearchString,
                 domain: undefined,
                 standardConcept: undefined,
@@ -43,7 +67,8 @@ export default defineComponent({
             });
 
             this.athenaConcepts = result.data.content;
-            console.log(result, result.content);
+
+            this.isLoading = false;
         },
     },
 });
@@ -55,7 +80,7 @@ i {
     cursor: pointer;
 }
 
-input{
-    width: 500px;
+input {
+    width: 440px;
 }
 </style>

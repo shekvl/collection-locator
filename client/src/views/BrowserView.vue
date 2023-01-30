@@ -2,73 +2,70 @@
 .px-5
     .d-flex
         //- TODO shift athena search to concepts tab, since not needed globaly (=> concept lookup)
-        .w-75
-            AthenaSearch(:vocabularies="vocabularies", @conceptIdSelected="(value) => selectConceptOfAttribute(value)")
-        .links.w-25.d-flex
-            .d-flex.justify-end.align-start.w-100
-                ExternalLink(
-                    href="https://github.com/OHDSI/Athena",
-                    text="Athena - Search Docs"
-                )
-                ExternalLink(
-                    href="https://athena.ohdsi.org/search-terms/start",
-                    text="Athena"
-                )
 
     .d-flex
         TabView.w-100(lazy)
             TabPanel(header="Concepts")
                 .d-flex.w-75
-                    .d-flex
-                        AutoComplete(
-                            forceSelection,
-                            minLength="1",
-                            delay="0",
-                            multiple,
-                            placeholder="search for concept..",
-                            v-model="selectedConcepts",
-                            :suggestions="filteredConcepts",
-                            @complete="searchConcepts($event)",
-                            @item-select="(event) => addToMostRecentConcepts(event.value)",
-                            :virtualScrollerOptions="{ items: concepts, itemSize: 40 }"
-                        )
-                        Button#search-button(
-                            type="button",
-                            label="Search",
-                            size="small",
-                            iconPos="right",
-                            icon="pi pi-search",
-                            :loading="false",
-                            @click="selectedSearchMode === SEARCH_MODE.ANY ? doQueryAny(selectedConcepts) : doQueryAll(selectedConcepts)"
-                        )
-                        SelectButton#search-mode.ml-2(
-                            v-model="selectedSearchMode",
-                            :options="SEARCH_MODE",
-                            :unselectable="false"
-                        )
-                        //get children
-                        //any -> set of children
-                        //all -> all of any of children
+                    .d-flex.flex-column.w-100
+                        .d-flex
+                            AutoComplete.mx-0(
+                                forceSelection,
+                                minLength="1",
+                                delay="0",
+                                multiple,
+                                placeholder="Search for Concept..",
+                                v-model="selectedConcepts",
+                                :suggestions="filteredConcepts",
+                                @complete="searchConcepts($event)",
+                                @item-select="(event) => addToMostRecentConcepts(event.value)",
+                                :virtualScrollerOptions="{ items: concepts, itemSize: 40 }",
+                                v-tooltip="'Enter concept IDs to locate collections'"
+                            )
+                            Button#search-button(
+                                type="button",
+                                label="Search",
+                                size="small",
+                                iconPos="right",
+                                icon="pi pi-search",
+                                :loading="false",
+                                @click="doQuery(selectedConcepts, selectedSearchMode)"
+                            )
+                            SelectButton#search-mode.ml-2(
+                                v-model="selectedSearchMode",
+                                :options="SEARCH_MODE",
+                                :unselectable="false",
+                                v-tooltip="'Select search connector'"
+                            )
+
+                        .mt-5
+                            AthenaSearch(
+                                :vocabularies="vocabularies",
+                                @conceptIdSelected="(value) => selectConceptOfAttribute(value)"
+                            )
 
                 .selection-panel.d-flex.w-25.flex-column.align-start.mx-5.px-4.py-2
-                    div most recent concepts:
+                    .mb-1(style="font-size: large") Most Recent Concept List:
                     .most-recents(
                         v-for="item in Array.from(mostRecentConcepts).reverse()",
                         @click="selectConcept(item)"
+                        v-tooltip="'Add to searchbar'"
                     ) {{ item }}
 
             TabPanel(header="Relationships")
                 //- TODO hide axes if other vocabulary is selected (axes is a relationship set specific to LOINC vocab)
                 .d-flex.flex-column
-                    .d-flex.justify-start
+                    .d-flex.justify-start.mb-2
                         Dropdown(
                             v-model="selectedVocabulary",
                             :options="vocabularies",
                             placeholder="Select Vocabulary",
                             :virtualScrollerOptions="{ items: vocabularies, itemSize: 40 }"
                         )
-                    .d-flex.justify-start.align-center
-                        div axes:
+                    .d-flex.flex-column.justify-start.align-start.mb-2(
+                        v-if="selectedVocabulary == 'LOINC'"
+                    )
+                        strong LOINC AXES
                         AutoComplete(
                             v-for="axis in axes",
                             forceSelection,
@@ -81,18 +78,20 @@
                             @complete="filter($event, axis)",
                             :virtualScrollerOptions="{ items: axis.distinct_values, itemSize: 40 }"
                         )
-                    Button#search-button(
-                        type="button",
-                        label="Search",
-                        size="small",
-                        iconPos="right",
-                        icon="pi pi-search",
-                        :loading="false",
-                        @click="doQueryRelationship()"
-                    )
+                    .d-flex.justify-content-start
+                        Button#search-button(
+                            type="button",
+                            label="Search",
+                            size="small",
+                            iconPos="right",
+                            icon="pi pi-search",
+                            :loading="false",
+                            @click="doQueryRelationship()"
+                        )
     CollectionTable(
         :collections="resultCollections",
         :attributes="resultAttributes",
+        :loading="isLoadingCollections",
         @conceptIdSelected="(value) => selectConceptOfAttribute(value)"
     )
 
@@ -103,7 +102,6 @@
 //TODO tooltip: info about concept (fetch and "cache"); including link to athena with code as param in url
 //real time search with suggestion(maybe restricted by vocab etc.)  => only valid concepts addable
 
-//bookmark results
 //!composite descriptor selection panel
 //browse all concepts in use (sort hierachy)
 
@@ -122,10 +120,9 @@ import TabView from "primevue/tabview";
 import TabPanel from "primevue/tabpanel";
 import Dropdown from "primevue/dropdown";
 import Button from "primevue/button";
-import ExternalLink from "../components/ExternalLink.vue";
 import SelectButton from "primevue/selectbutton";
 import CollectionTable from "../components/CollectionTable.vue";
-import AthenaSearch from "../components/AthenaSearch.vue"
+import AthenaSearch from "../components/AthenaSearch.vue";
 </script>
 
 <script lang="ts">
@@ -147,12 +144,14 @@ const enum SEARCH_MODE {
 export default defineComponent({
     async mounted() {
         const vocabularies = await getVocabularies();
-        this.vocabularies = vocabularies.map((o: any) => o.vocabulary_id);
+        this.vocabularies = vocabularies
+            .map((o: any) => o.vocabulary_id)
+            .sort(); //TODO: only show vocabularies with relationshipsOfInterest
 
         const concepts = await getAllConcepts();
         this.concepts = concepts;
 
-        const axes = await getRelationshipsOfInterest("axes", "LOINC");
+        const axes = await getRelationshipsOfInterest("axes", "LOINC"); //TODO: automate
         for (const axis of axes) {
             axis.selectedValues = [];
             axis.filteredValues = [];
@@ -176,6 +175,7 @@ export default defineComponent({
                 "45876191", //descendent (36033638)
                 "3667069", //maps to (940658)
             ]),
+            isLoadingCollections: false,
         };
     },
     methods: {
@@ -190,21 +190,49 @@ export default defineComponent({
             this.mostRecentConcepts.delete(concept_id);
             this.mostRecentConcepts.add(concept_id);
         },
-        async doQueryAll(concept_ids: []) {
-            //TODO start loading (show loading process if fetching from db takes some time)
-            const result: any = await queryAll(Object.values(concept_ids));
+        async doQuery(concept_ids: [], search_mode: SEARCH_MODE) {
+            this.isLoadingCollections = true;
+
+            let result: any = [];
+            if (search_mode == SEARCH_MODE.ALL) {
+                result = await queryAll(Object.values(concept_ids));
+            } else {
+                result = await queryAny(Object.values(concept_ids));
+            }
+
             this.resultCollections = result.data.collections || [];
             this.resultAttributes = result.data.attributes || [];
-            //TODO set loading finished
+
+            this.isLoadingCollections = false;
+
+            if (this.hasNoCollections()) {
+                this.toastNothingFound();
+            }
         },
-        async doQueryAny(concept_ids: []) {
-            //TODO start loading (show loading process if fetching from db takes some time)
-            const result: any = await queryAny(Object.values(concept_ids));
-            this.resultCollections = result.data.collections || [];
-            this.resultAttributes = result.data.attributes || [];
-            //TODO set loading finished
-        },
+        // async doQueryAll(concept_ids: []) {
+        //     //TODO start loading (show loading process if fetching from db takes some time)
+        //     this.resultCollections = result.data.collections || [];
+        //     this.resultAttributes = result.data.attributes || [];
+
+        //     if (this.hasNoCollections()) {
+        //         this.toastNothingFound();
+        //     }
+        //     //TODO set loading finished
+        // },
+        // async doQueryAny(concept_ids: []) {
+        //     //TODO start loading (show loading process if fetching from db takes some time)
+        //     const result: any = await queryAny(Object.values(concept_ids));
+        //     this.resultCollections = result.data.collections || [];
+        //     this.resultAttributes = result.data.attributes || [];
+
+        //     if (this.hasNoCollections()) {
+        //         this.toastNothingFound();
+        //     }
+        //     //TODO set loading finished
+        // },
         async doQueryRelationship() {
+            this.isLoadingCollections = true;
+
             const relationships = [];
             for (const a of this.axes) {
                 //TODO:generatlize
@@ -221,7 +249,7 @@ export default defineComponent({
                 this.selectedVocabulary,
                 relationships
             );
-            this.doQueryAny(result.data);
+            this.doQuery(result.data, SEARCH_MODE.ANY);
         },
         searchConcepts(event: any) {
             const filtered: any = this.concepts.filter((concept: string) => {
@@ -230,12 +258,24 @@ export default defineComponent({
             this.filteredConcepts = filtered;
         },
         filter(event: any, object: any) {
-            const filtered: any = object.distinct_values.filter((value: string) => {
-                return value
-                    .toLowerCase()
-                    .startsWith(event.query.toLowerCase());
-            });
+            const filtered: any = object.distinct_values.filter(
+                (value: string) => {
+                    return value
+                        .toLowerCase()
+                        .startsWith(event.query.toLowerCase());
+                }
+            );
             object.filteredValues = filtered;
+        },
+        toastNothingFound() {
+            this.$toast.add({
+                severity: "error",
+                summary: "Nothing Found!",
+                life: 1000,
+            });
+        },
+        hasNoCollections() {
+            return this.resultCollections.length == 0;
         },
     },
 });

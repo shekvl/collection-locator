@@ -6,7 +6,8 @@ DataTable.p-datatable-sm(
     rowHover,
     showGridlines,
     removableSort,
-    stripedRows
+    stripedRows,
+    :loading="isLoading"
 )
     Column(
         v-for="col of columns",
@@ -17,12 +18,12 @@ DataTable.p-datatable-sm(
     )
         template(#body="slotProps")
             .d-flex.concept_id(v-if="col.field === 'id'")
-                div {{ slotProps.data.id }}
-                button(
+                button.mr-2(
                     @click="$emit('conceptIdSelected', slotProps.data.id)",
-                    title="Add concept id to searchbar"
-                ) add
-                //- todo tooltip?
+                    v-tooltip="'Add to searchbar'"
+                )
+                    i.pi.pi-plus
+                div {{ slotProps.data.id }}
 
             div(v-else) {{ slotProps.data[col.field] }}
 </template>
@@ -49,6 +50,7 @@ const enum COLUMNTYPE {
 export default defineComponent({
     props: {
         concepts: [],
+        isLoading: Boolean,
     },
     data() {
         return {
@@ -97,7 +99,6 @@ export default defineComponent({
 
 
 <style scoped>
-
 button {
     margin-left: 10px;
     color: var(--primary-color);
