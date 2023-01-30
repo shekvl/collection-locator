@@ -28,10 +28,10 @@ export async function getAllConcepts() {
 }
 
 
-export async function getRelationshipsOfInterest(group: string, vocabulary_id: string) {
+export async function getRelationshipsOfInterest(set: string, vocabulary_id: string) {
     try {
         const response = await axios.get('/db/relationshipsOfInterest', {
-            params: { group, vocabulary_id }
+            params: { set, vocabulary_id }
         })
         return response.data
     } catch (error: any) {

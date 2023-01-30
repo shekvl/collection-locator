@@ -30,14 +30,14 @@ export const collection = {
             for (const collection of collections) {
                 let result = await client.query('select id from insert_record_collection($1, $2, $3, $4, $5, $6, $7, $8, $9)', [
                     collection.name,
-                    'biobank klagenfurt', //institution_id //TODO: get from GUI
+                    'test biobank', //institution_id //TODO: user input
                     collection.number_of_records,
                     collection.completeness || null,
                     collection.accuracy || null,
                     collection.reliability || null,
                     collection.timeliness || null,
                     collection.consistancy || null,
-                    1 //added_by //TODO: get from GUI
+                    1 //added_by //TODO: user input
                 ])
 
                 const name = collection.name
@@ -47,16 +47,26 @@ export const collection = {
             }
 
             //insert attributes //metadata quality fields are not required and may therefore be null
+            //attribute should only occure once in attribute table but can match several attribute_concept records
             for (const attribute of attributes) {
-                let result = await client.query('select id from insert_record_attribute($1, $2, $3, $4, $5, $6, $7)', [
+                let result = await client.query('select * from attribute where collection_id=$1 and attribute_name=$2', [
                     dict[attribute.collection_name],
                     attribute.attribute_name,
-                    attribute.completeness || null,
-                    attribute.accuracy || null,
-                    attribute.reliability || null,
-                    attribute.timeliness || null,
-                    attribute.consistancy || null,
                 ])
+
+                let existingAttribute = result.rows.length > 0
+
+                if (!existingAttribute) {
+                    result = await client.query('select id from insert_record_attribute($1, $2, $3, $4, $5, $6, $7)', [
+                        dict[attribute.collection_name],
+                        attribute.attribute_name,
+                        attribute.completeness || null,
+                        attribute.accuracy || null,
+                        attribute.reliability || null,
+                        attribute.timeliness || null,
+                        attribute.consistancy || null,
+                    ])
+                }
 
                 await client.query('select insert_record_attribute_concept($1, $2, $3)', [
                     result.rows[0].id,
@@ -90,13 +100,13 @@ export const locator = {
     },
 
     /**
-     * Get relationships belonging to a group of the relationships_of_interest table
-     * @param group group of the relationships_of_interest table
+     * Get relationships belonging to a set of the relationships_of_interest table
+     * @param set set of the relationships_of_interest table
      * @param vocabulary_id cdm vocabulary id
      * @returns Concept relationships with name and distinct values
      */
-    async getRelationshipsOfInterest(group: string, vocabulary_id: string): Promise<any> {
-        return pool.query('select "group", name, relationship_id, distinct_values, vocabulary_id from relationship_of_interest where "group" = $1 and vocabulary_id = $2', [group, vocabulary_id])
+    async getRelationshipsOfInterest(set: string, vocabulary_id: string): Promise<any> {
+        return pool.query('select set, name, relationship_id, distinct_values, vocabulary_id from relationship_of_interest where set = $1 and vocabulary_id = $2', [set, vocabulary_id])
     },
 
     /**

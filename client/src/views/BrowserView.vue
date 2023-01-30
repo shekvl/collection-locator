@@ -58,7 +58,7 @@
                     ) {{ item }}
 
             TabPanel(header="Relationships")
-                //- TODO hide axes if other vocabulary is selected (axes is a relationship group specific to LOINC vocab)
+                //- TODO hide axes if other vocabulary is selected (axes is a relationship set specific to LOINC vocab)
                 .d-flex.flex-column
                     .d-flex.justify-start
                         Dropdown(

@@ -15,11 +15,11 @@ export const getAllConcepts = (req, res, next) => {
 }
 
 /**
- * Get relationships belonging to a group of the relationships_of_interest table
- * @param req Request body containing the `group` and the `vocabulary id`
+ * Get relationships belonging to a set of the relationships_of_interest table
+ * @param req Request body containing the `set` and the `vocabulary id`
  */
 export const getRelationshipsOfInterest = (req, res, next) => {
-    tf.locator.getRelationshipsOfInterest(req.query.group, req.query.vocabulary_id)
+    tf.locator.getRelationshipsOfInterest(req.query.set, req.query.vocabulary_id)
         .then((table) => {
             res.send(table.rows);
         })

@@ -1,4 +1,6 @@
--- This will CREATE the necessary TABLES to manage USERS, COLLECTIONS and METADATA QUALITY extending the OMOP CDM.
+-- POSTGRES SQL statements to CREATE all necessary TABLES for the collection locator.
+-- This tables reference OMOP CDM vocabulary tables, which the collection locator is build upon.
+
 create table address (
     address_id serial PRIMARY KEY,
     town varchar (255) NOT NULL,
@@ -28,6 +30,7 @@ create table person (
     UNIQUE (first_name, last_name, address_id)
 );
 
+-- biobanks that are members of BBMRI-ERIC have a dedicated bbmri_eric_id
 create table institution (
     name varchar (255) PRIMARY KEY,
     bbmri_eric_id varchar (255),
@@ -71,6 +74,7 @@ create table collection (
     UNIQUE (name, institution_id, number_of_records)
 );
 
+-- contains attributes of the stored collections
 create table attribute (
     id bigserial PRIMARY KEY,
     collection_id integer REFERENCES collection ON DELETE CASCADE ON UPDATE CASCADE NOT NULL,
@@ -95,11 +99,11 @@ create table attribute (
         0 <= consistancy
         AND consistancy <= 1
     ),
-    last_modified timestamp with time zone NOT NULL DEFAULT NOW()
-    -- ,
-    -- UNIQUE (collection_id, attribute_name)
+    last_modified timestamp with time zone NOT NULL DEFAULT NOW(),
+    UNIQUE (collection_id, attribute_name)
 );
 
+-- contains all the cdm concepts currently used by annotations within the collection locator
 create table concept (
     code varchar (50) NOT NULL,
     vocabulary_id varchar (20) REFERENCES cdm.vocabulary ON DELETE CASCADE ON UPDATE CASCADE NOT NULL,
@@ -108,6 +112,7 @@ create table concept (
     PRIMARY KEY (code, vocabulary_id)
 );
 
+-- contains the concept annotations for each attribute (allows multiple annotations per attribute)
 create table attribute_concept (
     attribute_id BIGINT REFERENCES attribute ON DELETE CASCADE ON UPDATE CASCADE,
     code varchar (50) NOT NULL,
@@ -123,43 +128,16 @@ create table person_institution (
     PRIMARY KEY (person_id, institution_name)
 );
 
-create table password (
-    person_id integer REFERENCES person ON DELETE CASCADE ON UPDATE CASCADE,
-    password_hash varchar (255),
-    active boolean NOT NULL DEFAULT (true),
-    created_at timestamp with time zone NOT NULL DEFAULT NOW(),
-    last_modified timestamp with time zone NOT NULL DEFAULT NOW(),
-    PRIMARY KEY (person_id, password_hash)
-);
-
-create table role (
-    id serial PRIMARY KEY,
-    role varchar(255) UNIQUE NOT NULL
-);
-
-create table person_role (
-    person_id integer REFERENCES person ON DELETE CASCADE ON UPDATE CASCADE,
-    role_id integer REFERENCES role ON DELETE CASCADE ON UPDATE CASCADE,
-    created_at timestamp with time zone NOT NULL DEFAULT NOW(),
-    PRIMARY KEY (person_id, role_id)
-);
-
-create table session (
-    sid varchar (36) PRIMARY KEY,
-    expires timestamp with time zone NOT NULL,
-    data text NOT NULL,
-    created_at timestamp with time zone NOT NULL DEFAULT NOW(),
-    last_modified timestamp with time zone NOT NULL DEFAULT NOW()
-);
-
+-- contains sets of selected concept relationships for relationship search (e.g. LOINC axes)
 create table relationship_of_interest (
     id SERIAL PRIMARY KEY,
-    "group" varchar(255),
-    name varchar(255),
-    relationship_concept_id integer,
-    relationship_id varchar(20) REFERENCES cdm.relationship ON DELETE CASCADE ON UPDATE CASCADE NOT NULL,
-    distinct_values varchar [],
-    distinct_value_count bigint,
-    vocabulary_id varchar(20) REFERENCES cdm.vocabulary ON DELETE CASCADE ON UPDATE CASCADE NOT NULL,
-    last_modified timestamp with time zone NOT NULL DEFAULT NOW()
+    set
+        varchar(255),
+        name varchar(255),
+        relationship_concept_id integer,
+        relationship_id varchar(20) REFERENCES cdm.relationship ON DELETE CASCADE ON UPDATE CASCADE NOT NULL,
+        distinct_values varchar [],
+        distinct_value_count bigint,
+        vocabulary_id varchar(20) REFERENCES cdm.vocabulary ON DELETE CASCADE ON UPDATE CASCADE NOT NULL,
+        last_modified timestamp with time zone NOT NULL DEFAULT NOW()
 );

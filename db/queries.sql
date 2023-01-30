@@ -151,7 +151,7 @@ group by r.relationship_id, r.relationship_concept_id
 
 
 -- insert relationship into relationship_of_interest
-insert into relationship_of_interest("group", "name", "relationship_concept_id", "relationship_id", "distinct_values", "distinct_value_count", "vocabulary_id")
+insert into relationship_of_interest("set", "name", "relationship_concept_id", "relationship_id", "distinct_values", "distinct_value_count", "vocabulary_id")
 select
 'axes',
 'scale',
