@@ -15,6 +15,9 @@ i18n object in each view contains alternative strings
 
 # DB
 
+setup omop
+execute ddl, CRUD, dataset, functions, triggers, views sql files
+
 ## OMOP CDM
 
 [setup](./server/db/omop_cdm%20setup.md)

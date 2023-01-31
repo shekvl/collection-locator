@@ -2,18 +2,18 @@
 .d-flex.flex-column.align-center
     .w-75.mb-5
         DragAndDropUpload
-
+        //TODO: get person and institution data (create new person/institution or select from existing ones)
     .my-5.w-75
         #info-box.d-flex.flex-column.align-start
             h3 # How To
             p To upload a collection, two kinds of spreadsheets are needed. A collections.csv file containing metadata about the specific collection and an attributes.csv file containing the annotated table fields with associated quality metadata.
 
-            h3 Annotation
-            p Show graphically how attributes/column headers of the original dataset are annotated and make up the attribute csv...
+            //- h3 Annotation
+            //- p Show graphically how attributes/column headers of the original dataset are annotated and make up the attribute csv...
             //show with arrows how collumns are annotated (dont have to annotate all fields)
 
-            h3 Spezification
-            div ...
+            //- h3 Spezification
+            //- div ...
             //multiple annotations (single attribute can be annotated with multiple codes)
             //parent concepts (attribute can be annotated with parent concept e.g. body measurement instead of body hight)
             //empty fields (quality metadata is not required)
@@ -21,15 +21,15 @@
             //different vocabularies (annotation codes don't have to be of same vocabulary)
 
             h3 Example
-            h4 Upload collections separately, each in one file
+            h4 Upload several collection and several attribute files.
             img(src="../assets/collections01.png")
             img(src="../assets/collections02.png")
 
-            h4 Upload collections and attributes as a batch, each in one spreadsheet
+            h4 Upload one file with all the collections and one with all the attributes
             img(src="../assets/collections_combined.png")
 
-            h3 Quality Metadata Definition
-            div ...
+            //- h3 Quality Metadata Definition
+            //- div ...
 
 </template>
 

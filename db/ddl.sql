@@ -116,7 +116,7 @@ create table concept (
 create table attribute_concept (
     attribute_id BIGINT REFERENCES attribute ON DELETE CASCADE ON UPDATE CASCADE,
     code varchar (50) NOT NULL,
-    vocabulary_id varchar (20) REFERENCES cdm.vocabulary ON DELETE CASCADE ON UPDATE CASCADE NOT NULL,
+    vocabulary_id varchar (20), -- REFERENCES cdm.vocabulary ON DELETE CASCADE ON UPDATE CASCADE NOT NULL,
     created_at timestamp with time zone NOT NULL DEFAULT NOW(),
     PRIMARY KEY(attribute_id, code, vocabulary_id)
 );

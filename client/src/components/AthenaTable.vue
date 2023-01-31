@@ -76,16 +76,16 @@ export default defineComponent({
                 //     header: "Class",
                 //     type: COLUMNTYPE.TEXT,
                 // },
-                // {
-                //     field: "standardConcept",
-                //     header: "Concept",
-                //     type: COLUMNTYPE.TEXT,
-                // },
-                // {
-                //     field: "invalidReason",
-                //     header: "Validity",
-                //     type: COLUMNTYPE.TEXT,
-                // },
+                {
+                    field: "standardConcept",
+                    header: "Concept",
+                    type: COLUMNTYPE.TEXT,
+                },
+                {
+                    field: "invalidReason",
+                    header: "Validity",
+                    type: COLUMNTYPE.TEXT,
+                },
                 // {
                 //     field: "domain",
                 //     header: "Domain",

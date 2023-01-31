@@ -1,30 +1,30 @@
--- get random rows
-select * from cdm.concept
-ORDER BY random()
-LIMIT 100
+-- get 100 random rows from cdm.concept table
+-- select * from cdm.concept
+-- ORDER BY random()
+-- LIMIT 100
 
-select * from cdm.concept
-where vocabulary_id in ('LOINC', 'SNOMED', 'READ')
-and domain_id in ('Measurement', 'Observation')
-ORDER BY random()
-LIMIT 10
+-- select * from cdm.concept
+-- where vocabulary_id in ('LOINC', 'SNOMED', 'READ')
+-- and domain_id in ('Measurement', 'Observation')
+-- ORDER BY random()
+-- LIMIT 10
 
--- check out what standard vocab means and the validity attribute D/U
-select concept_id, concept_name, vocabulary_id, concept_code from cdm.concept
-where vocabulary_id in ('LOINC', 'SNOMED', 'Read')
-and domain_id in ('Measurement', 'Observation')
-and invalid_reason = ''
-ORDER BY random()
-LIMIT 50
+-- standard concepts are used for the hierachy (vs. non-standard concepts that are mapped to equivalent standard concepts) and the validity attribute states if concept is outdated: D=deleted; U=updated
+-- select concept_id, concept_name, vocabulary_id, concept_code from cdm.concept
+-- where vocabulary_id in ('LOINC', 'SNOMED', 'Read')
+-- and domain_id in ('Measurement', 'Observation')
+-- and invalid_reason = ''
+-- ORDER BY random()
+-- LIMIT 50
 
 -- just LOINC Measurements
-select * from (
-	select (random() + random()) /2 * 0.3 + 0.7, concept_id, concept_name, vocabulary_id, concept_code from cdm.concept
-	where vocabulary_id in ('LOINC')
-	and domain_id in ('Measurement')
-	and invalid_reason = '') as a
-ORDER BY random()
-LIMIT 20
+-- select * from (
+-- 	select (random() + random()) /2 * 0.3 + 0.7, concept_id, concept_name, vocabulary_id, concept_code from cdm.concept
+-- 	where vocabulary_id in ('LOINC')
+-- 	and domain_id in ('Measurement')
+-- 	and invalid_reason = '') as a
+-- ORDER BY random()
+-- LIMIT 20
 
 
 -- round() for real data type

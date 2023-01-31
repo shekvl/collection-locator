@@ -1,7 +1,7 @@
 # Introduction
 
 To setup the OMOP CDM, you first need to
-1. create a `OMOP CDM` database schema and then
+1. create an instance of the `OMOP CDM` and then
 2. populate it with a selection of OHDSI `vocabularies`.
 
 > For this guid, we are using version 5.4 of the OMOP CDM.

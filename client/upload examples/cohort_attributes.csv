@@ -1,0 +1,48 @@
+collection_name;attribute_name;code;vocabulary_id;completeness;accuracy;reliability;timeliness;consistancy
+cohort;Colonoscopy;73761001;SNOMED;0.69;0.94;0.75;0.72;0.92
+cohort;Colonoscopy;LA15380-1;LOINC;0.69;0.94;0.75;0.72;0.92
+cohort;Liver imaging;1010979;CPT4;0.83;0.86;0.96;0.74;1
+cohort;Lung imaging;441677009;SNOMED;0.83;0.86;0.96;0.74;1
+cohort;MRI;LP6406-5;LOINC;0.36;0.71;0.65;0.79;0.79
+;;;;;;;;
+cohort;Distant metastasis;277208005;SNOMED;0.74;0.80;0.81;0.93;0.7
+cohort;Distant metastasis;399566009;SNOMED;0.74;0.80;0.81;0.93;0.7
+cohort;Primary Tumor;78873005;SNOMED;0.78;0.75;0.84;0.93;0.83
+cohort;Primary Tumor;399566009;SNOMED;0.78;0.75;0.84;0.93;0.83
+cohort;Regional lymph nodes;277206009;SNOMED;0.51;0.9;0.93;0.89;0.98
+cohort;Regional lymph nodes;399566009;SNOMED;0.51;0.9;0.93;0.89;0.98
+;;;;;;;;
+cohort;Stage;AJCC/UICC;Cancer Modifier;0.98;0.77;0.78;0.84;0.93
+cohort;Stage;8th_AJCC/UICC;Cancer Modifier;0.98;0.77;0.78;0.84;0.93
+;;;;;;;;
+cohort;Grade;396922003;SNOMED;0.81;0.96;0.78;0.61;0.87
+cohort;Grade;396923008;SNOMED;0.81;0.96;0.78;0.61;0.87
+cohort;Grade;396924002;SNOMED;0.81;0.96;0.78;0.61;0.87
+cohort;Grade;396925001;SNOMED;0.81;0.96;0.78;0.61;0.87
+;;;;;;;;
+cohort;Microsatellite instability;LP36464-3;LOINC;0.69;0.74;0.75;0.78;0.96
+cohort;Mismatch repair gene expression;89551006;SNOMED;0.89;0.57;0.64;0.93;0.75
+cohort;Mismatch repair gene expression;455261000124109;SNOMED;0.89;0.57;0.64;0.93;0.75
+cohort;Mismatch repair gene expression;LP428210-1;LOINC;0.89;0.57;0.64;0.93;0.75
+;;;;;;;;
+cohort;Age at diagnosis (rounded to years) NATURAL;423493009;SNOMED;0.87;0.75;0.49;0.96;0.87
+cohort;Age at diagnosis (rounded to years) NATURAL;63932-8;LOINC;0.87;0.75;0.49;0.96;0.87
+cohort;Biological sex;46098-0;LOINC;0.63;0.77;0.48;0.67;0.69
+cohort;Date of diagnosis;432213005;SNOMED;0.76;0.64;0.68;0.99;0.58
+cohort;Time of recurrence (metastasis diagnosis);246455001;SNOMED;0.57;0.64;0.87;0.93;0.61
+cohort;Time of recurrence (metastasis diagnosis);410671006;SNOMED;0.57;0.64;0.87;0.93;0.61
+;;;;;;;;
+cohort;Date of end of pharamcotherapy;63939-3;LOINC;0.87;0.75;0.49;0.61;0.87
+cohort;Date of start of pharamacotherapy;63936-9;LOINC;0.87;0.75;0.49;0.61;0.87
+;;;;;;;;
+cohort;Date of end of radiation therapy;63939-3;LOINC;0.81;0.96;0.78;0.93;0.75
+cohort;Date of start of radiation therapy;63936-9;LOINC;0.81;0.96;0.78;0.93;0.75
+;;;;;;;;
+cohort;Material type;LP129062-8;LOINC;0.78;0.96;0.78;0.61;0.98
+cohort;Preservation mode;433831000124104;SNOMED;0.63;0.77;0.49;0.93;0.61
+cohort;Year of sample collection;LP31598-3;LOINC;0.93;0.75;0.48;0.57;0.64
+;;;;;;;;
+cohort;Overall survival status;724201000000108;SNOMED;0.75;0.63;0.81;0.96;0.93
+cohort;Overall survival status;398215006;SNOMED;0.75;0.63;0.81;0.96;0.93
+cohort;Overall survival status;LP73696-4;LOINC;0.75;0.63;0.81;0.96;0.93
+cohort;Vital status;LP73696-4;LOINC;0.98;0.93;0.61;0.87;0.93

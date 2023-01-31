@@ -99,7 +99,7 @@ or replace function query_attributes(collection_ids int[]) RETURNS table (
   	timeliness real,
   	consistancy real
 ) as $$
-select a.collection_id, distinct cn.concept_id, cn.code, cn.vocabulary_id, a.attribute_name, a.completeness, a.accuracy, a.reliability, a.timeliness, a.consistancy
+select distinct a.collection_id, cn.concept_id, cn.code, cn.vocabulary_id, a.attribute_name, a.completeness, a.accuracy, a.reliability, a.timeliness, a.consistancy
 from collection c, attribute a, attribute_concept ac, concept cn
 where c.id = a.collection_id
 and a.id = ac.attribute_id
@@ -109,9 +109,9 @@ and c.id = ANY (collection_ids)
 $$ language sql;
 
 
-//1. lateral mappings
-//2. vertical descendence
-//3. queryAny
+-- 1. lateral mappings
+-- 2. vertical descendence
+-- 3. queryAny
 
 
 -- return all concepts that have a 'Maps to' relationship to any of the concept_ids from the passed array
