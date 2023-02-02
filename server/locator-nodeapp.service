@@ -1,0 +1,15 @@
+[Unit]
+Description=Collection Locator Node App
+Documentation=https://git-isys.aau.at/ics/bbmri/collection-locator-impl/blob/master/README.md
+Wants=postgresql.service
+After=postgresql.service network.target
+
+[Install]
+WantedBy=default.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/bbmri/nodeapp/locator/
+ExecStart=/usr/bin/node /home/bbmri/nodeapp/locator/server/app.js
+Restart=always
+RestartSec=5min

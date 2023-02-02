@@ -167,11 +167,23 @@ export const query = {
 
         //parse strings to integer,so the Set works properly
         concept_ids = concept_ids.map(c => parseInt(c))
+        console.log(concept_ids)
+        let allFound = false
+        while (!allFound) {
+            let extended_ids = Array.from(concept_ids)
 
-        //include 'Maps to' concepts
-        concept_ids = await this.complementMaps(concept_ids)
-        //include descendent concepts
-        concept_ids = await this.complementDescendents(concept_ids)
+            //include 'Maps to' concepts
+            extended_ids = await this.complementMaps(extended_ids)
+            console.log(extended_ids.filter((c) => !concept_ids.includes(c)))
+            //include descendent concepts
+            extended_ids = await this.complementDescendents(extended_ids)
+            console.log(extended_ids.filter((c) => !concept_ids.includes(c)))
+
+
+            new Set(extended_ids).size === new Set(concept_ids).size
+                ? allFound = true
+                : concept_ids = extended_ids
+        }
 
         //get collections containing any of passed concept_ids
         return pool.query('select * from query_any($1)', [concept_ids])
@@ -192,22 +204,26 @@ export const query = {
         //parse strings to integer, so the Set works properly
         concept_ids = concept_ids.map(c => parseInt(c))
 
-        const subqueries = []
+        let collection_ids = []
+        let collection = undefined
 
-        //create an ANY subquery for each concept id
+        //Intersection of ANY queries for each concept id
         for (const concept_id of concept_ids) {
-            let ids = []
-            ids.push(concept_id)
+            collection = await this.any(concept_id)
 
-            ids = await query.complementMaps(ids)
-            ids = await query.complementDescendents(ids)
-
-            const subquery = `select * from query_any(Array[${ids}])`
-            subqueries.push(subquery)
+            if (collection_ids.length == 0) {
+                collection_ids = collection.rows.map((row) => row.id)
+            } else {
+                let intersection = collection.rows.filter((row) => collection_ids.includes(row.id))
+                if (intersection.length == 0) {
+                    return []
+                } else {
+                    collection_ids = intersection.map((row) => row.id)
+                }
+            }
         }
 
-        const intersectQuery = subqueries.join(' intersect ')
-        return pool.query(intersectQuery)
+        return collection.rows.filter((row) => collection_ids.includes(row.id))
     },
 
     /**

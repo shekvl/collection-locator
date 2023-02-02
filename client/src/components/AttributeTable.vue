@@ -18,7 +18,7 @@ DataTable.p-datatable-sm(
         template(#body="slotProps")
             .d-flex.concept_id(v-if="col.field === 'concept_id'")
                 button.mr-2(
-                    @click="$emit('conceptIdSelected', slotProps.data.id)",
+                    @click="$emit('conceptIdSelected', slotProps.data.concept_id)",
                     v-tooltip="'Add to searchbar'"
                 )
                     i.pi.pi-plus

@@ -1,0 +1,30 @@
+collection_name;attribute_name;code;vocabulary_id;completeness;accuracy;reliability;timeliness;consistancy
+cohort2;Stage;AJCC/UICC;Cancer Modifier;0.98;0.77;0.78;0.84;0.93
+cohort2;Stage;8th_AJCC/UICC;Cancer Modifier;0.98;0.77;0.78;0.84;0.93
+;;;;;;;;
+cohort2;Grade;396922003;SNOMED;0.81;0.96;0.78;0.61;0.87
+cohort2;Grade;396923008;SNOMED;0.81;0.96;0.78;0.61;0.87
+cohort2;Grade;396924002;SNOMED;0.81;0.96;0.78;0.61;0.87
+cohort2;Grade;396925001;SNOMED;0.81;0.96;0.78;0.61;0.87
+;;;;;;;;
+cohort2;Microsatellite instability;LP36464-3;LOINC;0.69;0.74;0.75;0.78;0.96
+cohort2;Mismatch repair gene expression;89551006;SNOMED;0.89;0.57;0.64;0.93;0.75
+cohort2;Mismatch repair gene expression;455261000124109;SNOMED;0.89;0.57;0.64;0.93;0.75
+cohort2;Mismatch repair gene expression;LP428210-1;LOINC;0.89;0.57;0.64;0.93;0.75
+;;;;;;;;
+cohort2;Age at diagnosis (rounded to years) NATURAL;423493009;SNOMED;0.87;0.75;0.49;0.96;0.87
+cohort2;Age at diagnosis (rounded to years) NATURAL;63932-8;LOINC;0.87;0.75;0.49;0.96;0.87
+cohort2;Biological sex;46098-0;LOINC;0.63;0.77;0.48;0.67;0.69
+cohort2;Date of diagnosis;432213005;SNOMED;0.76;0.64;0.68;0.99;0.58
+cohort2;Time of recurrence (metastasis diagnosis);246455001;SNOMED;0.57;0.64;0.87;0.93;0.61
+cohort2;Time of recurrence (metastasis diagnosis);410671006;SNOMED;0.57;0.64;0.87;0.93;0.61
+;;;;;;;;
+cohort2;Date of end of pharamcotherapy;63939-3;LOINC;0.87;0.75;0.49;0.61;0.87
+cohort2;Date of start of pharamacotherapy;63936-9;LOINC;0.87;0.75;0.49;0.61;0.87
+;;;;;;;;
+cohort2;Date of end of radiation therapy;63939-3;LOINC;0.81;0.96;0.78;0.93;0.75
+cohort2;Date of start of radiation therapy;63936-9;LOINC;0.81;0.96;0.78;0.93;0.75
+;;;;;;;;
+cohort2;Material type;LP129062-8;LOINC;0.78;0.96;0.78;0.61;0.98
+cohort2;Preservation mode;433831000124104;SNOMED;0.63;0.77;0.49;0.93;0.61
+cohort2;Year of sample collection;LP31598-3;LOINC;0.93;0.75;0.48;0.57;0.64

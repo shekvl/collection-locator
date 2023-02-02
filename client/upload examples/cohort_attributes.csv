@@ -43,6 +43,6 @@ cohort;Preservation mode;433831000124104;SNOMED;0.63;0.77;0.49;0.93;0.61
 cohort;Year of sample collection;LP31598-3;LOINC;0.93;0.75;0.48;0.57;0.64
 ;;;;;;;;
 cohort;Overall survival status;724201000000108;SNOMED;0.75;0.63;0.81;0.96;0.93
-cohort;Overall survival status;398215006;SNOMED;0.75;0.63;0.81;0.96;0.93
-cohort;Overall survival status;LP73696-4;LOINC;0.75;0.63;0.81;0.96;0.93
+cohort;Vital status Timestamp;398215006;SNOMED;0.75;0.63;0.81;0.96;0.93
+cohort;Vital status Timestamp;LP73696-4;LOINC;0.75;0.63;0.81;0.96;0.93
 cohort;Vital status;LP73696-4;LOINC;0.98;0.93;0.61;0.87;0.93

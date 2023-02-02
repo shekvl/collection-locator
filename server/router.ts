@@ -11,6 +11,10 @@ export function setup(app: any) {
 
     // default error handler
     app.use((err, req, res, next) => {
-        res.status(500).json({ message: err.message })
+        if (process.env.NODE_ENV == 'production') {
+            res.sendStatus(500)
+        } else {
+            res.status(500).json({ message: err.message })
+        }
     })
 }

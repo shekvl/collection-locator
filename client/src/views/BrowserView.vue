@@ -9,6 +9,7 @@
                 .d-flex.w-75
                     .d-flex.flex-column.w-100
                         .d-flex
+                            //- TODO: Currently, only annotated concepts can be entered directly, because select is filled with those concepts as option. It could be changed so it autocompletes all supported omop concepts by fetching all cdm concepts instead of just the annotated ones.
                             AutoComplete.mx-0(
                                 forceSelection,
                                 minLength="1",

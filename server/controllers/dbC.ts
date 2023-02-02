@@ -68,8 +68,8 @@ export const queryAny = (req, res, next) => {
 export const queryAll = (req, res, next) => {
     tf.query.all(req.query.concept_ids)
         .then((result) => {
-            const collection_ids = Array.from(new Set(result.rows?.map((r) => r.id)))
-            const collections = result.rows
+            const collection_ids = Array.from(new Set(result.map((r) => r.id)))
+            const collections = result
             tf.query.attributes(collection_ids)
                 .then((result) => {
                     const attributes = result.rows
