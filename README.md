@@ -25,8 +25,10 @@ execute ddl, CRUD, dataset, functions, triggers, views sql files
 
 problem incomplete mapping between vocabs (maps to, is a (descendence))
 
-## other tables
+<!-- ## other tables
 
 \include ./db/ddl.sql;
 \include ./db/triggers.sql;
-\include ./db/functions.sql;
+\include ./db/functions.sql; -->
+
+TODOs

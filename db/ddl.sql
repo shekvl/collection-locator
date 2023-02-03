@@ -131,13 +131,13 @@ create table person_institution (
 -- contains sets of selected concept relationships for relationship search (e.g. LOINC axes)
 create table relationship_of_interest (
     id SERIAL PRIMARY KEY,
-    set
-        varchar(255),
-        name varchar(255),
-        relationship_concept_id integer,
-        relationship_id varchar(20) REFERENCES cdm.relationship ON DELETE CASCADE ON UPDATE CASCADE NOT NULL,
-        distinct_values varchar [],
-        distinct_value_count bigint,
-        vocabulary_id varchar(20) REFERENCES cdm.vocabulary ON DELETE CASCADE ON UPDATE CASCADE NOT NULL,
-        last_modified timestamp with time zone NOT NULL DEFAULT NOW()
+    set varchar(255),
+    name varchar(255),
+    relationship_concept_id integer,
+    relationship_id varchar(20) REFERENCES cdm.relationship ON DELETE CASCADE ON UPDATE CASCADE NOT NULL,
+    distinct_values varchar [],
+    distinct_value_count bigint,
+    vocabulary_id varchar(20) REFERENCES cdm.vocabulary ON DELETE CASCADE ON UPDATE CASCADE NOT NULL,
+    last_modified timestamp with time zone NOT NULL DEFAULT NOW()
+    UNIQUE (set, name)
 );

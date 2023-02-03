@@ -52,6 +52,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- ... on insert into concept table
 DROP TRIGGER IF EXISTS insert_concept ON concept;
 CREATE TRIGGER insert_concept
 	BEFORE INSERT ON concept
@@ -80,14 +81,16 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- ... on insert annotation into attribute_concept
+-- in case the code/vocabulary is not supported, the annotation will still be stored in the attribute_concept table, so it can be added as soon as it becomes supported
 DROP TRIGGER IF EXISTS transfer_annotation ON attribute_concept;
 CREATE TRIGGER transfer_annotation
-	AFTER INSERT ON attribute_concept  -- BEFORE INSERT would prevent unsupported vocabularies
+	AFTER INSERT ON attribute_concept  -- BEFORE INSERT would prevent storing annotations of unsupported vocabularies
     FOR EACH ROW
     EXECUTE FUNCTION transfer_annotation ();
 
 
--- keep count of current references to know if concept still present in collections
+-- keep count of current references to know if concept is still present in collections
 CREATE OR REPLACE FUNCTION increment_concept_reference_count ()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -99,6 +102,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- counter for annotated concepts
 DROP TRIGGER IF EXISTS increment_concept_reference_count ON attribute_concept;
 CREATE TRIGGER increment_concept_reference_count
 	BEFORE INSERT ON attribute_concept

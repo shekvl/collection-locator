@@ -1,31 +1,4 @@
--- get 100 random rows from cdm.concept table
--- select * from cdm.concept
--- ORDER BY random()
--- LIMIT 100
-
--- select * from cdm.concept
--- where vocabulary_id in ('LOINC', 'SNOMED', 'READ')
--- and domain_id in ('Measurement', 'Observation')
--- ORDER BY random()
--- LIMIT 10
-
--- standard concepts are used for the hierachy (vs. non-standard concepts that are mapped to equivalent standard concepts) and the validity attribute states if concept is outdated: D=deleted; U=updated
--- select concept_id, concept_name, vocabulary_id, concept_code from cdm.concept
--- where vocabulary_id in ('LOINC', 'SNOMED', 'Read')
--- and domain_id in ('Measurement', 'Observation')
--- and invalid_reason = ''
--- ORDER BY random()
--- LIMIT 50
-
--- just LOINC Measurements
--- select * from (
--- 	select (random() + random()) /2 * 0.3 + 0.7, concept_id, concept_name, vocabulary_id, concept_code from cdm.concept
--- 	where vocabulary_id in ('LOINC')
--- 	and domain_id in ('Measurement')
--- 	and invalid_reason = '') as a
--- ORDER BY random()
--- LIMIT 20
-
+-- collection/attribute generation
 
 -- round() for real data type
 CREATE OR REPLACE FUNCTION round(number real, decimal_places int)
@@ -62,6 +35,38 @@ RETURNS real AS $$
 $$ LANGUAGE plpgsql;
 
 
+--generated dataset of random LOINC Measurement Concepts
+CREATE OR REPLACE FUNCTION generate_dataset(size int)
+RETURNS TABLE (
+	attribute_name varchar(255),
+	code varchar(50),
+	vocabulary_id varchar(20),
+	completeness real,
+	accuracy real,
+	reliability real,
+	timeliness real,
+	consistancy real
+) AS $$
+SELECT
+	concept_name,
+	concept_code,
+	vocabulary_id,
+	random(0.3,1),
+	random(0.7,1),
+	random(0.7,1),
+	random(0.7,1),
+	random(0.7,1)
+FROM
+	cdm.concept
+WHERE
+	vocabulary_id IN ('LOINC')
+	AND domain_id IN ('Measurement')
+	AND invalid_reason = ''
+ORDER BY random()
+LIMIT size
+$$ LANGUAGE SQL;
+
+
 --generated dataset with attributed collection name
 CREATE OR REPLACE FUNCTION generate_dataset(collection_name varchar(255), size int)
 RETURNS TABLE (
@@ -95,37 +100,6 @@ ORDER BY random()
 LIMIT size
 $$ LANGUAGE SQL;
 
-
---generated dataset
-CREATE OR REPLACE FUNCTION generate_dataset(size int)
-RETURNS TABLE (
-	attribute_name varchar(255),
-	code varchar(50),
-	vocabulary_id varchar(20),
-	completeness real,
-	accuracy real,
-	reliability real,
-	timeliness real,
-	consistancy real
-) AS $$
-SELECT
-	concept_name,
-	concept_code,
-	vocabulary_id,
-	random(0.3,1),
-	random(0.7,1),
-	random(0.7,1),
-	random(0.7,1),
-	random(0.7,1)
-FROM
-	cdm.concept
-WHERE
-	vocabulary_id IN ('LOINC')
-	AND domain_id IN ('Measurement')
-	AND invalid_reason = ''
-ORDER BY random()
-LIMIT size
-$$ LANGUAGE SQL;
 
 -- generate collection
 -- parameters: collection name, number of annotated attributes, the person adding the collection and the institution the collection is associated with
@@ -171,3 +145,38 @@ RETURNS table(collection_id integer, first_attribute_id bigint, last_attribute_i
 			select collection_id, first_attribute_id, attribute_id;
 	END;
 $$ LANGUAGE plpgsql;
+
+
+
+
+
+--------- queries -----------
+
+-- get 100 random rows from cdm.concept table
+-- select * from cdm.concept
+-- ORDER BY random()
+-- LIMIT 100
+
+-- standard concepts are used for the hierachy (vs. non-standard concepts that are mapped to equivalent standard concepts) and the validity attribute states if concept is outdated: D=deleted; U=updated
+-- select concept_id, concept_name, vocabulary_id, concept_code from cdm.concept
+-- where vocabulary_id in ('LOINC', 'SNOMED', 'Read')
+-- and domain_id in ('Measurement', 'Observation')
+-- and invalid_reason = ''
+-- ORDER BY random()
+-- LIMIT 50
+
+-- just LOINC Measurements
+-- select * from (
+	-- select (random() + random()) /2 * 0.3 + 0.7,
+	-- concept_id,
+	-- concept_name,
+	-- vocabulary_id,
+	-- concept_code
+	-- from cdm.concept
+	-- where vocabulary_id in ('LOINC')
+	-- and domain_id in ('Measurement')
+	-- and invalid_reason = '') as a
+-- ORDER BY random()
+-- LIMIT 20
+
+--------------------

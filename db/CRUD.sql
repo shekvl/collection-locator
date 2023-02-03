@@ -1,3 +1,5 @@
+--CRUD statements for collection locator tables
+
 
 -- insert record into attribute_concept table
 -- returning inserted row
@@ -6,7 +8,7 @@ RETURNS setof attribute_concept AS $$
 	insert into attribute_concept (attribute_id, code, vocabulary_id) values(id, code, vocab)
 	returning *;
 $$ LANGUAGE sql;
---TODO now error returned when nothing is inserted (row count == 0); should rollback transaction
+--TODO no error returned when nothing is inserted (row count == 0); should rollback transaction
 
 
 -- delete record from attribute_concept table
@@ -27,8 +29,6 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-
---TODO enable insert without optional values
 
 -- insert record into attribute table
 -- returning inserted row

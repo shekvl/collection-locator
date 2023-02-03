@@ -1,6 +1,6 @@
 # Introduction
 
-To setup the OMOP CDM, you first need to
+To set up the OMOP CDM, you first need to
 1. create an instance of the `OMOP CDM` and then
 2. populate it with a selection of OHDSI `vocabularies`.
 

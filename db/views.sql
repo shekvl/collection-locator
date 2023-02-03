@@ -1,19 +1,11 @@
--- Vocabularies selected for Athena Download
--- Relies on intersection with Reference CDM 'omop_cdm_5.4_loinc_only'
--- create or replace view supported_vocabulary
--- as
---     select * from cdm.vocabulary where vocabulary_id not in ('Type Concept', 'None')
---     except
---     select * from "omop_cdm_5.4_loinc_only".vocabulary where vocabulary_id <> 'LOINC'
-
---TODO replace by actual table with vocabularies? Has to be updated when set of selected vocabularies changes
-
+-- Currently, all cdm vocabularies are shown which goes beyond well known standard ontologies. TODO: Replace by actual table with subset of cdm.vocabulary? Would make updates necessary whenever the set of selected vocabularies changes.
+-- view supported vocabularies
 create or replace view supported_vocabulary
 as
-    select * from cdm.vocabulary
+    select * from cdm.vocabulary;
 
 
--- Combined view of attributes and their annotated concepts
+-- view attributes and their annotated concepts
 create or replace view annotation
 as
 	select a.collection_id, a.id as attribute_id, a.attribute_name,
