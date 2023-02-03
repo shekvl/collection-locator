@@ -1,7 +1,9 @@
 <template lang="pug">
 Menubar#menubar(:model="items")
     template(#start)
-        #logo(@click="goToHome") Collection Locator
+        #logo.d-flex(@click="goToHome")
+            img(src="favicon-32x32.png")
+            .ml-2 Collection Locator
     template(#end)
         Button.p-button-rounded.p-button-text(
             icon="pi pi-language",
@@ -81,8 +83,6 @@ export default defineComponent({
 <style>
 #logo {
     font-size: larger;
-    margin-inline-start: 10px;
-    margin-inline-end: 10px;
     padding-inline: 10px;
     padding-block: 2px;
     font-weight: 600;

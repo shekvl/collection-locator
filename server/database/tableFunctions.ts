@@ -167,17 +167,19 @@ export const query = {
 
         //parse strings to integer,so the Set works properly
         concept_ids = concept_ids.map(c => parseInt(c))
-        console.log(concept_ids)
+        // console.log(concept_ids)
+
         let allFound = false
         while (!allFound) {
             let extended_ids = Array.from(concept_ids)
 
             //include 'Maps to' concepts
             extended_ids = await this.complementMaps(extended_ids)
-            console.log(extended_ids.filter((c) => !concept_ids.includes(c)))
+            // console.log(extended_ids.filter((c) => !concept_ids.includes(c)))
+
             //include descendent concepts
             extended_ids = await this.complementDescendents(extended_ids)
-            console.log(extended_ids.filter((c) => !concept_ids.includes(c)))
+            // console.log(extended_ids.filter((c) => !concept_ids.includes(c)))
 
 
             new Set(extended_ids).size === new Set(concept_ids).size

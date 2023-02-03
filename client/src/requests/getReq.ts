@@ -7,7 +7,7 @@ axios.defaults.baseURL = `http://localhost:${port}`
 
 // export async function getAttributeCount(collectionIds: any[]) {
 //     try {
-//         const response = await axios.get('/db/collections/attributeCount', { params: collectionIds })
+//         const response = await axios.get('api/db/collections/attributeCount', { params: collectionIds })
 //         return response.data.message
 //     } catch (error: any) {
 //         console.trace(error)
@@ -18,7 +18,7 @@ axios.defaults.baseURL = `http://localhost:${port}`
 
 export async function getAllConcepts() {
     try {
-        const response = await axios.get('/db/concepts')
+        const response = await axios.get('api/db/concepts')
         console.log(response)
         return response.data.map((a: any) => a.concept_id.toString())
     } catch (error: any) {
@@ -30,7 +30,7 @@ export async function getAllConcepts() {
 
 export async function getRelationshipsOfInterest(set: string, vocabulary_id: string) {
     try {
-        const response = await axios.get('/db/relationshipsOfInterest', {
+        const response = await axios.get('api/db/relationshipsOfInterest', {
             params: { set, vocabulary_id }
         })
         return response.data
@@ -42,7 +42,7 @@ export async function getRelationshipsOfInterest(set: string, vocabulary_id: str
 
 export async function getVocabularies() {
     try {
-        const response = await axios.get('/db/vocabularies')
+        const response = await axios.get('api/db/vocabularies')
         return response.data
     } catch (error: any) {
         console.trace(error)
@@ -52,7 +52,7 @@ export async function getVocabularies() {
 
 export async function queryAny(concept_ids: any) {
     try {
-        const response = await axios.get('/db/queryAny?' + serialize({ concept_ids }))
+        const response = await axios.get('api/db/queryAny?' + serialize({ concept_ids }))
         return { success: true, message: response.data.message, data: response.data }
     } catch (error: any) {
         console.trace(error)
@@ -62,7 +62,7 @@ export async function queryAny(concept_ids: any) {
 
 export async function queryAll(concept_ids: any) {
     try {
-        const response = await axios.get('/db/queryAll?' + serialize({ concept_ids }))
+        const response = await axios.get('api/db/queryAll?' + serialize({ concept_ids }))
         return { success: true, message: response.data.message, data: response.data }
     } catch (error: any) {
         console.trace(error)
@@ -72,7 +72,7 @@ export async function queryAll(concept_ids: any) {
 
 export async function queryRelationships(vocabulary_id: string, relationships: any) {
     try {
-        const response = await axios.post('/db/queryRelationships', {
+        const response = await axios.post('api/db/queryRelationships', {
             vocabulary_id,
             relationships
         })

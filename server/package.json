@@ -1,7 +1,7 @@
 {
   "name": "server",
   "version": "1.0.0",
-  "description": "",
+  "description": "NodeJs server",
   "main": "app.ts",
   "scripts": {
     "deploy": "cross-env NODE_ENV=production npx ts-node app.ts",

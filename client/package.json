@@ -1,6 +1,7 @@
 {
   "name": "client",
   "version": "1.0.0",
+  "description": "Vue 3 single-page application",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",

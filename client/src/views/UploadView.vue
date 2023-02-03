@@ -52,8 +52,8 @@ export default defineComponent({
 </script>
 
 <style>
-img {
-    width: 100%;
+#info-box img {
+    width: 50em;
 }
 
 #info-box {

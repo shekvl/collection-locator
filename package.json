@@ -2,17 +2,20 @@
   "name": "collection-locator",
   "version": "1.0.0",
   "author": "ISYS@aau.at",
-  "description": "",
+  "description": "Repository to identify collections within the biobank network. Collections are semantically annotated using the OMOP CDM.",
   "repository": {
     "type": "git",
-    "url": ""
+    "url": "https://git-isys.aau.at/ics/bbmri/collection-locator-impl.git"
   },
   "private": true,
   "scripts": {
     "init": "concurrently \"npm i\" \"cd client && npm i\" \"cd server && npm i\"",
-    "start-client": "cd client && npm run serve",
-    "start-server": "cd server && npm run serve",
-    "serve": "concurrently \"npm run start-client\" \"npm run start-server\""
+    "client": "cd client && npm run serve",
+    "server": "cd server && npm run serve",
+    "build": "cd client && npm run build",
+    "deploy": "cd server && npm run deploy",
+    "redeploy": "npm run init && npm run build && npm run deploy",
+    "serve": "concurrently \"npm run client\" \"npm run server\""
   },
   "dependencies": {
     "concurrently": "^7.6.0"
