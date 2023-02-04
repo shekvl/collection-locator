@@ -96,7 +96,7 @@ Make sure you also executed the last command.
 
 Login to [Athena](https://athena.ohdsi.org) and download Vocabularies for populating the OMOP CDM:
 
-1. Login
+1. Login (or Register)
 2. Go to `DOWNLOAD` tab
 3. Select Vocabularies
 4. Click on `DOWNLOAD VOCABULARIES`

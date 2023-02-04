@@ -1,4 +1,6 @@
 <template lang="pug">
+
+//- primevue datatable [https://www.primefaces.org/primevue/datatable]
 DataTable.p-datatable-sm(
     ref="dt",
     :value="collections",
@@ -85,16 +87,6 @@ DataTable.p-datatable-sm(
             ) Clear
 </template>
 
-//primevue datatable [https://www.primefaces.org/primevue/datatable]
-//body slotprops => make concept ids addable to search
-//download table option? use exportCSV() predefined method
-//:loading option with #loading tamplet with skeleton? im fetching takes some time (necessary with paging?)
-
-//select checkboxes (download only selected)
-
-//info about how to use table
-
-
 <script setup lang="ts">
 import { ref } from "vue";
 import Button from "primevue/button";
@@ -146,7 +138,7 @@ export default defineComponent({
                     field: "person_name",
                     header: "Submitted By",
                     type: COLUMNTYPE.TEXT,
-                }, //name, not id
+                },
                 {
                     field: "institution_id",
                     header: "Institution",

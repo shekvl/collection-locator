@@ -1,3 +1,4 @@
+# Database README
 ## Overview
 
 The postgres database consists of two schemas: the `cdm schema` containing the OMOP CDM tables and the `public schema` containing the tables to manage the repository of collection annotations.
@@ -8,7 +9,7 @@ The [AthenaVocabDownloads/LOINC+](./AthenaVocabDownloads) directory contains a s
 
 ## Database Setup
 
-1. Create the database `collection-locator`
+1. Create the database `collection_locator`
 2. Set up an instance of the `OMOP CDM` => [setup guid](./OmopCdm5.4/SETUP.md)
 3. Enter the following commands into your database.
 

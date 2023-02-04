@@ -10,6 +10,7 @@ WantedBy=default.target
 [Service]
 Type=simple
 WorkingDirectory=/home/bbmri/nodeapp/locator/
-ExecStart=/usr/bin/node /home/bbmri/nodeapp/locator/server/app.js
+ExecStart=npm run deploy
+# ExecStart=/usr/bin/node /home/bbmri/nodeapp/locator/server/app.js
 Restart=always
 RestartSec=5min

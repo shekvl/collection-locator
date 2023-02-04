@@ -1,15 +1,15 @@
 <template lang="pug">
 .px-5
     .d-flex
-        //- TODO shift athena search to concepts tab, since not needed globaly (=> concept lookup)
-
-    .d-flex
         TabView.w-100(lazy)
             TabPanel(header="Concepts")
                 .d-flex.w-75
                     .d-flex.flex-column.w-100
                         .d-flex
                             //- TODO: Currently, only annotated concepts can be entered directly, because select is filled with those concepts as option. It could be changed so it autocompletes all supported omop concepts by fetching all cdm concepts instead of just the annotated ones.
+                            //- autoComplete => real time search with suggestion
+                            //- forceSelection  => only valid concepts addable
+                            //- autocomplete does not scale. problem displaying 10000 items.. can be limited by minlength; cdm.concept vs concept
                             AutoComplete.mx-0(
                                 forceSelection,
                                 minLength="1",
@@ -18,7 +18,7 @@
                                 placeholder="Search for Concept..",
                                 v-model="selectedConcepts",
                                 :suggestions="filteredConcepts",
-                                @complete="searchConcepts($event)",
+                                @complete="filterAnnotationConcept($event)",
                                 @item-select="(event) => addToMostRecentConcepts(event.value)",
                                 :virtualScrollerOptions="{ items: concepts, itemSize: 40 }",
                                 v-tooltip="'Enter concept IDs to locate collections'"
@@ -49,12 +49,11 @@
                     .mb-1(style="font-size: large") Most Recent Concept List:
                     .most-recents(
                         v-for="item in Array.from(mostRecentConcepts).reverse()",
-                        @click="selectConcept(item)"
+                        @click="selectConcept(item)",
                         v-tooltip="'Add to searchbar'"
                     ) {{ item }}
 
             TabPanel(header="Relationships")
-                //- TODO hide axes if other vocabulary is selected (axes is a relationship set specific to LOINC vocab)
                 .d-flex.flex-column
                     .d-flex.justify-start.mb-2
                         Dropdown(
@@ -76,7 +75,7 @@
                             :placeholder="axis.name",
                             v-model="axis.selectedValues",
                             :suggestions="axis.filteredValues",
-                            @complete="filter($event, axis)",
+                            @complete="filterRelationshipValues($event, axis)",
                             :virtualScrollerOptions="{ items: axis.distinct_values, itemSize: 40 }"
                         )
                     .d-flex.justify-content-start
@@ -98,19 +97,6 @@
 
     ScrollTop
 </template>
-
-
-//TODO tooltip: info about concept (fetch and "cache"); including link to athena with code as param in url
-//real time search with suggestion(maybe restricted by vocab etc.)  => only valid concepts addable
-
-//!composite descriptor selection panel
-//browse all concepts in use (sort hierachy)
-
-//show tabs according to relationship_of_interests
-
-//TODO extra COMPONENT for search..
-
-//! autocomplete does not scale(?) problem displaying 10000 items.. can be limited by minlength; cdm.concept vs concept
 
 
 <script setup lang="ts">
@@ -135,7 +121,7 @@ import {
     queryRelationships,
     queryAny,
     queryAll,
-} from "../requests/getReq";
+} from "../requests/dbReq";
 
 const enum SEARCH_MODE {
     ANY = "OR",
@@ -210,33 +196,12 @@ export default defineComponent({
                 this.toastNothingFound();
             }
         },
-        // async doQueryAll(concept_ids: []) {
-        //     //TODO start loading (show loading process if fetching from db takes some time)
-        //     this.resultCollections = result.data.collections || [];
-        //     this.resultAttributes = result.data.attributes || [];
-
-        //     if (this.hasNoCollections()) {
-        //         this.toastNothingFound();
-        //     }
-        //     //TODO set loading finished
-        // },
-        // async doQueryAny(concept_ids: []) {
-        //     //TODO start loading (show loading process if fetching from db takes some time)
-        //     const result: any = await queryAny(Object.values(concept_ids));
-        //     this.resultCollections = result.data.collections || [];
-        //     this.resultAttributes = result.data.attributes || [];
-
-        //     if (this.hasNoCollections()) {
-        //         this.toastNothingFound();
-        //     }
-        //     //TODO set loading finished
-        // },
         async doQueryRelationship() {
             this.isLoadingCollections = true;
 
             const relationships = [];
+            //TODO: generatlize (no just LOINC Axes)
             for (const a of this.axes) {
-                //TODO:generatlize
                 const axis: any = a;
                 if (axis.selectedValues.length > 0) {
                     relationships.push({
@@ -252,21 +217,21 @@ export default defineComponent({
             );
             this.doQuery(result.data, SEARCH_MODE.ANY);
         },
-        searchConcepts(event: any) {
+        filterAnnotationConcept(event: any) {
             const filtered: any = this.concepts.filter((concept: string) => {
                 return concept.startsWith(event.query);
             });
             this.filteredConcepts = filtered;
         },
-        filter(event: any, object: any) {
-            const filtered: any = object.distinct_values.filter(
+        filterRelationshipValues(event: any, relationship: any) {
+            const filtered: any = relationship.distinct_values.filter(
                 (value: string) => {
                     return value
                         .toLowerCase()
                         .startsWith(event.query.toLowerCase());
                 }
             );
-            object.filteredValues = filtered;
+            relationship.filteredValues = filtered;
         },
         toastNothingFound() {
             this.$toast.add({

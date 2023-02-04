@@ -1,33 +1,26 @@
-import axios from 'axios'
+import axios from './axios'
 import serialize from '../js_helpers/serialize'
 
-const port = 3000
-axios.defaults.baseURL = `http://localhost:${port}`
-// axios.defaults.headers.post
-
-// export async function getAttributeCount(collectionIds: any[]) {
-//     try {
-//         const response = await axios.get('api/db/collections/attributeCount', { params: collectionIds })
-//         return response.data.message
-//     } catch (error: any) {
-//         console.trace(error)
-//         return error
-//     }
-// }
-
-
+/**
+ * Get all annotation concepts
+ * @returns Array of Concept IDs
+ */
 export async function getAllConcepts() {
     try {
         const response = await axios.get('api/db/concepts')
-        console.log(response)
         return response.data.map((a: any) => a.concept_id.toString())
     } catch (error: any) {
         console.trace(error)
-        return error
+        return { success: false, message: error.message }
     }
 }
 
-
+/**
+ * Get relationships of interest specified by set name and vocabulary id
+ * @param set Name of the relationship set
+ * @param vocabulary_id Vocabulary ID
+ * @returns Result table
+ */
 export async function getRelationshipsOfInterest(set: string, vocabulary_id: string) {
     try {
         const response = await axios.get('api/db/relationshipsOfInterest', {
@@ -36,20 +29,28 @@ export async function getRelationshipsOfInterest(set: string, vocabulary_id: str
         return response.data
     } catch (error: any) {
         console.trace(error)
-        return error
+        return { success: false, message: error.message }
     }
 }
 
+/**
+ * Get supported vocabularies
+ * @return Vocabulary Ids
+ */
 export async function getVocabularies() {
     try {
         const response = await axios.get('api/db/vocabularies')
         return response.data
     } catch (error: any) {
         console.trace(error)
-        return error
+        return { success: false, message: error.message }
     }
 }
 
+/**
+ * Query collections that contain any of the specified concepts (or equivalent concepts)
+ * @returns Collections
+ */
 export async function queryAny(concept_ids: any) {
     try {
         const response = await axios.get('api/db/queryAny?' + serialize({ concept_ids }))
@@ -60,6 +61,10 @@ export async function queryAny(concept_ids: any) {
     }
 }
 
+/**
+ * Query collections that contain each of the specified concepts (or equivalent concepts)
+ * @returns Collections
+ */
 export async function queryAll(concept_ids: any) {
     try {
         const response = await axios.get('api/db/queryAll?' + serialize({ concept_ids }))
@@ -70,6 +75,11 @@ export async function queryAll(concept_ids: any) {
     }
 }
 
+/**
+ * Query collections that contain concepts to which all specified relationships apply
+ * @param relationships Object with relationship_ids and associated lists with possible values
+ * @returns Collections IDs
+ */
 export async function queryRelationships(vocabulary_id: string, relationships: any) {
     try {
         const response = await axios.post('api/db/queryRelationships', {

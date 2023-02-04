@@ -1,10 +1,11 @@
-import axios from 'axios'
+import axios from './axios'
 
-const port = 3000
-axios.defaults.baseURL = `http://localhost:${port}`
-// axios.defaults.headers.common['Access-Control-Allow-Origin'] = '*'
-// axios.defaults.headers.post
-
+/**
+ * Sent post request with files as form data in the body
+ * @param collections Form data field for collections
+ * @param attributes Form data field for attributes
+ * @returns Collection details on success
+ */
 export async function postCollectionFiles(collections: any, attributes: any) {
     try {
         const formData = new FormData()
@@ -14,6 +15,7 @@ export async function postCollectionFiles(collections: any, attributes: any) {
         attributes.forEach((a: any) => {
             formData.append('attributes', a)
         })
+
         const response = await axios.post('api/upload/collections', formData)
         return { success: true, message: response.data.message }
     } catch (error: any) {

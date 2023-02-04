@@ -1,3 +1,4 @@
+# Server README
 ## Features
 The server has access to the collection locator database which includes the omop cdm.
 
@@ -15,7 +16,7 @@ JS functions within tableFunctions.ts wrap these table function calls and make t
 
 Example:
 ```
-SERVER_PORT=3000
+SERVER_PORT=5001
 
 PG_HOST="localhost"
 PG_USER="postgres"

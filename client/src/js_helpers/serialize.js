@@ -1,4 +1,8 @@
-
+/**
+ * Serialize parameter object for request url
+ * @param {*} params Object with arrays and simple type values
+ * @returns serialized object string (e.g. ?param1=value1&param2=value2)
+ */
 export default function serialize(params) {
     const maps = []
 
