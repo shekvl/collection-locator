@@ -5,7 +5,7 @@ The postgres database consists of two schemas: the `cdm schema` containing the O
 
 The [OmopCdm5.4](./OmopCdm5.4) directory contains the OMOP CDM version 5.4 ready to be executed.
 
-The [AthenaVocabDownloads/LOINC+](./AthenaVocabDownloads/LOINC%2B/) directory contains a selection of OHDSI Vocabularies including SNOMED and LOINC which can be used to populate the CDM.
+The [AthenaVocabDownloads/LOINC+](./AthenaVocabDownloads/LOINC+/) directory contains a selection of OHDSI Vocabularies including SNOMED and LOINC which can be used to populate the CDM.
 
 ## Database Setup
 
