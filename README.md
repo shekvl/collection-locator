@@ -9,11 +9,11 @@ This project was developed as part of the WP2 of Austrian BBMRI node. It consist
 - a `server` to host the project
 
 ### Readme:
-- [Client](client\README.md)
+- [Client](./client/README.md)
 
-- [Database](db\README.md)
+- [Database](./db/README.md)
 
-- [Server](server\README.md)
+- [Server](./server/README.md)
 
 
 ## Project Setup
