@@ -69,7 +69,7 @@ consistancy
 - collection.csv and attribute.csv files must be uploaded togther
 
 ### Examples
-Check out the `upload examples` in the `./client/uploadExamples` directory
+Check out the `upload examples` in the [./client/uploadExamples](./client/uploadExamples) directory
 
 
 
