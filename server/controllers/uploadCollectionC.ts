@@ -11,7 +11,8 @@ import * as schema from '../database/schemas'
  * @param callback Callback passed by multer
  */
 function assertCsvMimetype(req, file, callback) {
-    if (file.mimetype !== 'text/csv') {
+    //console.log(file);
+    if (file.mimetype !== 'text/csv' && file.mimetype !== 'application/vnd.ms-excel') {
         const error = new Error("Wrong file type")
         error.name = "CSV_FILE_TYPES"
         return callback(error, false)
@@ -28,7 +29,7 @@ const upload = multer({
 /**
  * Multer Middleware to upload files. Accepted form-data field names are specified.
  */
-export const uploadFiles = upload.fields([
+export const uploadFilesCollections = upload.fields([
     { name: 'collections' },
     { name: 'attributes' }
 ])
@@ -45,7 +46,7 @@ const options = {
  * Midleware to parse uploaded csv files.
  * @side_effect `Collections` and `attributes` are attached to req.
  */
-export function parseCsv(req, res, next) {
+export function parseCsvCollections(req, res, next) {
     req.parsed = {
         collections: {
             records: [],
@@ -179,7 +180,7 @@ export function assertCollectionReferencesOkay(req, res, next) {
  * Middleware to insert parsed collection and attribute records into the database. It sends a response with detailed information about the uploaded collections.
  * @param req Request object containing parsed collection and attribute records
  */
-export function insertRecords(req, res, next) {
+export function insertRecordsCollections(req, res, next) {
 
     tf.collection.toDb(req.parsed.collections.records, req.parsed.attributes.records)
         .then(async (collection_ids: any) => {
@@ -207,7 +208,7 @@ export function insertRecords(req, res, next) {
  * Delete files uploaded by multer
  * @param req Request object containing uploaded files
  */
-export async function deleteFiles(req, res, next) {
+export async function deleteFilesCollections(req, res, next) {
 
     const fields: object[][] = Object.values(req.files)
 

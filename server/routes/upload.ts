@@ -1,15 +1,29 @@
 import { Router } from 'express'
 const router = Router()
 
-import { uploadFiles, parseCsv, insertRecords, deleteFiles, assertDistinctCollectionNames, assertCollectionReferencesOkay, assertContentSchema } from '../controllers/uploadCollectionC'
+import { uploadFilesCollections, parseCsvCollections, insertRecordsCollections, deleteFilesCollections, assertDistinctCollectionNames, assertCollectionReferencesOkay, assertContentSchema } from '../controllers/uploadCollectionC'
+import {
+    uploadFilesQualityModels,
+    parseCsvQualityModels,
+    deleteFilesQualityModels, insertRecordsQualityModels, assertContentSchemaQualityModels
+} from "../controllers/uploadQualityModelC";
 
-router.post('/collections', uploadFiles,
-    parseCsv,
+
+router.post('/collections', uploadFilesCollections,
+    parseCsvCollections,
     assertContentSchema,
     assertDistinctCollectionNames,
     assertCollectionReferencesOkay,
-    insertRecords,
-    deleteFiles
+    insertRecordsCollections,
+    deleteFilesCollections
+)
+
+
+router.post('/quality-models', uploadFilesQualityModels,
+    parseCsvQualityModels,
+    assertContentSchemaQualityModels,
+    insertRecordsQualityModels,
+    deleteFilesQualityModels
 )
 
 /**
@@ -38,7 +52,7 @@ const errorHandler = (err, req, res, next) => {
         }
     }
 
-    deleteFiles(req, res, next)
+    deleteFilesCollections(req, res, next)
 }
 
 router.use(errorHandler)

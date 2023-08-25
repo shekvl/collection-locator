@@ -19,3 +19,12 @@ export const attribute = [
     'timeliness',
     'consistancy'
 ]
+
+export const qualityModel = [
+    'quality_metric',
+    'friendly_name',
+    'quality_characteristic',
+    'level',
+    'is_default',
+    'description'
+]

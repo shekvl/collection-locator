@@ -1,7 +1,7 @@
 <template lang="pug">
 
 .d-flex.flex-column.align-start.mb-4
-    h3 # Upload Collection Data
+    h3 # Upload Quality Model
 .d-flex.flex-row.justify-center
     el-upload.w-50.pr-5(
         drag,
@@ -9,7 +9,7 @@
         auto-upload=false,
         accept=".csv",
         :http-request="() => { return; }",
-        v-model:file-list="collectionList"
+        v-model:file-list="qualityModelList"
     )
         el-icon.el-icon--upload
             upload-filled
@@ -20,38 +20,11 @@
             .el-upload__tip
                 | .csv files of unlimited size
 
-    .signpost.d-flex.flex-column.justify-space-around.pa-2.text-overline
-        .d-flex.flex-row.align-center
-            el-icon.el-icon--upload
-                arrow-left
-            | Collections
-        .d-flex.flex-row.align-center.justify-end
-            div Attributes
-            el-icon.el-icon--upload
-                arrow-right
-
-    el-upload.w-50.pl-5(
-        drag,
-        multiple,
-        auto-upload=false,
-        accept=".csv",
-        :http-request="() => { return; }",
-        v-model:file-list="attributeList"
-    )
-        el-icon.el-icon--upload
-            upload-filled
-        .el-upload__text
-            | Drop file here or&nbsp;
-            em click to upload
-        template(#tip)
-            .el-upload__tip
-                | .csv files of unlimited size
-
-el-button.mt-5(
+el-button.mt-7(
     type="primary",
     @click="sendToServer",
     size="large",
-    :disabled="collectionList.length == 0 || attributeList.length == 0",
+    :disabled="qualityModelList.length == 0",
     native-type="submit",
     plain
 ) UPLOAD
@@ -61,7 +34,7 @@ el-button.mt-5(
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { postCollectionFiles } from "../requests/uploadReq";
+import { postQualityModelFiles } from "../requests/uploadReq";
 import {
     UploadFilled,
     Upload,
@@ -78,9 +51,8 @@ export default defineComponent({
     },
     methods: {
         async sendToServer() {
-            const response = await postCollectionFiles(
-                this.collectionList.map((i:any) => i.raw),
-                this.attributeList.map((i:any) => i.raw)
+            const response = await postQualityModelFiles(
+                this.qualityModelList.map((i:any) => i.raw)
             );
             this.toast(response.success, response.message);
         },
@@ -95,8 +67,7 @@ export default defineComponent({
     },
     data() {
         return {
-            collectionList: [],
-            attributeList: [],
+            qualityModelList: [],
         };
     },
 });

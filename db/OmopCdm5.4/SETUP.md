@@ -159,7 +159,18 @@ Files complying to the CSV format can be imported via `CSV mode`:
 \copy cdm.domain from ./db/AthenaVocabDownloads/LOINC+/DOMAIN.csv DELIMITER E'\t' CSV HEADER;
 ```
 
-Other files have to be imported via `text mode`:
+If importing a CONCEPT_RELATIONSHIP.csv file gives the following error:
+
+could not stat file "CONCEPT_RELATIONSHIP.csv": value too large
+
+the following command can be used instead:
+\copy cdm.concept_relationship from program 'cmd /c "type CONCEPT_RELATIONSHIP.csv"' DELIMITER E'\t' CSV HEADER;
+
+Before continuing with the other files, the following command has to be issued under Windows:
+
+SET CLIENT_ENCODING TO 'utf8';
+
+Other files have to be imported via `text mode`.
 
 ```psql
 \copy cdm.concept from ./db/AthenaVocabDownloads/LOINC+/CONCEPT.csv DELIMITER E'\t';

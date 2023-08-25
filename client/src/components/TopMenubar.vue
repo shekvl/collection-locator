@@ -26,12 +26,17 @@ const goToHome = function () {
 
 const items = [
     {
-        label: "Browser",
+        label: "Search",
         icon: "pi pi-search",
         to: "/browser",
     },
     {
-        label: "Upload",
+      label: "Upload Quality Model",
+      icon: "pi pi-upload",
+      to: "/qualitymodelupload",
+    },
+    {
+        label: "Upload Collection Data",
         icon: "pi pi-upload",
         to: "/fileupload",
     },

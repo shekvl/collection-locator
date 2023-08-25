@@ -1,5 +1,96 @@
 import { pool } from './postgres'
 
+export const qualityModel = {
+    async toDB(characteristics, metrics){
+        const client = await pool.connect() //client needed for transaction
+        let res = { characteristic_ids: {}, metric_ids: {} };
+        try {
+            await client.query('BEGIN')
+
+            //insert collections //metadata quality fields are not required and may therefore be null
+            for (const characteristic of characteristics) {
+                let result = await client.query('insert into quality_characteristic (name, friendly_name, description, added_by) values ($1, $2, $3, $4) returning id', [
+                    characteristic.quality_characteristic,
+                    characteristic.friendly_name,
+                    characteristic.description,
+                    1 //added_by //TODO: user input
+                ])
+
+                const name = characteristic.quality_characteristic
+
+                console.log(result);
+
+                const characteristic_id = result.rows[0].id
+
+                res.characteristic_ids[name] = characteristic_id
+
+            }
+
+
+            //insert collections //metadata quality fields are not required and may therefore be null
+            for (const metric of metrics) {
+                let result = await client
+                    .query('insert into quality_metric (name, friendly_name, description, metric_level, is_default, quality_characteristic_id, added_by) values ($1, $2, $3, $4, $5, $6, $7) returning id', [
+                    metric.quality_metric,
+                    metric.friendly_name,
+                    metric.description,
+                    metric.level,
+                    metric.is_default,
+                    res.characteristic_ids[metric.quality_characteristic],
+                    1 //added_by //TODO: user input
+                ])
+
+                const name = metric.quality_metric
+                const metric_id = result.rows[0].id
+
+                res.metric_ids[name] = metric_id
+
+            }
+
+            // //insert attributes //metadata quality fields are not required and may therefore be null
+            // //attribute should only occure once in attribute table but can match several attribute_concept records
+            // for (const attribute of attributes) {
+            //     let result = await client.query('select * from attribute where collection_id=$1 and attribute_name=$2', [
+            //         dict[attribute.collection_name],
+            //         attribute.attribute_name,
+            //     ])
+            //
+            //     let existingAttribute = result.rows.length > 0
+            //
+            //     if (!existingAttribute) {
+            //         result = await client.query('select id from insert_record_attribute($1, $2, $3, $4, $5, $6, $7)', [
+            //             dict[attribute.collection_name],
+            //             attribute.attribute_name,
+            //             attribute.completeness || null,
+            //             attribute.accuracy || null,
+            //             attribute.reliability || null,
+            //             attribute.timeliness || null,
+            //             attribute.consistancy || null,
+            //         ])
+            //     }
+            //
+            //     await client.query('select insert_record_attribute_concept($1, $2, $3)', [
+            //         result.rows[0].id,
+            //         attribute.code,
+            //         attribute.vocabulary_id
+            //     ])
+            // }
+
+            await client.query('COMMIT')
+            return res;
+
+        } catch (err) {
+            await client.query('ROLLBACK')
+            console.error(err);
+            throw err
+        } finally {
+            client.release()
+        }
+
+
+    },
+
+}
 
 export const collection = {
 
@@ -169,23 +260,24 @@ export const query = {
         concept_ids = concept_ids.map(c => parseInt(c))
         // console.log(concept_ids)
 
-        let allFound = false
-        while (!allFound) {
-            let extended_ids = Array.from(concept_ids)
+        // let allFound = false
+        // while (!allFound) {
+        let extended_ids = Array.from(concept_ids)
 
-            //include 'Maps to' concepts
-            extended_ids = await this.complementMaps(extended_ids)
-            // console.log(extended_ids.filter((c) => !concept_ids.includes(c)))
+        //include 'Maps to' concepts
+        extended_ids = await this.complementMaps(extended_ids)
+        // console.log(extended_ids.filter((c) => !concept_ids.includes(c)))
 
-            //include descendent concepts
-            extended_ids = await this.complementDescendents(extended_ids)
-            // console.log(extended_ids.filter((c) => !concept_ids.includes(c)))
+        //include descendent concepts
+        extended_ids = await this.complementDescendents(extended_ids)
+        // console.log(extended_ids.filter((c) => !concept_ids.includes(c)))
 
+        concept_ids = extended_ids
 
-            new Set(extended_ids).size === new Set(concept_ids).size
-                ? allFound = true
-                : concept_ids = extended_ids
-        }
+        // new Set(extended_ids).size === new Set(concept_ids).size
+        //     ? allFound = true
+        //     : concept_ids = extended_ids
+        // }
 
         //get collections containing any of passed concept_ids
         return pool.query('select * from query_any($1)', [concept_ids])

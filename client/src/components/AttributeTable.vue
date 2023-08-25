@@ -91,7 +91,7 @@ export default defineComponent({
                 },
                 {
                     field: "consistancy",
-                    header: "Consistancy",
+                    header: "Consistency",
                     type: COLUMNTYPE.NUMERIC,
                 },
             ],

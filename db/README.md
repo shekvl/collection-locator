@@ -18,7 +18,7 @@ The [AthenaVocabDownloads/LOINC+](./AthenaVocabDownloads/LOINC+/) directory cont
     \include ./db/CRUD.sql;
     \include ./db/triggers.sql;
     \include ./db/functions.sql;
-    \include ./db/datasets.sql;
+    \include ./db/dataset.sql;
     \include ./db/views.sql;
     \include ./db/records.sql;
     ```

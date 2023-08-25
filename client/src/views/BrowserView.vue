@@ -5,6 +5,13 @@
             TabPanel(header="Concepts")
                 .d-flex.w-75
                     .d-flex.flex-column.w-100
+
+                        .mt-5
+                            AthenaSearch(
+                                :vocabularies="vocabularies",
+                                @conceptIdSelected="(value) => selectConceptOfAttribute(value)"
+                            )
+
                         .d-flex
                             //- TODO: Currently, only annotated concepts can be entered directly, because select is filled with those concepts as option. It could be changed so it autocompletes all supported omop concepts by fetching all cdm concepts instead of just the annotated ones.
                             //- autoComplete => real time search with suggestion
@@ -23,6 +30,12 @@
                                 :virtualScrollerOptions="{ items: concepts, itemSize: 40 }",
                                 v-tooltip="'Enter concept IDs to locate collections'"
                             )
+                            SelectButton#search-mode.ml-2(
+                                v-model="selectedSearchMode",
+                                :options="SEARCH_MODE",
+                                :unselectable="false",
+                                v-tooltip="'Select search connector'"
+                            )
                             Button#search-button(
                                 type="button",
                                 label="Search",
@@ -32,18 +45,7 @@
                                 :loading="false",
                                 @click="doQuery(selectedConcepts, selectedSearchMode)"
                             )
-                            SelectButton#search-mode.ml-2(
-                                v-model="selectedSearchMode",
-                                :options="SEARCH_MODE",
-                                :unselectable="false",
-                                v-tooltip="'Select search connector'"
-                            )
 
-                        .mt-5
-                            AthenaSearch(
-                                :vocabularies="vocabularies",
-                                @conceptIdSelected="(value) => selectConceptOfAttribute(value)"
-                            )
 
                 .selection-panel.d-flex.w-25.flex-column.align-start.mx-5.px-4.py-2
                     .mb-1(style="font-size: large") Most Recent Concept List:
@@ -88,6 +90,84 @@
                             :loading="false",
                             @click="doQueryRelationship()"
                         )
+            TabPanel(header="Quality")
+                .d-flex.w-75
+                    .d-flex.flex-column.w-100
+
+                        .mt-5
+                            AthenaSearch(
+                                :vocabularies="vocabularies",
+                                @conceptIdSelected="(value) => selectConceptOfAttribute(value)"
+                            )
+
+                        .mt-5
+                            .d-flex
+                                //- TODO: Currently, only annotated concepts can be entered directly, because select is filled with those concepts as option. It could be changed so it autocompletes all supported omop concepts by fetching all cdm concepts instead of just the annotated ones.
+                                //- autoComplete => real time search with suggestion
+                                //- forceSelection  => only valid concepts addable
+                                //- autocomplete does not scale. problem displaying 10000 items.. can be limited by minlength; cdm.concept vs concept
+                                AutoComplete.mx-0(
+                                    forceSelection,
+                                    minLength="1",
+                                    delay="0",
+                                    multiple,
+                                    placeholder="Search for Concept..",
+                                    v-model="selectedConcepts",
+                                    :suggestions="filteredConcepts",
+                                    @complete="filterAnnotationConcept($event)",
+                                    @item-select="(event) => addToMostRecentConcepts(event.value)",
+                                    :virtualScrollerOptions="{ items: concepts, itemSize: 40 }",
+                                    v-tooltip="'Enter concept IDs to locate collections'"
+                                )
+                                SelectButton#search-mode.ml-2(
+                                    v-model="selectedSearchMode",
+                                    :options="SEARCH_MODE",
+                                    :unselectable="false",
+                                    v-tooltip="'Select search connector'"
+                                )
+
+                        .mt-5
+                            .d-flex
+                                Dropdown.mr-3(
+                                    v-model="selectedQuality",
+                                    :options="qualities",
+                                    placeholder="Select Quality Characteristic",
+                                    :virtualScrollerOptions="{ items: qualities, itemSize: 40 }"
+                                )
+                                Input.mr-3(
+                                    type="text",
+                                    v-model="from1",
+                                    placeholder="From...",
+                                    v-tooltip="'Specify a lower bound for quality'"
+                                )
+                                Input.mr-3(
+                                    type="text",
+                                    v-model="to1",
+                                    placeholder="To...",
+                                    v-tooltip="'Specify an upper bound for quality'"
+                                )
+
+                                Button#search-button(
+                                  type="button",
+                                  label="Search",
+                                  size="small",
+                                  iconPos="right",
+                                  icon="pi pi-search",
+                                  :loading="false",
+                                  @click="doQuery(selectedConcepts, selectedSearchMode)"
+                                )
+
+
+                .selection-panel.d-flex.w-25.flex-column.align-start.mx-5.px-4.py-2
+                    .mb-1(style="font-size: large") Most Recent Concept List:
+                    .most-recents(
+                        v-for="item in Array.from(mostRecentConcepts).reverse()",
+                        @click="selectConcept(item)",
+                        v-tooltip="'Add to searchbar'"
+                    ) {{ item }}
+
+
+
     CollectionTable(
         :collections="resultCollections",
         :attributes="resultAttributes",
@@ -152,6 +232,10 @@ export default defineComponent({
             concepts: [],
             axes: [],
             vocabularies: [],
+            from1: "0.0",
+            to1: "0.0",
+            qualities: ["Completeness", "Accuracy", "Reliability", "Timeliness", "Consistency"],
+            selectedQuality: "Completeness",
             selectedVocabulary: "LOINC",
             resultCollections: [],
             resultAttributes: [],

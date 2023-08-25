@@ -17,6 +17,15 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import('../views/UploadView.vue')
   },
   {
+    path: '/qualitymodelupload',
+    name: 'qualitymodelupload',
+
+    // route level code-splitting
+    // this generates a separate chunk (about.[hash].js) for this route
+    // which is lazy-loaded when the route is visited.
+    component: () => import('../views/QualityModelUploadView.vue')
+  },
+  {
     path: '/browser',
     name: 'browser',
     component: () => import('../views/BrowserView.vue')

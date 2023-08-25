@@ -74,6 +74,87 @@ create table collection (
     UNIQUE (name, institution_id, number_of_records)
 );
 
+drop table quality_characteristic;
+create table quality_characteristic
+(
+    id serial PRIMARY KEY,
+    name varchar(255) NOT NULL,
+    friendly_name varchar(255),
+    description varchar(2500),
+    added_by integer REFERENCES person ON DELETE CASCADE ON UPDATE CASCADE NOT NULL,
+    created_at timestamp with time zone NOT NULL DEFAULT NOW(),
+    last_modified timestamp with time zone NOT NULL DEFAULT NOW(),
+    UNIQUE (name)
+);
+
+drop table quality_metric;
+create table quality_metric
+(
+    id serial PRIMARY KEY,
+    name varchar(255) NOT NULL,
+    friendly_name varchar(255),
+    description varchar(2500),
+    is_default boolean default false,
+    metric_level varchar(35),
+    quality_characteristic_id integer REFERENCES quality_characteristic ON DELETE CASCADE ON UPDATE CASCADE NOT NULL,
+    added_by integer REFERENCES person ON DELETE CASCADE ON UPDATE CASCADE NOT NULL,
+    created_at timestamp with time zone NOT NULL DEFAULT NOW(),
+    last_modified timestamp with time zone NOT NULL DEFAULT NOW(),
+    UNIQUE (name)
+);
+
+drop table quality_characteristic_collection;
+create table quality_characteristic_collection
+(
+    quality_characteristic_id integer REFERENCES quality_characteristic ON DELETE CASCADE ON UPDATE CASCADE NOT NULL,
+    collection_id integer REFERENCES collection ON DELETE CASCADE ON UPDATE CASCADE NOT NULL,
+    quality_characteristic_value_for_collection real CHECK (
+        0 <= quality_characteristic_value_for_collection
+        AND quality_characteristic_value_for_collection <= 1
+    ),
+    created_at timestamp with time zone NOT NULL DEFAULT NOW(),
+    UNIQUE (quality_characteristic_id, collection_id)
+);
+
+drop table quality_metric_collection;
+create table quality_metric_collection
+(
+    quality_metric_id integer REFERENCES quality_metric ON DELETE CASCADE ON UPDATE CASCADE NOT NULL,
+    collection_id integer REFERENCES collection ON DELETE CASCADE ON UPDATE CASCADE NOT NULL,
+    quality_metric_value_for_collection real CHECK (
+                0 <= quality_metric_value_for_collection
+            AND quality_metric_value_for_collection <= 1
+        ),
+    created_at timestamp with time zone NOT NULL DEFAULT NOW(),
+    UNIQUE (quality_metric_id, collection_id)
+);
+
+drop table quality_characteristic_attribute;
+create table quality_characteristic_attribute
+(
+    quality_characteristic_id integer REFERENCES quality_characteristic ON DELETE CASCADE ON UPDATE CASCADE NOT NULL,
+    attribute_id integer REFERENCES collection ON DELETE CASCADE ON UPDATE CASCADE NOT NULL,
+    quality_characteristic_value_for_attribute real CHECK (
+        0 <= quality_characteristic_value_for_attribute
+        AND quality_characteristic_value_for_attribute <= 1
+    ),
+    created_at timestamp with time zone NOT NULL DEFAULT NOW(),
+    UNIQUE (quality_characteristic_id, attribute_id)
+);
+
+drop table quality_metric_attribute;
+create table quality_metric_attribute
+(
+    quality_metric_id integer REFERENCES quality_metric ON DELETE CASCADE ON UPDATE CASCADE NOT NULL,
+    attribute_id integer REFERENCES collection ON DELETE CASCADE ON UPDATE CASCADE NOT NULL,
+    quality_metric_value_for_attribute real CHECK (
+                0 <= quality_metric_value_for_attribute
+            AND quality_metric_value_for_attribute <= 1
+        ),
+    created_at timestamp with time zone NOT NULL DEFAULT NOW(),
+    UNIQUE (quality_metric_id, attribute_id)
+);
+
 -- contains attributes of the stored collections
 create table attribute (
     id bigserial PRIMARY KEY,
@@ -138,6 +219,9 @@ create table relationship_of_interest (
     distinct_values varchar [],
     distinct_value_count bigint,
     vocabulary_id varchar(20) REFERENCES cdm.vocabulary ON DELETE CASCADE ON UPDATE CASCADE NOT NULL,
-    last_modified timestamp with time zone NOT NULL DEFAULT NOW()
+    last_modified timestamp with time zone NOT NULL DEFAULT NOW(),
     UNIQUE (set, name)
 );
+
+delete from quality_metric;
+delete from quality_characteristic;

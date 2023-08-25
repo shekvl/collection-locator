@@ -1,7 +1,9 @@
 <template lang="pug">
 .d-flex.align-center.mb-2
     span.p-input-icon-right
-        i.pi.pi-search(@click="doAthenaQuery")
+        i
+            span.pi.pi-times(@click="clearAthenaQuery").mr-3
+            span.pi.pi-search(@click="doAthenaQuery")
         InputText(
             type="text",
             v-model="athenaSearchString",
@@ -47,6 +49,11 @@ export default defineComponent({
         };
     },
     methods: {
+        async clearAthenaQuery() {
+            this.athenaConcepts = undefined;
+            this.athenaSearchString = "";
+            return;
+        },
         async doAthenaQuery() {
             if (!this.athenaSearchString) {
                 this.athenaConcepts = undefined;
