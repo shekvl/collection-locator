@@ -1,8 +1,7 @@
 import multer from 'multer'
 import fs from 'fs'
-import { parseFile } from 'fast-csv'
+import {parseFile} from 'fast-csv'
 import * as tf from '../database/tableFunctions'
-import * as schema from '../database/schemas'
 
 /**
  * Filter by mimetype to prevent upload of non csv files
@@ -122,20 +121,20 @@ const compareArrays = (a: any[], b: any[]) => {
 export function assertContentSchema(req, res, next) {
 
 
-    for (const header of req.parsed.collections.headers) {
-        if (!compareArrays(header, schema.collection)) {
-            const err = new Error('Files do not apply to collection/attribute schema')
-            err.name = 'FILE_SCHEMA_VIOLATION'
-            return next(err)
-        }
-    }
-    for (const header of req.parsed.attributes.headers) {
-        if (!compareArrays(header, schema.attribute)) {
-            const err = new Error('Files do not apply to collection/attribute schema')
-            err.name = 'FILE_SCHEMA_VIOLATION'
-            return next(err)
-        }
-    }
+    // for (const header of req.parsed.collections.headers) {
+    //     if (!compareArrays(header, schema.collection)) {
+    //         const err = new Error('Files do not apply to collection/attribute schema')
+    //         err.name = 'FILE_SCHEMA_VIOLATION'
+    //         return next(err)
+    //     }
+    // }
+    // for (const header of req.parsed.attributes.headers) {
+    //     if (!compareArrays(header, schema.attribute)) {
+    //         const err = new Error('Files do not apply to collection/attribute schema')
+    //         err.name = 'FILE_SCHEMA_VIOLATION'
+    //         return next(err)
+    //     }
+    // }
 
     next()
 }
@@ -182,7 +181,81 @@ export function assertCollectionReferencesOkay(req, res, next) {
  */
 export function insertRecordsCollections(req, res, next) {
 
-    tf.collection.toDb(req.parsed.collections.records, req.parsed.attributes.records)
+    let collections_to_add = [];
+    let attributes_to_add = [];
+    let attributes_map = {};
+
+    for (let collection of req.parsed.collections.records) {
+
+        let collection_to_add = {
+            name: "",
+            number_of_records: 0,
+            qualities: []
+        };
+
+        for (let key in collection) {
+            if (key === "name") {
+                collection_to_add.name = collection[key];
+            }
+            else if (key === "number_of_records") {
+                collection_to_add.number_of_records = collection[key];
+            }
+            else {
+                collection_to_add.qualities.push({ "name" : key, "value": collection[key]})
+            }
+        }
+
+        collections_to_add.push(collection_to_add);
+    }
+
+    for (let attribute of req.parsed.attributes.records) {
+
+        // console.log(attribute);
+
+        if (attribute.level === "attribute") {
+            let attribute_to_add = {
+                name: "",
+                collection_name: "",
+                concepts: [],
+                qualities: []
+            };
+
+            for (let key in attribute) {
+                if (key === "collection_name") {
+                    attribute_to_add.collection_name = attribute[key];
+                }
+                else if (key === "attribute_name") {
+                    attribute_to_add.name = attribute[key];
+                }
+                else if (key === "level" || key === "code" || key === "vocabulary_id") continue;
+                else {
+                    attribute_to_add.qualities.push({ "name" : key, "value": attribute[key]})
+                }
+            }
+
+            attributes_to_add.push(attribute_to_add);
+            attributes_map[attribute_to_add.collection_name+":"+attribute_to_add.name] = attribute_to_add;
+
+
+        } else if (attribute.level === "concept") {
+            let attribute_to_edit = attributes_map[attribute.collection_name + ":" + attribute.attribute_name];
+            if (attribute_to_edit != null) {
+                attribute_to_edit.concepts.push({
+                    "vocabulary_id": attribute["vocabulary_id"],
+                    "code": attribute["code"]
+                })
+            }
+        }
+
+    }
+
+    // for (let a of attributes_to_add) {
+    //     console.log(a);
+    // }
+
+    next();
+
+    tf.collection.toDb(collections_to_add, attributes_to_add)
         .then(async (collection_ids: any) => {
             const collectionDetails: string[] = []
             const attributeCounts = await tf.collection.attributeCount(collection_ids)
@@ -192,7 +265,7 @@ export function insertRecordsCollections(req, res, next) {
 
             res.json({
                 parsed: req.parsed,
-                message: `${req.parsed.collections.total} New Collections: ${collectionDetails.join(' | ')}`
+                message: `${req.parsed.collections.total} New Collections: ${collectionDetails.join(', ')}`
             })
 
             next()

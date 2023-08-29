@@ -1,24 +1,32 @@
-import { pool } from './postgres'
+import {pool} from './postgres'
 
 export const qualityModel = {
-    async toDB(characteristics, metrics){
+
+    async toDB(characteristics, metrics, characteristic_aggregations, metric_aggregations)
+    {
         const client = await pool.connect() //client needed for transaction
-        let res = { characteristic_ids: {}, metric_ids: {} };
+
+        let res = {
+            characteristic_ids: {},
+            metric_ids: {},
+            characteristic_aggregation_ids: {},
+            metric_aggregation_ids: {}
+        };
+
         try {
             await client.query('BEGIN')
 
-            //insert collections //metadata quality fields are not required and may therefore be null
             for (const characteristic of characteristics) {
                 let result = await client.query('insert into quality_characteristic (name, friendly_name, description, added_by) values ($1, $2, $3, $4) returning id', [
-                    characteristic.quality_characteristic,
+                    characteristic.name,
                     characteristic.friendly_name,
                     characteristic.description,
                     1 //added_by //TODO: user input
                 ])
 
-                const name = characteristic.quality_characteristic
+                const name = characteristic.name
 
-                console.log(result);
+                // console.log(result);
 
                 const characteristic_id = result.rows[0].id
 
@@ -31,50 +39,51 @@ export const qualityModel = {
             for (const metric of metrics) {
                 let result = await client
                     .query('insert into quality_metric (name, friendly_name, description, metric_level, is_default, quality_characteristic_id, added_by) values ($1, $2, $3, $4, $5, $6, $7) returning id', [
-                    metric.quality_metric,
-                    metric.friendly_name,
-                    metric.description,
-                    metric.level,
-                    metric.is_default,
-                    res.characteristic_ids[metric.quality_characteristic],
-                    1 //added_by //TODO: user input
-                ])
+                        metric.name,
+                        metric.friendly_name,
+                        metric.description,
+                        metric.level,
+                        metric.is_default,
+                        res.characteristic_ids[metric.quality_characteristic],
+                        1 //added_by //TODO: user input
+                    ])
 
-                const name = metric.quality_metric
+                const name = metric.name
                 const metric_id = result.rows[0].id
 
                 res.metric_ids[name] = metric_id
-
             }
 
-            // //insert attributes //metadata quality fields are not required and may therefore be null
-            // //attribute should only occure once in attribute table but can match several attribute_concept records
-            // for (const attribute of attributes) {
-            //     let result = await client.query('select * from attribute where collection_id=$1 and attribute_name=$2', [
-            //         dict[attribute.collection_name],
-            //         attribute.attribute_name,
-            //     ])
-            //
-            //     let existingAttribute = result.rows.length > 0
-            //
-            //     if (!existingAttribute) {
-            //         result = await client.query('select id from insert_record_attribute($1, $2, $3, $4, $5, $6, $7)', [
-            //             dict[attribute.collection_name],
-            //             attribute.attribute_name,
-            //             attribute.completeness || null,
-            //             attribute.accuracy || null,
-            //             attribute.reliability || null,
-            //             attribute.timeliness || null,
-            //             attribute.consistancy || null,
-            //         ])
-            //     }
-            //
-            //     await client.query('select insert_record_attribute_concept($1, $2, $3)', [
-            //         result.rows[0].id,
-            //         attribute.code,
-            //         attribute.vocabulary_id
-            //     ])
-            // }
+            for (const characteristic_aggregation of characteristic_aggregations) {
+                let result = await client.query('insert into quality_characteristic_aggregation (name, friendly_name, description, added_by) values ($1, $2, $3, $4) returning id', [
+                    characteristic_aggregation.name,
+                    characteristic_aggregation.friendly_name,
+                    characteristic_aggregation.description,
+                    1 //added_by //TODO: user input
+                ])
+
+                const name = characteristic_aggregation.name
+
+                const characteristic_aggregation_id = result.rows[0].id
+
+                res.characteristic_aggregation_ids[name] = characteristic_aggregation_id
+            }
+
+            for (const metric_aggregation of metric_aggregations) {
+                let result = await client.query('insert into quality_metric_aggregation (name, friendly_name, description, added_by) values ($1, $2, $3, $4) returning id', [
+                    metric_aggregation.name,
+                    metric_aggregation.friendly_name,
+                    metric_aggregation.description,
+                    1 //added_by //TODO: user input
+                ])
+
+                const name = metric_aggregation.name
+
+                const metric_aggregation_id = result.rows[0].id
+
+                res.metric_aggregation_ids[name] = metric_aggregation_id
+
+            }
 
             await client.query('COMMIT')
             return res;
@@ -111,59 +120,229 @@ export const collection = {
      */
     async toDb(collections, attributes) {
 
+        // console.log(collections)
+
         const client = await pool.connect() //client needed for transaction
         let dict = {} //{"collection_name": collection_id}
+
+        async function handleCollectionMetric(quality, collection_id) {
+            // console.log(quality)
+            let result = await client.query('select * from quality_metric where name=$1', [
+                quality.name
+            ])
+            if (result.rows.length > 0) {
+                let metric_id = result.rows[0].id;
+                await client.query('insert into quality_metric_collection (quality_metric_id, collection_id, quality_metric_value_for_collection, added_by) values ($1, $2, $3, $4)', [
+                    metric_id,
+                    collection_id,
+                    quality.value.replace(",","."),
+                    1 //added_by //TODO: user input
+                ])
+            } else {
+                throw "no such collection metric: " + quality.name;
+            }
+        }
+
+        async function handleCharacteristicForCollection(
+            quality, category_name, aggregation_name, collection_id) {
+            let quality_characteristic_name = category_name;
+            let result_char = await client.query('select * from quality_characteristic where name=$1', [
+                quality_characteristic_name
+            ])
+            if (result_char.rows.length > 0) {
+                let characteristic_id = result_char.rows[0].id;
+
+                let result_aggr = await client.query('select * from quality_metric_aggregation where name=$1', [
+                    aggregation_name
+                ])
+                if (result_aggr.rows.length > 0) {
+                    let aggregation_id = result_aggr.rows[0].id;
+
+                    await client.query('insert into quality_characteristic_collection (quality_characteristic_id, collection_id, aggregation_id, quality_characteristic_value_for_collection, added_by) values ($1, $2, $3, $4, $5)', [
+                        characteristic_id,
+                        collection_id,
+                        aggregation_id,
+                        quality.value.replace(",","."),
+                        1 //added_by //TODO: user input
+                    ])
+                } else {
+                    throw "no such aggregation: " + aggregation_name;
+                }
+            } else {
+                throw "no such quality characteristic: " + quality_characteristic_name;
+            }
+        }
+
+        async function handleQualityForCollection(quality, aggregation_name, collection_id) {
+            let result = await client.query('select * from quality_characteristic_aggregation where name=$1', [
+                aggregation_name
+            ])
+            if (result.rows.length > 0) {
+                let aggregation_id = result.rows[0].id;
+
+                await client.query('insert into quality_value_for_collection (collection_id, aggregation_id, quality_value_for_collection, added_by) values ($1, $2, $3, $4)', [
+                    collection_id,
+                    aggregation_id,
+                    quality.value.replace(",","."),
+                    1 //added_by //TODO: user input
+                ])
+            } else {
+                throw "no such aggregation: " + aggregation_name;
+            }
+
+        }
+
+        async function handleAttributeMetric(quality, attribute_id) {
+            let result = await client.query('select * from quality_metric where name=$1', [
+                quality.name
+            ])
+            if (result.rows.length > 0) {
+                let metric_id = result.rows[0].id;
+                await client.query('insert into quality_metric_attribute (quality_metric_id, attribute_id, quality_metric_value_for_attribute, added_by) values ($1, $2, $3, $4)', [
+                    metric_id,
+                    attribute_id,
+                    quality.value.replace(",","."),
+                    1 //added_by //TODO: user input
+                ])
+            } else {
+                throw "no such attribute metric: " + quality.name;
+            }
+
+        }
+
+        async function handleCharacteristicForAttribute(quality, category_name, aggregation_name, attribute_id) {
+            let quality_characteristic_name = category_name;
+            let result_char = await client.query('select * from quality_characteristic where name=$1', [
+                quality_characteristic_name
+            ])
+            if (result_char.rows.length > 0) {
+                let characteristic_id = result_char.rows[0].id;
+
+                let result_aggr = await client.query('select * from quality_metric_aggregation where name=$1', [
+                    aggregation_name
+                ])
+                if (result_aggr.rows.length > 0) {
+                    let aggregation_id = result_aggr.rows[0].id;
+
+                    await client.query('insert into quality_characteristic_attribute (quality_characteristic_id, attribute_id, aggregation_id, quality_characteristic_value_for_attribute, added_by) values ($1, $2, $3, $4, $5)', [
+                        characteristic_id,
+                        attribute_id,
+                        aggregation_id,
+                        quality.value.replace(",","."),
+                        1 //added_by //TODO: user input
+                    ])
+                } else {
+                    throw "no such aggregation: " + aggregation_name;
+                }
+            } else {
+                throw "no such quality characteristic: " + quality_characteristic_name;
+            }
+
+        }
+
+        async function handleQualityForAttribute(quality, aggregation_name, attribute_id) {
+            let result = await client.query('select * from quality_characteristic_aggregation where name=$1', [
+                aggregation_name
+            ])
+            if (result.rows.length > 0) {
+                let aggregation_id = result.rows[0].id;
+
+                await client.query('insert into quality_value_for_attribute (attribute_id, aggregation_id, quality_value_for_attribute, added_by) values ($1, $2, $3, $4)', [
+                    attribute_id,
+                    aggregation_id,
+                    quality.value.replace(",","."),
+                    1 //added_by //TODO: user input
+                ])
+            } else {
+                throw "no such aggregation: " + aggregation_name;
+            }
+
+        }
 
         try {
             await client.query('BEGIN')
 
             //insert collections //metadata quality fields are not required and may therefore be null
             for (const collection of collections) {
-                let result = await client.query('select id from insert_record_collection($1, $2, $3, $4, $5, $6, $7, $8, $9)', [
+
+                // console.log(collection.name)
+
+                let result1 = await client.query('insert into collection (name, institution_id, number_of_records, added_by) values ($1, $2, $3, $4) returning id', [
                     collection.name,
                     'test biobank', //institution_id //TODO: user input
                     collection.number_of_records,
-                    collection.completeness || null,
-                    collection.accuracy || null,
-                    collection.reliability || null,
-                    collection.timeliness || null,
-                    collection.consistancy || null,
                     1 //added_by //TODO: user input
                 ])
 
                 const name = collection.name
-                const id = result.rows[0].id
+                const collection_id = result1.rows[0].id
 
-                dict[name] = id
-            }
+                dict[name] = collection_id
 
-            //insert attributes //metadata quality fields are not required and may therefore be null
-            //attribute should only occure once in attribute table but can match several attribute_concept records
-            for (const attribute of attributes) {
-                let result = await client.query('select * from attribute where collection_id=$1 and attribute_name=$2', [
-                    dict[attribute.collection_name],
-                    attribute.attribute_name,
-                ])
+                for (const quality of collection.qualities) {
+                    if (! quality.name.includes(":")) {
+                        // collection metric
+                        await handleCollectionMetric(quality, collection_id);
+                    } else {
+                        // aggregation
+                        let names = quality.name.split(":");
+                        let category_name = names[0];
+                        let aggregation_name = names[1];
+                        if (category_name !== "quality") {
+                            // quality characteristic for collection
+                            await handleCharacteristicForCollection(quality, category_name, aggregation_name, collection_id);
+                        } else {
+                            // integrated collection quality
+                            await handleQualityForCollection(quality, aggregation_name, collection_id) // TODO: quality
+                        }
 
-                let existingAttribute = result.rows.length > 0
-
-                if (!existingAttribute) {
-                    result = await client.query('select id from insert_record_attribute($1, $2, $3, $4, $5, $6, $7)', [
-                        dict[attribute.collection_name],
-                        attribute.attribute_name,
-                        attribute.completeness || null,
-                        attribute.accuracy || null,
-                        attribute.reliability || null,
-                        attribute.timeliness || null,
-                        attribute.consistancy || null,
-                    ])
+                    }
                 }
 
-                await client.query('select insert_record_attribute_concept($1, $2, $3)', [
-                    result.rows[0].id,
-                    attribute.code,
-                    attribute.vocabulary_id
+            }
+
+            for (const attribute of attributes) {
+
+                // console.log(attribute)
+
+                let result2 = await client.query(
+                    'insert into attribute (collection_id, attribute_name) values ($1, $2) returning id', [
+                    dict[attribute.collection_name],
+                    attribute.name
                 ])
+
+                let attribute_id = result2.rows[0].id;
+
+                for (let concept of attribute.concepts) {
+                    await client.query('insert into attribute_concept (attribute_id, code, vocabulary_id) values($1, $2, $3)', [
+                        attribute_id,
+                        concept.code,
+                        concept.vocabulary_id
+                    ])
+
+                }
+
+                for (const quality of attribute.qualities) {
+                    if (! quality.name.includes(":")) {
+                        // attribute metric
+                        await handleAttributeMetric(quality, attribute_id);
+                    } else {
+                        // aggregation
+                        let names = quality.name.split(":");
+                        let category_name = names[0];
+                        let aggregation_name = names[1];
+                        if (category_name !== "quality") {
+                            // quality characteristic for attribute
+                            await handleCharacteristicForAttribute(quality, category_name, aggregation_name, attribute_id);
+                        } else {
+                            // integrated attribute quality
+                            await handleQualityForAttribute(quality, aggregation_name, attribute_id) // TODO: quality
+                        }
+
+                    }
+                }
+
+
             }
 
             await client.query('COMMIT')
@@ -171,6 +350,7 @@ export const collection = {
 
         } catch (err) {
             await client.query('ROLLBACK')
+            console.log(err)
             throw err
         } finally {
             client.release()

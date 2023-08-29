@@ -150,30 +150,46 @@ export function insertRecordsQualityModels(req, res, next) {
 
     let characteristics = [];
     let metrics = [];
+    let metric_aggregations = [];
+    let characterictic_aggregations = [];
+
     // console.log(req.parsed.qualityModels);
     for (let qualityModel of req.parsed.qualityModels.records) {
         if (qualityModel.level === 'characteristic') {
             characteristics.push(qualityModel);
         }
+        else if (qualityModel.level === 'metric aggregation') {
+            metric_aggregations.push(qualityModel);
+        }
+        else if (qualityModel.level === 'quality characteristic aggregation') {
+            characterictic_aggregations.push(qualityModel);
+        }
         else {
             metrics.push(qualityModel);
         }
+
     }
 
-    console.log(characteristics);
-    console.log(metrics);
+    //console.log(characteristics);
+    //console.log(metrics);
 
-    tf.qualityModel.toDB(characteristics, metrics)
+    tf.qualityModel.toDB(characteristics, metrics,
+        characterictic_aggregations, metric_aggregations)
         .then(async (result: any) => {
 
             // console.log("--- result:")
             // console.log(result)
             const quality_characteristic_details: string[] = Object.keys(result.characteristic_ids);
             const quality_metric_details: string[] = Object.keys(result.metric_ids);
+            const metric_aggregation_details: string[] = Object.keys(result.metric_aggregation_ids);
+            const characteristic_aggregation_details: string[] = Object.keys(result.characteristic_aggregation_ids);
 
             res.json({
                 parsed: req.parsed,
-                message: `${quality_characteristic_details.length} new quality characteristics: ${quality_characteristic_details.join(' | ')} ${quality_metric_details.length} new quality metrics: ${quality_metric_details.join(' | ')}`
+                message: [`${quality_characteristic_details.length} new quality characteristics`,
+                    `${quality_metric_details.length} new quality metrics`,
+                    `${metric_aggregation_details.length} new quality metric aggregations`,
+                    `${characteristic_aggregation_details.length} new quality characteristic aggregations`].join(`, \n`)
             })
 
             next()

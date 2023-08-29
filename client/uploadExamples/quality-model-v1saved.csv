@@ -1,15 +1,21 @@
 quality_metric;friendly_name;quality_characteristic;level;is_default;description
-;Data Item Completeness;completeness;characteristic;;The degree of presence for the required data attribute values
-;Data Item Coverage;coverage;characteristic;;The degree of presence or diversity for data attributes
+;Data item completeness;completeness;characteristic;;The degree of presence for the required data attribute values
+;Data item coverage;coverage;characteristic;;The degree of presence or diversity for data attributes
 attribute_completeness;Attribute completeness;completeness;attribute metric;1;Ratio of non-empty values for the attribute
 attribute_presence;Is attribute defined for at least one sample?;completeness;attribute metric;0;1 if attribute is defined for at least one sample, 0 if it contains only empty values
 attribute_full_presence;Is attribute defined for all samples?;completeness;attribute metric;0;1 if attribute is defined for all samples, 0 otherwise
 average_attribute_completeness;Average attribute completeness ;completeness;collection metric;1;Average ratio of non-empty values calculated over all attributes
+median_attribute_completeness;Median attribute completeness;completeness;collection metric;0;Minimal ratio of non-empty values among all attributes
 minimal_attribute_completeness;Minimal attribute completeness;completeness;collection metric;0;Minimal ratio of non-empty values among all attributes
 weighted_average_attribute_completeness;Weighted average attribute completeness ;completeness;collection metric;0;Average ratio of non-empty values calculated over all attributes taking into account importance weights
 ratio_of_fully_present_attributes;Ratio of attributes defined for all samples;coverage;collection metric;0;Ratio of attributes defined for all samples
 ratio_of_empty_attributes;Ratio of attributes not defined for any sample;coverage;collection metric;0;Ratio of attributes not defined for any sample
 presence_of_all_attributes;Are all attributes defined for at least one sample?;coverage;collection metric;1;1 if all attributes contain at least one value, 0 if collection contains empty attributes
 full_presence_of_all_attributes;Are all attributes defined for all samples?;coverage;collection metric;0;1 if all attributes are defined for all samples, 0 if at least one attribute contains empty values
-ratio_of_diverse_concepts_for_attribute;Ratio of diverse concepts for the attribute;coverage;attribute metric;1;Ratio of diverse concepts to the total number of concepts defined for this attribute
-ratio_of_diverse_concepts_for_collection;Ratio of diverse concepts to the collection;coverage;collection metric;0;Ratio of diverse concepts to the total number of concepts defined for all attributes of this collection
+ratio_of_diverse_concepts;Ratio of diverse concepts for an attribute;coverage;attribute metric;1;Ratio of diverse concepts to the total number of concepts defined for this attribute
+ratio_of_diverse_concepts_for_collection;Ratio of diverse concepts for a collection;coverage;collection metric;0;Ratio of diverse concepts to the total number of concepts defined for all attributes of this collection
+default_metric;Value for a default metric;;metric aggregation;;Aggregation by taking the default metric
+average_metric;Average of all metric values;;metric aggregation;;Aggregation by taking the average of all metrics
+weighted_average_metric;Weighted average of all metric values;;metric aggregation;;Aggregation by taking the weighted average of all metrics
+average_characteristic;Average of all quality characteristic values;;quality characteristic aggregation;;Aggregation by taking the average of all quality characteristics
+weighted_average_characteristic;Weighted average of all quality characteristic values;;quality characteristic aggregation;;Aggregation by taking the weighted average of all quality characteristics

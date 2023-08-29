@@ -35,4 +35,8 @@ nav a {
 nav a.router-link-exact-active {
     color: #b95e42;
 }
+
+.ui-toast-detail {
+  white-space: pre-line;
+}
 </style>

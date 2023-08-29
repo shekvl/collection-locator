@@ -94,4 +94,8 @@ export default defineComponent({
     height: 200px;
     width: 220px;
 }
+
+.ui-toast-detail {
+  white-space: pre-line;
+}
 </style>
