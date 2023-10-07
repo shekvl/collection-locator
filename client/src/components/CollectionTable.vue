@@ -144,31 +144,31 @@ export default defineComponent({
                     header: "Institution",
                     type: COLUMNTYPE.TEXT,
                 },
-                {
-                    field: "completeness",
-                    header: "Completeness",
-                    type: COLUMNTYPE.NUMERIC,
-                },
-                {
-                    field: "accuracy",
-                    header: "Accuracy",
-                    type: COLUMNTYPE.NUMERIC,
-                },
-                {
-                    field: "reliability",
-                    header: "Reliability",
-                    type: COLUMNTYPE.NUMERIC,
-                },
-                {
-                    field: "timeliness",
-                    header: "Timeliness",
-                    type: COLUMNTYPE.NUMERIC,
-                },
-                {
-                    field: "consistancy",
-                    header: "Consistency",
-                    type: COLUMNTYPE.NUMERIC,
-                },
+                // {
+                //     field: "completeness",
+                //     header: "Completeness",
+                //     type: COLUMNTYPE.NUMERIC,
+                // },
+                // {
+                //     field: "accuracy",
+                //     header: "Accuracy",
+                //     type: COLUMNTYPE.NUMERIC,
+                // },
+                // {
+                //     field: "reliability",
+                //     header: "Reliability",
+                //     type: COLUMNTYPE.NUMERIC,
+                // },
+                // {
+                //     field: "timeliness",
+                //     header: "Timeliness",
+                //     type: COLUMNTYPE.NUMERIC,
+                // },
+                // {
+                //     field: "consistancy",
+                //     header: "Consistency",
+                //     type: COLUMNTYPE.NUMERIC,
+                // },
             ],
             selectedColumns: [],
             tableSelection: [],

@@ -93,3 +93,18 @@ or replace function get_descendents(concept_ids int[]) RETURNS table (
 	and a.ancestor_concept_id <> a.descendant_concept_id
 	and a.ancestor_concept_id = any (concept_ids);
 $$ language sql;
+
+create or replace function get_quality_values_for_collections(collection_ids int[])
+    returns TABLE(
+        collection_id integer, quality_characteristic_name character varying, quality_value real
+     )
+    as $$
+SELECT c.id, q.name, qmc.quality_characteristic_value_for_collection
+FROM collection c, quality_characteristic q, quality_characteristic_collection qmc
+WHERE c.id=qmc.collection_id and qmc.quality_characteristic_id=q.id
+  AND c.id = ANY (collection_ids)
+ORDER BY c.id ASC
+$$ language sql;
+
+alter function get_quality_values_for_collections(collection_ids int[]) owner to bbmri;
+

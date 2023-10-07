@@ -55,9 +55,10 @@ export const qualityModel = {
             }
 
             for (const characteristic_aggregation of characteristic_aggregations) {
-                let result = await client.query('insert into quality_characteristic_aggregation (name, friendly_name, description, added_by) values ($1, $2, $3, $4) returning id', [
+                let result = await client.query('insert into quality_characteristic_aggregation (name, friendly_name, is_default, description, added_by) values ($1, $2, $3, $4, $5) returning id', [
                     characteristic_aggregation.name,
                     characteristic_aggregation.friendly_name,
+                    characteristic_aggregation.is_default,
                     characteristic_aggregation.description,
                     1 //added_by //TODO: user input
                 ])
@@ -70,9 +71,10 @@ export const qualityModel = {
             }
 
             for (const metric_aggregation of metric_aggregations) {
-                let result = await client.query('insert into quality_metric_aggregation (name, friendly_name, description, added_by) values ($1, $2, $3, $4) returning id', [
+                let result = await client.query('insert into quality_metric_aggregation (name, friendly_name, is_default, description, added_by) values ($1, $2, $3, $4, $5) returning id', [
                     metric_aggregation.name,
                     metric_aggregation.friendly_name,
+                    metric_aggregation.is_default,
                     metric_aggregation.description,
                     1 //added_by //TODO: user input
                 ])
@@ -139,7 +141,7 @@ export const collection = {
                     1 //added_by //TODO: user input
                 ])
             } else {
-                throw "no such collection metric: " + quality.name;
+                //throw "no such collection metric: " + quality.name;
             }
         }
 
@@ -166,10 +168,10 @@ export const collection = {
                         1 //added_by //TODO: user input
                     ])
                 } else {
-                    throw "no such aggregation: " + aggregation_name;
+                    //throw "no such aggregation: " + aggregation_name;
                 }
             } else {
-                throw "no such quality characteristic: " + quality_characteristic_name;
+                //throw "no such quality characteristic: " + quality_characteristic_name;
             }
         }
 
@@ -187,7 +189,7 @@ export const collection = {
                     1 //added_by //TODO: user input
                 ])
             } else {
-                throw "no such aggregation: " + aggregation_name;
+                //throw "no such aggregation: " + aggregation_name;
             }
 
         }
@@ -205,7 +207,7 @@ export const collection = {
                     1 //added_by //TODO: user input
                 ])
             } else {
-                throw "no such attribute metric: " + quality.name;
+                //throw "no such attribute metric: " + quality.name;
             }
 
         }
@@ -232,10 +234,10 @@ export const collection = {
                         1 //added_by //TODO: user input
                     ])
                 } else {
-                    throw "no such aggregation: " + aggregation_name;
+                    //throw "no such aggregation: " + aggregation_name;
                 }
             } else {
-                throw "no such quality characteristic: " + quality_characteristic_name;
+                //throw "no such quality characteristic: " + quality_characteristic_name;
             }
 
         }
@@ -254,7 +256,7 @@ export const collection = {
                     1 //added_by //TODO: user input
                 ])
             } else {
-                throw "no such aggregation: " + aggregation_name;
+                //throw "no such aggregation: " + aggregation_name;
             }
 
         }
