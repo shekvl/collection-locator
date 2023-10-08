@@ -61,7 +61,10 @@ DataTable.p-datatable-sm(
                         placeholder="Keyword Search",
                     )
     template(#expansion="slotProps")
-        AttributeTable(:attributes="attributes.filter((a)=> a.collection_id === slotProps.data.id)", @conceptIdSelected="(value) => $emit('conceptIdSelected', value)")
+        .v-container
+            .v-row
+                AttributeTable.v-col-5(:attributes="attributes.filter((a)=> a.collection_id === slotProps.data.id)", @conceptIdSelected="(value) => $emit('conceptIdSelected', value)")
+                CollectionQualityValuesTable.v-col-3(:collection_quality_values="collection_quality_values.filter((a)=> a.collection_id === slotProps.data.id)")
 
     template(#empty) No collections found
     //- Column(selectionMode="multiple", headerStyle="width: 3rem", :reorderableColumns="false")
@@ -97,6 +100,7 @@ import Row from "primevue/row";
 import InputText from "primevue/inputtext";
 import MultiSelect from "primevue/multiselect";
 import AttributeTable from "../components/AttributeTable.vue";
+import CollectionQualityValuesTable from "@/components/CollectionQualityValuesTable.vue";
 </script>
 
 <script lang="ts">
@@ -119,6 +123,7 @@ export default defineComponent({
             default: [],
         },
         attributes: [],
+        collection_quality_values: [],
         loading: Boolean,
     },
     data() {

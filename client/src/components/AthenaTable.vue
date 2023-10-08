@@ -5,6 +5,8 @@ DataTable.p-datatable-sm(
     responsiveLayout="scroll",
     rowHover,
     showGridlines,
+    scrollable,
+    scrollHeight="170px"
     removableSort,
     stripedRows,
     :loading="isLoading"

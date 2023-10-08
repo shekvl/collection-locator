@@ -47,6 +47,17 @@ export async function getVocabularies() {
     }
 }
 
+export async function getQualityCharacteristics() {
+    try {
+        const response = await axios.get('api/db/qualityCharacteristics')
+        return response.data
+    } catch (error: any) {
+        console.trace(error)
+        return { success: false, message: error.message }
+    }
+}
+
+
 /**
  * Query collections that contain any of the specified concepts (or equivalent concepts)
  * @returns Collections
@@ -86,6 +97,18 @@ export async function queryRelationships(vocabulary_id: string, relationships: a
             vocabulary_id,
             relationships
         })
+        return { success: true, message: response.data.message, data: response.data }
+    } catch (error: any) {
+        console.trace(error)
+        return { success: false, message: error.message }
+    }
+}
+
+export async function queryCollectionsByQuality(from1: any, to1: any, qid: any) {
+    try {
+        console.log(from1);
+        console.log(to1);
+        const response = await axios.get('api/db/queryCollectionsByQuality?from1=' + from1 + "&to1="+to1+"&qid="+qid);
         return { success: true, message: response.data.message, data: response.data }
     } catch (error: any) {
         console.trace(error)

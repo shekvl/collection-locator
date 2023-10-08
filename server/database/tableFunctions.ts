@@ -390,6 +390,10 @@ export const locator = {
         return pool.query('select * from supported_vocabulary')
     },
 
+    async getQualityCharacteristics(): Promise<any> {
+        return pool.query('select id, friendly_name, name from quality_characteristic')
+    },
+
 }
 
 export const query = {
@@ -510,6 +514,36 @@ export const query = {
     async attributes(collection_ids): Promise<any> {
         return pool.query('select * from query_attributes($1)', [collection_ids])
     },
+
+    async collections_by_quality(from, to, qid) : Promise<any> {
+        if (from == "null")
+            return this.collections_by_quality_to(to, qid);
+        if (to == "null")
+            return this.collections_by_quality_from(from, qid);
+        return this.collections_by_quality_between(from, to, qid);
+    },
+
+    async collections_by_quality_between(from, to, qid): Promise<any> {
+        return pool.query('select * from query_collections_by_quality($1,$2,$3)', [from, to, qid])
+    },
+
+    async collections_by_quality_from(from, qid): Promise<any> {
+        return pool.query('select * from query_collections_by_quality_from($1,$2)', [from, qid])
+    },
+
+    async collections_by_quality_to(to, qid): Promise<any> {
+        return pool.query('select * from query_collections_by_quality_to($1,$2)', [to, qid])
+    },
+    /**
+     * Get all quality values for each of the specified collections
+     * @param collection_ids Array of collection ids
+     * @returns Quality records
+     */
+    async collection_quality_values(collection_ids): Promise<any> {
+        return pool.query('select * from get_quality_values_for_collections($1)', [collection_ids])
+    },
+
+
 
     /**
      * Get concept ids of the given vocabulary that are associated to `ALL` relationships with `ANY` of the given values for each relationship. Returns empty Array if no relationship objects is specified.

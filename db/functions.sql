@@ -43,7 +43,6 @@ and p.id = c.added_by
 and cn.concept_id = ANY (concept_ids)
 $$ language sql;
 
-
 -- fetch all attributes for each collection_id in the list, including code, vocab and concept_id
 create
 or replace function query_attributes(collection_ids int[]) RETURNS table (
@@ -108,3 +107,75 @@ $$ language sql;
 
 alter function get_quality_values_for_collections(collection_ids int[]) owner to bbmri;
 
+
+create
+or replace function query_collections_by_quality(from1 real, to1 real, q_id int) RETURNS table (
+  id integer,
+  name varchar(255),
+  institution_id varchar(255),
+  number_of_records integer,
+    added_by integer,
+	person_name varchar(255)
+) as $$
+select distinct c.id, c.name, c.institution_id, c.number_of_records,
+                c.added_by, (p.first_name || ' ' || p.last_name)::varchar(255)
+FROM collection c, quality_characteristic q, quality_characteristic_collection qmc, person p
+WHERE c.id=qmc.collection_id and qmc.quality_characteristic_id=q.id
+  and p.id = c.added_by
+and qmc.quality_characteristic_value_for_collection between from1 and to1
+    and q.id=q_id
+    $$ language sql;
+
+alter function query_collections_by_quality(from1 real, to1 real, q_id int) owner to bbmri;
+
+create
+    or replace function query_collections_by_quality_from(from1 real, q_id int) RETURNS table (
+        id integer,
+        name varchar(255),
+        institution_id varchar(255),
+        number_of_records integer,
+        added_by integer,
+        person_name varchar(255)
+        ) as $$
+select distinct c.id, c.name, c.institution_id, c.number_of_records,
+                c.added_by, (p.first_name || ' ' || p.last_name)::varchar(255)
+FROM collection c, quality_characteristic q, quality_characteristic_collection qmc, person p
+WHERE c.id=qmc.collection_id and qmc.quality_characteristic_id=q.id
+  and p.id = c.added_by
+  and qmc.quality_characteristic_value_for_collection >= from1
+  and q.id=q_id
+$$ language sql;
+
+alter function query_collections_by_quality_from(from1 real, q_id int) owner to bbmri;
+
+
+create
+    or replace function query_collections_by_quality_to(to1 real, q_id int) RETURNS table (
+      id integer,
+      name varchar(255),
+      institution_id varchar(255),
+      number_of_records integer,
+      added_by integer,
+      person_name varchar(255)
+  ) as $$
+select distinct c.id, c.name, c.institution_id, c.number_of_records,
+                c.added_by, (p.first_name || ' ' || p.last_name)::varchar(255)
+FROM collection c, quality_characteristic q, quality_characteristic_collection qmc, person p
+WHERE c.id=qmc.collection_id and qmc.quality_characteristic_id=q.id
+  and p.id = c.added_by
+  and qmc.quality_characteristic_value_for_collection <= to1
+  and q.id=q_id
+$$ language sql;
+
+alter function query_collections_by_quality_to(to1 real, q_id int) owner to bbmri;
+
+
+select distinct c.id, c.name, c.institution_id, c.number_of_records,
+                c.added_by, (p.first_name || ' ' || p.last_name)::varchar(255)
+FROM collection c, quality_characteristic q, quality_characteristic_collection qmc, person p
+WHERE c.id=qmc.collection_id and qmc.quality_characteristic_id=q.id
+  and p.id = c.added_by
+  and qmc.quality_characteristic_value_for_collection between 0.6 and 1
+  and q.id=56;
+
+select * from query_collections_by_quality(1,1,'57')

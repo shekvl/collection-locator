@@ -47,7 +47,7 @@
                             )
 
 
-                .selection-panel.d-flex.w-25.flex-column.align-start.mx-5.px-4.py-2
+                .selection-panel.d-flex.w-25.flex-column.align-start.mx-5.px-4.py-3
                     .mb-1(style="font-size: large") Most Recent Concept List:
                     .most-recents(
                         v-for="item in Array.from(mostRecentConcepts).reverse()",
@@ -90,60 +90,33 @@
                             :loading="false",
                             @click="doQueryRelationship()"
                         )
-            TabPanel(header="Quality")
+            TabPanel(header="Collection Quality")
                 .d-flex.w-75
                     .d-flex.flex-column.w-100
-
-                        .mt-5
-                            AthenaSearch(
-                                :vocabularies="vocabularies",
-                                @conceptIdSelected="(value) => selectConceptOfAttribute(value)"
-                            )
-
                         .mt-5
                             .d-flex
-                                //- TODO: Currently, only annotated concepts can be entered directly, because select is filled with those concepts as option. It could be changed so it autocompletes all supported omop concepts by fetching all cdm concepts instead of just the annotated ones.
-                                //- autoComplete => real time search with suggestion
-                                //- forceSelection  => only valid concepts addable
-                                //- autocomplete does not scale. problem displaying 10000 items.. can be limited by minlength; cdm.concept vs concept
-                                AutoComplete.mx-0(
-                                    forceSelection,
-                                    minLength="1",
-                                    delay="0",
-                                    multiple,
-                                    placeholder="Search for Concept..",
-                                    v-model="selectedConcepts",
-                                    :suggestions="filteredConcepts",
-                                    @complete="filterAnnotationConcept($event)",
-                                    @item-select="(event) => addToMostRecentConcepts(event.value)",
-                                    :virtualScrollerOptions="{ items: concepts, itemSize: 40 }",
-                                    v-tooltip="'Enter concept IDs to locate collections'"
-                                )
-                                SelectButton#search-mode.ml-2(
-                                    v-model="selectedSearchMode",
-                                    :options="SEARCH_MODE",
-                                    :unselectable="false",
-                                    v-tooltip="'Select search connector'"
-                                )
-
-                        .mt-5
-                            .d-flex
-                                Dropdown.mr-3(
+                                Dropdown.mr-3.required(
                                     v-model="selectedQuality",
-                                    :options="qualities",
+                                    :options="qualityCharacteristics",
+                                    optionLabel="friendly_name",
+                                    optionValue="id",
                                     placeholder="Select Quality Characteristic",
                                     :virtualScrollerOptions="{ items: qualities, itemSize: 40 }"
                                 )
-                                Input.mr-3(
-                                    type="text",
+                                InputNumber.mr-3(
+                                    input-id="from1",
                                     v-model="from1",
                                     placeholder="From...",
+                                    :minFractionDigits="0",
+                                    :maxFractionDigits="2",
                                     v-tooltip="'Specify a lower bound for quality'"
                                 )
-                                Input.mr-3(
-                                    type="text",
+                                InputNumber.mr-3(
+                                    input-id="to1",
                                     v-model="to1",
                                     placeholder="To...",
+                                    :minFractionDigits="0",
+                                    :maxFractionDigits="2",
                                     v-tooltip="'Specify an upper bound for quality'"
                                 )
 
@@ -153,26 +126,15 @@
                                   size="small",
                                   iconPos="right",
                                   icon="pi pi-search",
+                                  :disabled="(from1 == null && to1 == null) || selectedQuality == null",
                                   :loading="false",
-                                  @click="doQuery(selectedConcepts, selectedSearchMode)"
+                                  @click="doQueryByQuality(from1, to1, selectedQuality)"
                                 )
-
-
-                .selection-panel.d-flex.w-25.flex-column.align-start.mx-5.px-4.py-2
-                    .mb-1(style="font-size: large") Most Recent Concept List:
-                    .most-recents(
-                        v-for="item in Array.from(mostRecentConcepts).reverse()",
-                        @click="selectConcept(item)",
-                        v-tooltip="'Add to searchbar'"
-                    ) {{ item }}
-
-
-
     CollectionTable(
         :collections="resultCollections",
         :attributes="resultAttributes",
-        :loading="isLoadingCollections",
-        @conceptIdSelected="(value) => selectConceptOfAttribute(value)"
+        :collection_quality_values="resultCollectionQualityValues",
+        :loading="isLoadingCollections"
     )
 
     ScrollTop
@@ -186,6 +148,7 @@ import ScrollTop from "primevue/scrolltop";
 import TabView from "primevue/tabview";
 import TabPanel from "primevue/tabpanel";
 import Dropdown from "primevue/dropdown";
+import InputNumber from "primevue/inputnumber";
 import Button from "primevue/button";
 import SelectButton from "primevue/selectbutton";
 import CollectionTable from "../components/CollectionTable.vue";
@@ -195,12 +158,12 @@ import AthenaSearch from "../components/AthenaSearch.vue";
 <script lang="ts">
 import { defineComponent } from "vue";
 import {
-    getAllConcepts,
-    getVocabularies,
-    getRelationshipsOfInterest,
-    queryRelationships,
-    queryAny,
-    queryAll,
+  getAllConcepts,
+  getVocabularies,
+  getRelationshipsOfInterest,
+  queryRelationships,
+  queryAny,
+  queryAll, getQualityCharacteristics, queryCollectionsByQuality,
 } from "../requests/dbReq";
 
 const enum SEARCH_MODE {
@@ -211,6 +174,7 @@ const enum SEARCH_MODE {
 export default defineComponent({
     async mounted() {
         const vocabularies = await getVocabularies();
+        this.qualityCharacteristics = await getQualityCharacteristics();
         this.vocabularies = vocabularies
             .map((o: any) => o.vocabulary_id)
             .sort(); //TODO: only show vocabularies with relationshipsOfInterest
@@ -227,22 +191,24 @@ export default defineComponent({
     },
     data() {
         return {
-            selectedConcepts: ["36033638"],
+            selectedConcepts: ["45882500"],
             filteredConcepts: null,
             concepts: [],
             axes: [],
             vocabularies: [],
-            from1: "0.0",
-            to1: "0.0",
+            qualityCharacteristics: [],
+            from1: null,
+            to1: null,
             qualities: ["Completeness", "Accuracy", "Reliability", "Timeliness", "Consistency"],
-            selectedQuality: "Completeness",
+            selectedQuality: null,
             selectedVocabulary: "LOINC",
             resultCollections: [],
             resultAttributes: [],
+            resultCollectionQualityValues: [],
             selectedSearchMode: SEARCH_MODE.ANY,
             mostRecentConcepts: new Set([
-                "36033638",
-                "45458440",
+                "45882500",
+                "45876315",
                 "45876191", //descendent (36033638)
                 "3667069", //maps to (940658)
             ]),
@@ -273,6 +239,7 @@ export default defineComponent({
 
             this.resultCollections = result.data.collections || [];
             this.resultAttributes = result.data.attributes || [];
+            this.resultCollectionQualityValues = result.data.collection_quality_values || [];
 
             this.isLoadingCollections = false;
 
@@ -280,6 +247,24 @@ export default defineComponent({
                 this.toastNothingFound();
             }
         },
+
+      async doQueryByQuality(from1: any, to1: any, qid: any) {
+        this.isLoadingCollections = true;
+
+        let result: any = [];
+        result = await queryCollectionsByQuality(from1, to1, qid);
+
+        this.resultCollections = result.data.collections || [];
+        this.resultAttributes = result.data.attributes || [];
+        this.resultCollectionQualityValues = result.data.collection_quality_values || [];
+
+        this.isLoadingCollections = false;
+
+        if (this.hasNoCollections()) {
+          this.toastNothingFound();
+        }
+      },
+
         async doQueryRelationship() {
             this.isLoadingCollections = true;
 

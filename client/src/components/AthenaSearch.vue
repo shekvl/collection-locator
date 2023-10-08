@@ -90,4 +90,9 @@ i {
 input {
     width: 440px;
 }
+
+.res {
+  height: 180px;
+  overflow-y: auto;
+}
 </style>

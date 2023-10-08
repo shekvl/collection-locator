@@ -1,35 +1,24 @@
 <template lang="pug">
 DataTable.p-datatable-sm(
-    :value="attributes",
-    :dataKey="attributes.concept_id",
+    :value="collection_quality_values",
+    :dataKey="collection_quality_values.quality_characteristic_name",
     responsiveLayout="scroll",
     rowHover,
     showGridlines,
-    scrollable,
-    scrollHeight="380px",
     removableSort,
     stripedRows
 )
     template(#header)
-        .table-header Collection Attributes and Related Concepts
-
+          .table-header Collection Quality Characteristics
     Column(
         v-for="col of columns",
         :field="col.field",
         :header="col.header",
-        :key="col.field"
+        :key="col.field",
         sortable
     )
         template(#body="slotProps")
-            .d-flex.concept_id(v-if="col.field === 'concept_id'")
-                button.mr-2(
-                    @click="$emit('conceptIdSelected', slotProps.data.concept_id)",
-                    v-tooltip="'Add to searchbar'"
-                )
-                    i.pi.pi-plus
-                div {{ slotProps.data.concept_id }}
-
-            div(v-else) {{ slotProps.data[col.field] }}
+            div {{ slotProps.data[col.field] }}
 </template>
 
 
@@ -53,27 +42,21 @@ const enum COLUMNTYPE {
 
 export default defineComponent({
     props: {
-        attributes: [],
+      collection_quality_values: [],
     },
     data() {
         return {
             columns: [
                 {
-                    field: "attribute_name",
-                    header: "Attribute Name",
+                    field: "quality_characteristic_name",
+                    header: "Quality Characteristic",
                     type: COLUMNTYPE.TEXT,
                 },
                 {
-                  field: "concept_id",
-                  header: "Concept ID",
-                  type: COLUMNTYPE.NUMERIC,
+                    field: "quality_value",
+                    header: "Value",
+                    type: COLUMNTYPE.NUMERIC,
                 },
-                {
-                    field: "vocabulary_id",
-                    header: "Vocabulary",
-                    type: COLUMNTYPE.TEXT,
-                },
-                { field: "code", header: "Code", type: COLUMNTYPE.TEXT },
                 // {
                 //     field: "completeness",
                 //     header: "Completeness",

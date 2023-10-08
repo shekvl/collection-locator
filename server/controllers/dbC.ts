@@ -41,6 +41,16 @@ export const getSupportedVocabularies = (req, res, next) => {
         })
 }
 
+export const getQualityCharacteristics = (req, res, next) => {
+    tf.locator.getQualityCharacteristics()
+        .then((table) => {
+            res.send(table.rows);
+        })
+        .catch((err) => {
+            next(err)
+        })
+}
+
 /**
  * Get all collections that contain `ANY` concept of the given concept id list extended by mappable and descendent concepts.
  * @req Request object containing the `concept ids`
@@ -53,13 +63,41 @@ export const queryAny = (req, res, next) => {
             tf.query.attributes(collection_ids)
                 .then((result) => {
                     const attributes = result.rows
-                    res.send({ collections, attributes });
+                    tf.query.collection_quality_values(collection_ids)
+                        .then((result) => {
+                            const collection_quality_values = result.rows
+                            res.send({ collections, attributes, collection_quality_values });
+                    })
                 })
         })
         .catch((err) => {
             next(err)
         })
 }
+
+export const queryCollectionsByQuality = (req, res, next) => {
+    //console.log(req.query);
+    tf.query.collections_by_quality(req.query.from1, req.query.to1, req.query.qid)
+        .then((result) => {
+            //console.log(result);
+            const collection_ids = Array.from(new Set(result.rows?.map((r) => r.id)))
+            const collections = result.rows
+            tf.query.attributes(collection_ids)
+                .then((result) => {
+                    const attributes = result.rows
+                    tf.query.collection_quality_values(collection_ids)
+                        .then((result) => {
+                            const collection_quality_values = result.rows
+                            res.send({ collections, attributes, collection_quality_values });
+                        })
+                })
+        })
+        .catch((err) => {
+            console.log(err);
+            next(err)
+        })
+}
+
 
 /**
  * Get all collections that contain `ALL` of the given concept ids or respectively a mappable or descendent concept instead of a given concept and their attributes.
@@ -73,7 +111,11 @@ export const queryAll = (req, res, next) => {
             tf.query.attributes(collection_ids)
                 .then((result) => {
                     const attributes = result.rows
-                    res.send({ collections, attributes });
+                    tf.query.collection_quality_values(collection_ids)
+                        .then((result) => {
+                            const collection_quality_values = result.rows
+                            res.send({ collections, attributes, collection_quality_values });
+                    })
                 })
         })
         .catch((err) => {
