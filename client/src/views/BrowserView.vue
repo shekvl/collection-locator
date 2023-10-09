@@ -1,7 +1,7 @@
 <template lang="pug">
 .px-5
     .d-flex
-        TabView.w-100(lazy)
+        TabView.w-100(lazy, @tab-change="clearTable()")
             TabPanel(header="Concepts")
                 .d-flex.w-75
                     .d-flex.flex-column.w-100
@@ -22,7 +22,7 @@
                                 minLength="1",
                                 delay="0",
                                 multiple,
-                                placeholder="Search for Concept..",
+                                placeholder="Search for Concepts...",
                                 v-model="selectedConcepts",
                                 :suggestions="filteredConcepts",
                                 @complete="filterAnnotationConcept($event)",
@@ -130,12 +130,92 @@
                                   :loading="false",
                                   @click="doQueryByQuality(from1, to1, selectedQuality)"
                                 )
-    CollectionTable(
-        :collections="resultCollections",
-        :attributes="resultAttributes",
-        :collection_quality_values="resultCollectionQualityValues",
-        :loading="isLoadingCollections"
-    )
+
+            TabPanel(header="Attribute Quality")
+                .d-flex.w-75
+                    .d-flex.flex-column.w-100
+
+                        .mt-5
+                            AthenaSearch(
+                                :vocabularies="vocabularies",
+                                @conceptIdSelected="(value) => selectConceptOfAttribute(value)"
+                            )
+
+                        .d-flex
+                            AutoComplete.mx-0(
+                                forceSelection,
+                                minLength="1",
+                                delay="0",
+                                multiple,
+                                placeholder="Specify Concepts...",
+                                v-model="selectedConcepts",
+                                :suggestions="filteredConcepts",
+                                @complete="filterAnnotationConcept($event)",
+                                @item-select="(event) => addToMostRecentConcepts(event.value)",
+                                :virtualScrollerOptions="{ items: concepts, itemSize: 40 }",
+                                v-tooltip="'Enter concept IDs to match attributes'"
+                            )
+
+                        .mt-5.d-flex
+                            Dropdown.mr-3.required(
+                                v-model="selectedAttributeQuality",
+                                :options="qualityCharacteristics",
+                                optionLabel="friendly_name",
+                                optionValue="id",
+                                placeholder="Select Quality Characteristic",
+                                :virtualScrollerOptions="{ items: qualities, itemSize: 40 }"
+                            )
+                            InputNumber.mr-3(
+                                input-id="from2",
+                                v-model="from2",
+                                placeholder="From...",
+                                :minFractionDigits="0",
+                                :maxFractionDigits="2",
+                                v-tooltip="'Specify a lower bound for quality'"
+                            )
+                            InputNumber.mr-3(
+                                input-id="to2",
+                                v-model="to2",
+                                placeholder="To...",
+                                :minFractionDigits="0",
+                                :maxFractionDigits="2",
+                                v-tooltip="'Specify an upper bound for quality'"
+                            )
+
+                            Button#search-button(
+                                type="button",
+                                label="Search",
+                                size="small",
+                                iconPos="right",
+                                icon="pi pi-search",
+                                :disabled="(from2 == null && to2 == null) || selectedAttributeQuality == null",
+                                :loading="false",
+                                @click="doQueryByAttributeQuality(selectedConcepts, from2, to2, selectedAttributeQuality)"
+                            )
+
+
+                .selection-panel.d-flex.w-25.flex-column.align-start.mx-5.px-4.py-3
+                    .mb-1(style="font-size: large") Most Recent Concept List:
+                    .most-recents(
+                        v-for="item in Array.from(mostRecentConcepts).reverse()",
+                        @click="selectConcept(item)",
+                        v-tooltip="'Add to searchbar'"
+                    ) {{ item }}
+
+
+
+    CollectionTable(v-if="resultCollections.length > 0",
+          :collections="resultCollections",
+          :attributes="resultAttributes",
+          :collection_quality_values="resultCollectionQualityValues",
+          :attribute_quality_values="resultAttributeQualityValues",
+          :selected_concepts="selectedConcepts",
+          :selected_quality_characteristic_name="getQualityCharacteristicName(selectedQuality)",
+          :selected_attribute_quality_characteristic_name="getQualityCharacteristicName(selectedAttributeQuality)",
+          :loading="isLoadingCollections",
+          @clearTable="clearTable()"
+
+      )
 
     ScrollTop
 </template>
@@ -163,8 +243,8 @@ import {
   getRelationshipsOfInterest,
   queryRelationships,
   queryAny,
-  queryAll, getQualityCharacteristics, queryCollectionsByQuality,
-} from "../requests/dbReq";
+  queryAll, getQualityCharacteristics, queryCollectionsByQuality, queryCollectionsByAttributeQuality,
+} from "../requests/dbRequestFunctions";
 
 const enum SEARCH_MODE {
     ANY = "OR",
@@ -192,6 +272,7 @@ export default defineComponent({
     data() {
         return {
             selectedConcepts: ["45882500"],
+            selectedConcepts2: ["45882500"],
             filteredConcepts: null,
             concepts: [],
             axes: [],
@@ -199,12 +280,16 @@ export default defineComponent({
             qualityCharacteristics: [],
             from1: null,
             to1: null,
+            from2: null,
+            to2: null,
             qualities: ["Completeness", "Accuracy", "Reliability", "Timeliness", "Consistency"],
             selectedQuality: null,
+            selectedAttributeQuality: null,
             selectedVocabulary: "LOINC",
             resultCollections: [],
             resultAttributes: [],
             resultCollectionQualityValues: [],
+            resultAttributeQualityValues: [],
             selectedSearchMode: SEARCH_MODE.ANY,
             mostRecentConcepts: new Set([
                 "45882500",
@@ -216,37 +301,38 @@ export default defineComponent({
         };
     },
     methods: {
-        selectConceptOfAttribute(concept_id: string) {
-            this.selectConcept(concept_id);
-            this.addToMostRecentConcepts(concept_id);
-        },
-        selectConcept(concept_id: string) {
-            this.selectedConcepts.push(concept_id);
-        },
-        addToMostRecentConcepts(concept_id: string) {
-            this.mostRecentConcepts.delete(concept_id);
-            this.mostRecentConcepts.add(concept_id);
-        },
-        async doQuery(concept_ids: [], search_mode: SEARCH_MODE) {
-            this.isLoadingCollections = true;
+      selectConceptOfAttribute(concept_id: string) {
+        this.selectConcept(concept_id);
+        this.addToMostRecentConcepts(concept_id);
+      },
+      selectConcept(concept_id: string) {
+        this.selectedConcepts.push(concept_id);
+      },
+      addToMostRecentConcepts(concept_id: string) {
+        this.mostRecentConcepts.delete(concept_id);
+        this.mostRecentConcepts.add(concept_id);
+      },
+      async doQuery(concept_ids: [], search_mode: SEARCH_MODE) {
+        this.isLoadingCollections = true;
 
-            let result: any = [];
-            if (search_mode == SEARCH_MODE.ALL) {
-                result = await queryAll(Object.values(concept_ids));
-            } else {
-                result = await queryAny(Object.values(concept_ids));
-            }
+        let result: any = [];
+        if (search_mode == SEARCH_MODE.ALL) {
+          result = await queryAll(Object.values(concept_ids));
+        } else {
+          result = await queryAny(Object.values(concept_ids));
+        }
 
-            this.resultCollections = result.data.collections || [];
-            this.resultAttributes = result.data.attributes || [];
-            this.resultCollectionQualityValues = result.data.collection_quality_values || [];
+        this.resultCollections = result.data.collections || [];
+        this.resultAttributes = result.data.attributes || [];
+        this.resultCollectionQualityValues = result.data.collection_quality_values || [];
+        this.resultAttributeQualityValues = result.data.attribute_quality_values || [];
 
-            this.isLoadingCollections = false;
+        this.isLoadingCollections = false;
 
-            if (this.hasNoCollections()) {
-                this.toastNothingFound();
-            }
-        },
+        if (this.hasNoCollections()) {
+          this.toastNothingFound();
+        }
+      },
 
       async doQueryByQuality(from1: any, to1: any, qid: any) {
         this.isLoadingCollections = true;
@@ -257,6 +343,7 @@ export default defineComponent({
         this.resultCollections = result.data.collections || [];
         this.resultAttributes = result.data.attributes || [];
         this.resultCollectionQualityValues = result.data.collection_quality_values || [];
+        this.resultAttributeQualityValues = result.data.attribute_quality_values || [];
 
         this.isLoadingCollections = false;
 
@@ -265,54 +352,87 @@ export default defineComponent({
         }
       },
 
-        async doQueryRelationship() {
-            this.isLoadingCollections = true;
+      async doQueryByAttributeQuality(concept_ids: [], from1: any, to1: any, qid: any) {
+        this.isLoadingCollections = true;
 
-            const relationships = [];
-            //TODO: generatlize (no just LOINC Axes)
-            for (const a of this.axes) {
-                const axis: any = a;
-                if (axis.selectedValues.length > 0) {
-                    relationships.push({
-                        relationship_id: axis.relationship_id,
-                        concept_names: axis.selectedValues,
-                    });
-                }
+        let result: any = [];
+        result = await queryCollectionsByAttributeQuality(Object.values(concept_ids), from1, to1, qid);
+
+        this.resultCollections = result.data.collections || [];
+        this.resultAttributes = result.data.attributes || [];
+        this.resultCollectionQualityValues = result.data.collection_quality_values || [];
+        this.resultAttributeQualityValues = result.data.attribute_quality_values || [];
+
+        this.isLoadingCollections = false;
+
+        if (this.hasNoCollections()) {
+          this.toastNothingFound();
+        }
+      },
+
+
+      async doQueryRelationship() {
+        this.isLoadingCollections = true;
+
+        const relationships = [];
+        //TODO: generatlize (no just LOINC Axes)
+        for (const a of this.axes) {
+          const axis: any = a;
+          if (axis.selectedValues.length > 0) {
+            relationships.push({
+              relationship_id: axis.relationship_id,
+              concept_names: axis.selectedValues,
+            });
+          }
+        }
+
+        const result: any = await queryRelationships(
+            this.selectedVocabulary,
+            relationships
+        );
+        this.doQuery(result.data, SEARCH_MODE.ANY);
+      },
+      filterAnnotationConcept(event: any) {
+        const filtered: any = this.concepts.filter((concept: string) => {
+          return concept.startsWith(event.query);
+        });
+        this.filteredConcepts = filtered;
+      },
+      filterRelationshipValues(event: any, relationship: any) {
+        const filtered: any = relationship.distinct_values.filter(
+            (value: string) => {
+              return value
+                  .toLowerCase()
+                  .startsWith(event.query.toLowerCase());
             }
+        );
+        relationship.filteredValues = filtered;
+      },
+      toastNothingFound() {
+        this.$toast.add({
+          severity: "error",
+          summary: "Nothing Found!",
+          life: 1000,
+        });
+      },
+      hasNoCollections() {
+        return this.resultCollections.length == 0;
+      },
+      getQualityCharacteristicName(id: any) {
+        for (let c of this.qualityCharacteristics) {
+          if (c["id"] == id) return c["name"];
+        }
+        return null;
+      },
+      clearTable() {
+        this.resultCollections = [];
+        this.resultAttributes = [];
+        this.resultCollectionQualityValues = [];
+        this.selectedQuality = null;
+        this.selectedAttributeQuality = null;
+      }
 
-            const result: any = await queryRelationships(
-                this.selectedVocabulary,
-                relationships
-            );
-            this.doQuery(result.data, SEARCH_MODE.ANY);
-        },
-        filterAnnotationConcept(event: any) {
-            const filtered: any = this.concepts.filter((concept: string) => {
-                return concept.startsWith(event.query);
-            });
-            this.filteredConcepts = filtered;
-        },
-        filterRelationshipValues(event: any, relationship: any) {
-            const filtered: any = relationship.distinct_values.filter(
-                (value: string) => {
-                    return value
-                        .toLowerCase()
-                        .startsWith(event.query.toLowerCase());
-                }
-            );
-            relationship.filteredValues = filtered;
-        },
-        toastNothingFound() {
-            this.$toast.add({
-                severity: "error",
-                summary: "Nothing Found!",
-                life: 1000,
-            });
-        },
-        hasNoCollections() {
-            return this.resultCollections.length == 0;
-        },
-    },
+    }
 });
 </script>
 

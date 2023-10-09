@@ -61,7 +61,7 @@ el-button.mt-5(
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { postCollectionFiles } from "../requests/uploadReq";
+import { postCollectionFiles } from "../requests/uploadRequestFunctions";
 import {
     UploadFilled,
     Upload,

@@ -66,8 +66,12 @@ export const queryAny = (req, res, next) => {
                     tf.query.collection_quality_values(collection_ids)
                         .then((result) => {
                             const collection_quality_values = result.rows
-                            res.send({ collections, attributes, collection_quality_values });
-                    })
+                            tf.query.attribute_quality_values(collection_ids)
+                                .then((result) => {
+                                    const attribute_quality_values = result.rows
+                                    res.send({collections, attributes, collection_quality_values, attribute_quality_values});
+                                })
+                        })
                 })
         })
         .catch((err) => {
@@ -88,7 +92,11 @@ export const queryCollectionsByQuality = (req, res, next) => {
                     tf.query.collection_quality_values(collection_ids)
                         .then((result) => {
                             const collection_quality_values = result.rows
-                            res.send({ collections, attributes, collection_quality_values });
+                            tf.query.attribute_quality_values(collection_ids)
+                                .then((result) => {
+                                    const attribute_quality_values = result.rows
+                                    res.send({collections, attributes, collection_quality_values, attribute_quality_values});
+                                })
                         })
                 })
         })
@@ -97,6 +105,34 @@ export const queryCollectionsByQuality = (req, res, next) => {
             next(err)
         })
 }
+
+export const queryCollectionsByAttributeQuality = (req, res, next) => {
+    //console.log(req.query);
+    tf.query.collections_by_attribute_quality(req.query.concept_ids, req.query.from1, req.query.to1, req.query.qid)
+        .then((result) => {
+            //console.log(result);
+            const collection_ids = Array.from(new Set(result.rows?.map((r) => r.id)))
+            const collections = result.rows
+            tf.query.attributes(collection_ids)
+                .then((result) => {
+                    const attributes = result.rows
+                    tf.query.collection_quality_values(collection_ids)
+                        .then((result) => {
+                            const collection_quality_values = result.rows
+                            tf.query.attribute_quality_values(collection_ids)
+                                .then((result) => {
+                                    const attribute_quality_values = result.rows
+                                    res.send({collections, attributes, collection_quality_values, attribute_quality_values});
+                                })
+                        })
+                })
+        })
+        .catch((err) => {
+            console.log(err);
+            next(err)
+        })
+}
+
 
 
 /**
@@ -114,8 +150,12 @@ export const queryAll = (req, res, next) => {
                     tf.query.collection_quality_values(collection_ids)
                         .then((result) => {
                             const collection_quality_values = result.rows
-                            res.send({ collections, attributes, collection_quality_values });
-                    })
+                            tf.query.attribute_quality_values(collection_ids)
+                                .then((result) => {
+                                    const attribute_quality_values = result.rows
+                                    res.send({collections, attributes, collection_quality_values, attribute_quality_values});
+                                })
+                        })
                 })
         })
         .catch((err) => {

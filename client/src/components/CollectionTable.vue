@@ -54,6 +54,11 @@ DataTable.p-datatable-sm(
                     label="Clear",
                     @click="clearTableFilters"
                 )
+                Button.p-button-outlined.p-button-sm.mx-2(
+                    icon="pi pi-times",
+                    label="Clear Data",
+                    @click="$emit('clearTable')",
+                )
                 span.p-input-icon-left
                     i.pi.pi-search
                     InputText.p-inputtext-sm(
@@ -63,8 +68,17 @@ DataTable.p-datatable-sm(
     template(#expansion="slotProps")
         .v-container
             .v-row
-                AttributeTable.v-col-5(:attributes="attributes.filter((a)=> a.collection_id === slotProps.data.id)", @conceptIdSelected="(value) => $emit('conceptIdSelected', value)")
-                CollectionQualityValuesTable.v-col-3(:collection_quality_values="collection_quality_values.filter((a)=> a.collection_id === slotProps.data.id)")
+                AttributeTable.v-col-5(
+                  :attributes="attributes.filter((a)=> a.collection_id === slotProps.data.id)",
+                  :attribute_quality_values="attribute_quality_values.filter((a)=> a.collection_id === slotProps.data.id)",
+                  :selected_attribute_quality_characteristic_name="selected_attribute_quality_characteristic_name"
+                  :selected_concepts="selected_concepts",
+                  @conceptIdSelected="(value) => $emit('conceptIdSelected', value)"
+                )
+                CollectionQualityValuesTable.v-col-3(
+                  :collection_quality_values="collection_quality_values.filter((a)=> a.collection_id === slotProps.data.id)"
+                  :selected_quality_characteristic="selected_quality_characteristic_name"
+                )
 
     template(#empty) No collections found
     //- Column(selectionMode="multiple", headerStyle="width: 3rem", :reorderableColumns="false")
@@ -124,6 +138,10 @@ export default defineComponent({
         },
         attributes: [],
         collection_quality_values: [],
+        attribute_quality_values: [],
+        selected_concepts: [],
+        selected_quality_characteristic_name: String,
+        selected_attribute_quality_characteristic_name: String,
         loading: Boolean,
     },
     data() {
@@ -149,31 +167,6 @@ export default defineComponent({
                     header: "Institution",
                     type: COLUMNTYPE.TEXT,
                 },
-                // {
-                //     field: "completeness",
-                //     header: "Completeness",
-                //     type: COLUMNTYPE.NUMERIC,
-                // },
-                // {
-                //     field: "accuracy",
-                //     header: "Accuracy",
-                //     type: COLUMNTYPE.NUMERIC,
-                // },
-                // {
-                //     field: "reliability",
-                //     header: "Reliability",
-                //     type: COLUMNTYPE.NUMERIC,
-                // },
-                // {
-                //     field: "timeliness",
-                //     header: "Timeliness",
-                //     type: COLUMNTYPE.NUMERIC,
-                // },
-                // {
-                //     field: "consistancy",
-                //     header: "Consistency",
-                //     type: COLUMNTYPE.NUMERIC,
-                // },
             ],
             selectedColumns: [],
             tableSelection: [],

@@ -2,9 +2,9 @@ import { Router } from "express";
 const router = Router();
 
 import indexR from './routes'
-import spreadSheetR from './routes/spreadSheet'
-import dbR from './routes/db'
-import uploadeR from './routes/upload'
+import spreadSheetR from './routes/spreadSheetRoutes'
+import dbR from './routes/dbRoutes'
+import uploadeR from './routes/uploadRoutes'
 
 
 router.use('/', indexR)

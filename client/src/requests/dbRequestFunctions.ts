@@ -115,3 +115,16 @@ export async function queryCollectionsByQuality(from1: any, to1: any, qid: any) 
         return { success: false, message: error.message }
     }
 }
+
+export async function queryCollectionsByAttributeQuality(concept_ids: any, from1: any, to1: any, qid: any) {
+    try {
+        console.log(from1);
+        console.log(to1);
+        const response = await axios.get('api/db/queryCollectionsByAttributeQuality?'+
+            serialize({ concept_ids }) + '&from1=' + from1 + "&to1=" + to1 + "&qid=" + qid);
+        return { success: true, message: response.data.message, data: response.data }
+    } catch (error: any) {
+        console.trace(error)
+        return { success: false, message: error.message }
+    }
+}

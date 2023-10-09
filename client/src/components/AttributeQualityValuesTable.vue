@@ -1,7 +1,7 @@
 <template lang="pug">
 DataTable.p-datatable-sm(
-    :value="collection_quality_values",
-    :dataKey="collection_quality_values.quality_characteristic_name",
+    :value="attribute_quality_values",
+    :dataKey="attribute_quality_values.quality_characteristic_name",
     responsiveLayout="scroll",
     rowHover,
     showGridlines,
@@ -9,7 +9,7 @@ DataTable.p-datatable-sm(
     stripedRows
 )
     template(#header)
-          .table-header Collection Quality Characteristics
+          .table-header Attribute Quality Characteristics
     Column(
         v-for="col of columns",
         :field="col.field",
@@ -18,8 +18,8 @@ DataTable.p-datatable-sm(
         sortable
     )
         template(#body="slotProps")
-            div.strong(v-if="selected_quality_characteristic == slotProps.data.quality_characteristic_name") {{ slotProps.data[col.field] }}
-            div(v-if="selected_quality_characteristic != slotProps.data.quality_characteristic_name") {{ slotProps.data[col.field] }}
+            div.strong(v-if="is_matched_concept && selected_attribute_quality_characteristic === slotProps.data.quality_characteristic_name") {{ slotProps.data[col.field] }}
+            div(v-else) {{ slotProps.data[col.field] }}
 </template>
 
 
@@ -43,8 +43,14 @@ const enum COLUMNTYPE {
 
 export default defineComponent({
     props: {
-      collection_quality_values: [],
-      selected_quality_characteristic: String
+      attribute_quality_values: [],
+      selected_attribute_quality_characteristic: String,
+      is_matched_concept: Boolean
+    },
+    async mounted() {
+      // console.log(this.attribute_quality_values);
+      // console.log(this.selected_attribute_quality_characteristic);
+      console.log(this.is_matched_concept);
     },
     data() {
         return {
@@ -62,6 +68,13 @@ export default defineComponent({
             ],
         };
     },
+    methods: {
+      matchQA: function(qa: any) {
+        console.log("q="+this.selected_attribute_quality_characteristic)
+        console.log(qa)
+        return this.selected_attribute_quality_characteristic == qa.data.quality_characteristic_name
+      }
+    }
 });
 </script>
 

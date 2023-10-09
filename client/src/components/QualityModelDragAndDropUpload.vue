@@ -34,7 +34,7 @@ el-button.mt-7(
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { postQualityModelFiles } from "../requests/uploadReq";
+import { postQualityModelFiles } from "../requests/uploadRequestFunctions";
 import {
     UploadFilled,
     Upload,

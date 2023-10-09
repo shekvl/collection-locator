@@ -534,6 +534,61 @@ export const query = {
     async collections_by_quality_to(to, qid): Promise<any> {
         return pool.query('select * from query_collections_by_quality_to($1,$2)', [to, qid])
     },
+
+    async collections_by_attribute_quality(concept_ids, from, to, qid): Promise<any> { //TODO: send back details on search procedure (used concepts etc.)
+        if (!concept_ids) {
+            return []
+        } else if (typeof concept_ids !== 'object') { //create array of single value
+            concept_ids = [concept_ids]
+        }
+
+        //parse strings to integer,so the Set works properly
+        concept_ids = concept_ids.map(c => parseInt(c))
+        // console.log(concept_ids)
+
+        // let allFound = false
+        // while (!allFound) {
+        let extended_ids = Array.from(concept_ids)
+
+        //include 'Maps to' concepts
+        extended_ids = await this.complementMaps(extended_ids)
+        // console.log(extended_ids.filter((c) => !concept_ids.includes(c)))
+
+        //include descendent concepts
+        extended_ids = await this.complementDescendents(extended_ids)
+        // console.log(extended_ids.filter((c) => !concept_ids.includes(c)))
+
+        concept_ids = extended_ids
+
+        // new Set(extended_ids).size === new Set(concept_ids).size
+        //     ? allFound = true
+        //     : concept_ids = extended_ids
+        // }
+
+        //get collections containing any of passed concept_ids
+        // return pool.query('select * from query_any($1)', [concept_ids])
+
+        if (from == "null")
+            return this.collections_by_attribute_quality_to(concept_ids, to, qid);
+        if (to == "null")
+            return this.collections_by_attribute_quality_from(concept_ids, from, qid);
+        return this.collections_by_attribute_quality_between(concept_ids, from, to, qid);
+
+    },
+
+    async collections_by_attribute_quality_between(concept_ids, from, to, qid): Promise<any> {
+        return pool.query('select * from query_collections_by_attribute_quality_any($1,$2,$3,$4)', [concept_ids, from, to, qid])
+    },
+
+    async collections_by_attribute_quality_from(concept_ids, from, qid): Promise<any> {
+        return pool.query('select * from query_collections_by_attribute_quality_any_from($1,$2,$3)', [concept_ids, from, qid])
+    },
+
+    async collections_by_attribute_quality_to(concept_ids, to, qid): Promise<any> {
+        return pool.query('select * from query_collections_by_attribute_quality_any_to($1,$2,$3)', [concept_ids, to, qid])
+    },
+
+
     /**
      * Get all quality values for each of the specified collections
      * @param collection_ids Array of collection ids
@@ -543,6 +598,9 @@ export const query = {
         return pool.query('select * from get_quality_values_for_collections($1)', [collection_ids])
     },
 
+    async attribute_quality_values(collection_ids): Promise<any> {
+        return pool.query('select * from get_quality_values_for_attributes($1)', [collection_ids])
+    },
 
 
     /**

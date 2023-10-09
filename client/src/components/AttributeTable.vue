@@ -2,6 +2,7 @@
 DataTable.p-datatable-sm(
     :value="attributes",
     :dataKey="attributes.concept_id",
+    v-model:expandedRows="expandedRows",
     responsiveLayout="scroll",
     rowHover,
     showGridlines,
@@ -13,6 +14,16 @@ DataTable.p-datatable-sm(
     template(#header)
         .table-header Collection Attributes and Related Concepts
 
+    template(#expansion="slotProps")
+        .v-container
+            .v-row
+                AttributeQualityValuesTable.v-col-12(
+                  :attribute_quality_values="attribute_quality_values.filter((a)=> a.attribute_name == slotProps.data.attribute_name)"
+                  :selected_attribute_quality_characteristic="selected_attribute_quality_characteristic_name"
+                  :is_matched_concept="matchConcepts(slotProps.data.concept_id)"
+                )
+
+    Column(:expander="true", headerStyle="width: 3rem", :reorderableColumns="false")
     Column(
         v-for="col of columns",
         :field="col.field",
@@ -27,9 +38,12 @@ DataTable.p-datatable-sm(
                     v-tooltip="'Add to searchbar'"
                 )
                     i.pi.pi-plus
-                div {{ slotProps.data.concept_id }}
+                div.strong(v-if="matchConcepts(slotProps.data.concept_id)") {{ slotProps.data.concept_id }}
+                div(v-else) {{ slotProps.data.concept_id }}
 
-            div(v-else) {{ slotProps.data[col.field] }}
+            div(v-else)
+                span.strong(v-if="matchConcepts(slotProps.data.concept_id)") {{ slotProps.data[col.field] }}
+                span(v-else) {{ slotProps.data[col.field] }}
 </template>
 
 
@@ -40,6 +54,7 @@ import Column from "primevue/column";
 import ColumnGroup from "primevue/columngroup";
 import Row from "primevue/row";
 import Button from "primevue/button";
+import AttributeQualityValuesTable from "@/components/AttributeQualityValuesTable.vue";
 </script>
 
 <script lang="ts">
@@ -54,6 +69,12 @@ const enum COLUMNTYPE {
 export default defineComponent({
     props: {
         attributes: [],
+        attribute_quality_values: [],
+        selected_concepts: [],
+        selected_attribute_quality_characteristic_name: String
+    },
+    async mounted() {
+      console.log("at:"+this.selected_attribute_quality_characteristic_name)
     },
     data() {
         return {
@@ -74,34 +95,18 @@ export default defineComponent({
                     type: COLUMNTYPE.TEXT,
                 },
                 { field: "code", header: "Code", type: COLUMNTYPE.TEXT },
-                // {
-                //     field: "completeness",
-                //     header: "Completeness",
-                //     type: COLUMNTYPE.NUMERIC,
-                // },
-                // {
-                //     field: "accuracy",
-                //     header: "Accuracy",
-                //     type: COLUMNTYPE.NUMERIC,
-                // },
-                // {
-                //     field: "reliability",
-                //     header: "Reliability",
-                //     type: COLUMNTYPE.NUMERIC,
-                // },
-                // {
-                //     field: "timeliness",
-                //     header: "Timeliness",
-                //     type: COLUMNTYPE.NUMERIC,
-                // },
-                // {
-                //     field: "consistancy",
-                //     header: "Consistency",
-                //     type: COLUMNTYPE.NUMERIC,
-                // },
             ],
+          expandedRows: [],
         };
     },
+    methods: {
+      matchConcepts: function (concept_id: any) {
+        for (let c of this.selected_concepts || []) {
+          if (c == concept_id) return true;
+        }
+        return false;
+      },
+    }
 });
 </script>
 
@@ -110,5 +115,9 @@ export default defineComponent({
 button {
     margin-left: 10px;
     color: var(--primary-color);
+}
+.strong {
+    font-weight: bold;
+    color: darkgreen;
 }
 </style>
