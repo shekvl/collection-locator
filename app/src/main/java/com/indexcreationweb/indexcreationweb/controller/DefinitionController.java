@@ -2,7 +2,7 @@ package com.indexcreationweb.indexcreationweb.controller;
 
 import com.indexcreationweb.indexcreationweb.commands.DefinitionCommand;
 import com.indexcreationweb.indexcreationweb.dto.DefinitionDto;
-import com.indexcreationweb.indexcreationweb.entities.Definition;
+import com.indexcreationweb.indexcreationweb.entities.indexcreator.Definition;
 import com.indexcreationweb.indexcreationweb.services.DefinitionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

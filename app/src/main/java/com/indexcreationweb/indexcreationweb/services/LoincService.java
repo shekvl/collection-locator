@@ -1,8 +1,8 @@
 package com.indexcreationweb.indexcreationweb.services;
 
 import com.indexcreationweb.indexcreationweb.dto.LoincAutocompleteDto;
-import com.indexcreationweb.indexcreationweb.entities.Loinc;
-import com.indexcreationweb.indexcreationweb.repositories.LoincRepository;
+import com.indexcreationweb.indexcreationweb.entities.indexcreator.Loinc;
+import com.indexcreationweb.indexcreationweb.repositories.indexcreator.LoincRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
