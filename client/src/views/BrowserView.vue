@@ -30,13 +30,14 @@
                                 :virtualScrollerOptions="{ items: concepts, itemSize: 40 }",
                                 v-tooltip="'Enter concept IDs to locate collections'"
                             )
-                            SelectButton#search-mode.ml-2(
+                        .d-flex.justify-content-start
+                            SelectButton#search-mode.ml-2.mt-5(
                                 v-model="selectedSearchMode",
                                 :options="SEARCH_MODE",
                                 :unselectable="false",
                                 v-tooltip="'Select search connector'"
                             )
-                            Button#search-button(
+                            Button#search-button.mt-5(
                                 type="button",
                                 label="Search",
                                 size="small",
@@ -201,8 +202,75 @@
                         @click="selectConcept(item)",
                         v-tooltip="'Add to searchbar'"
                     ) {{ item }}
+            TabPanel(header="Anonymized Data")
+                .d-flex.w-75
+                    .d-flex.flex-column.w-100
 
+                        .mt-5
+                            AthenaSearch(
+                                :vocabularies="vocabularies",
+                                @conceptIdSelected="selectConceptOfAttribute"
+                            )
 
+                        //— your concept picker
+                        .d-flex.align-items-center
+                            AutoComplete.mx-0(
+                                forceSelection
+                                :minLength="1"
+                                :delay="0"
+                                multiple
+                                placeholder="Specify Concepts..."
+                                v-model="selectedConcepts"
+                                :suggestions="filteredConcepts"
+                                @complete="filterAnnotationConcept"
+                                @item-select="addToMostRecentConcepts"
+                                :virtualScrollerOptions="{ items: concepts, itemSize: 40 }"
+                                v-tooltip="'Enter concept IDs to match attributes'"
+                            )
+
+                        //— now immediately below, one row per selected concept
+                        .mt-3
+                            div(v-for="range in conceptRangesList" :key="range.concept_id")
+                                .d-flex.align-items-center.mb-2
+                                    // fixed‐width ID column
+                                    span.flex-shrink-0.align-self-center.me-3.font-weight-bold(style="width:80px; text-align:left;") {{ real_id(range.concept_id)+':' }}
+                                    // now each v-model goes to its own `range.from` or `range.to`
+                                    InputNumber.me-2(
+                                        :modelValue="range.from"
+                                        @input="e => range.from = e.value"
+                                        placeholder="From..."
+                                        :minFractionDigits="0"
+                                        :maxFractionDigits="2"
+                                        style="width:200px!important;"
+                                    )
+                                    InputNumber(
+                                        :modelValue="range.to"
+                                        @input="e => range.to = e.value"
+                                        placeholder="To..."
+                                        :minFractionDigits="0"
+                                        :maxFractionDigits="2"
+                                        style="width:200px!important;"
+                                    )
+
+                        //— your search button
+                        Button#search-button.mt-4.align-self-start.w-auto(
+                            type="button",
+                            label="Search",
+                            size="small",
+                            iconPos="right",
+                            icon="pi pi-search",
+                            :disabled="!canSearchAnonymous",
+                            :loading="false",
+                            @click="doQueryAnonymousData(conceptRangesList)"
+                        )
+
+                .selection-panel.d-flex.w-25.flex-column.align-start.mx-5.px-4.py-3
+                    .mb-1(style="font-size: large") Most Recent Concept List:
+                    .most-recents(
+                        v-for="item in Array.from(mostRecentConcepts).reverse()",
+                        @click="selectConcept(item)",
+                        v-tooltip="'Add to searchbar'"
+                    ) {{ item }}
 
     CollectionTable(v-if="resultCollections.length > 0",
           :collections="resultCollections",
@@ -220,274 +288,281 @@
     ScrollTop
 </template>
 
-
 <script setup lang="ts">
-import AutoComplete from "primevue/autocomplete";
-import VirtualScroller from "primevue/virtualscroller";
-import ScrollTop from "primevue/scrolltop";
-import TabView from "primevue/tabview";
-import TabPanel from "primevue/tabpanel";
-import Dropdown from "primevue/dropdown";
-import InputNumber from "primevue/inputnumber";
-import Button from "primevue/button";
-import SelectButton from "primevue/selectbutton";
-import CollectionTable from "../components/CollectionTable.vue";
-import AthenaSearch from "../components/AthenaSearch.vue";
-</script>
+import {ref, reactive, watch, onMounted, computed} from 'vue';
+import AutoComplete from 'primevue/autocomplete';
+import VirtualScroller from 'primevue/virtualscroller';
+import ScrollTop from 'primevue/scrolltop';
+import TabView from 'primevue/tabview';
+import TabPanel from 'primevue/tabpanel';
+import Dropdown from 'primevue/dropdown';
+import InputNumber from 'primevue/inputnumber';
+import Button from 'primevue/button';
+import SelectButton from 'primevue/selectbutton';
+import CollectionTable from '@/components/CollectionTable.vue';
+import AthenaSearch from '@/components/AthenaSearch.vue';
+import QueryComponent from '@/components/QueryComponent.vue';
 
-<script lang="ts">
-import { defineComponent } from "vue";
 import {
-  getAllConcepts,
-  getVocabularies,
-  getRelationshipsOfInterest,
-  queryRelationships,
-  queryAny,
-  queryAll, getQualityCharacteristics, queryCollectionsByQuality, queryCollectionsByAttributeQuality,
-} from "../requests/dbRequestFunctions";
+    getAllConcepts,
+    getVocabularies,
+    getRelationshipsOfInterest,
+    queryRelationships,
+    queryAny,
+    queryAll,
+    getQualityCharacteristics,
+    queryCollectionsByQuality,
+    queryCollectionsByAttributeQuality, real_id, real_ids
+} from '@/requests/dbRequestFunctions';
+import {node2Axios} from "@/requests/axios";
+import {transformServerData} from "@/requests/dataTransformService";
 
-const enum SEARCH_MODE {
-    ANY = "OR",
-    ALL = "AND",
+const SEARCH_MODE = {
+    ANY: 'OR',
+    ALL: 'AND'
+};
+
+
+// 1) your reactive state
+
+const selectedConcepts = ref<string[]>([ '1315411: cetuximab (RxNorm)' ])
+
+const emit = defineEmits<{
+    (e: 'conceptIdSelected', value: string): void
+}>()
+
+// New: each entry holds one concept’s range
+const conceptRangesList = ref<
+    { concept_id: string; from: number | null; to: number | null }[]
+>([])
+
+// Keep ranges in sync, but **reuse** existing entries so .from/.to never reset
+watch(
+    selectedConcepts,
+    (newIds) => {
+        console.log("newIds: "+newIds.length);
+        console.log(newIds);
+        const keep = conceptRangesList.value;
+        // console.log("keep");
+        // console.log(keep);
+        conceptRangesList.value = newIds.map((id) => {
+            const existing = keep.find((r) => r.concept_id === id)
+            return existing || { concept_id: id, from: null, to: null }
+        });
+        console.log("conceptRangesList.value");
+        console.log(conceptRangesList.value);
+        return conceptRangesList.value;
+    },
+    { immediate: true, flush: 'sync', deep: true }
+)
+const canSearchAnonymous = computed(() => {
+    // Only allow when there’s at least one range **and** every range has both ends filled
+    return conceptRangesList.value.length > 0
+        && conceptRangesList.value.every(r => r.from != null && r.to != null);
+});
+
+const filteredConcepts = ref(null);
+const concepts = ref([]);
+const axes = ref<any[]>([]);
+const vocabularies = ref<string[]>([]);
+const qualityCharacteristics = ref<any[]>([]);
+const from1 = ref<number | null>(null);
+const to1 = ref<number | null>(null);
+const from2 = ref<number | null>(null);
+const to2 = ref<number | null>(null);
+const selectedQuality = ref(null);
+const selectedAttributeQuality = ref(null);
+const selectedVocabulary = ref('LOINC');
+const selectedSearchMode = ref(SEARCH_MODE.ANY);
+const resultCollections = ref([]);
+const resultAttributes = ref([]);
+const resultCollectionQualityValues = ref([]);
+const resultAttributeQualityValues = ref([]);
+const mostRecentConcepts = ref(new Set<string>(['40567867: Age (SNOMED)', '1315411: cetuximab (RxNorm)', '4219780: Left colectomy (SNOMED)']));
+const isLoadingCollections = ref(false);
+
+function selectConcept(concept_id: string) {
+    if (!selectedConcepts.value.includes(concept_id)) {
+        selectedConcepts.value.push(concept_id)
+        // no need to manually seed ranges—watch(selectedConcepts) does that now
+    }
 }
 
-export default defineComponent({
-    async mounted() {
-        const vocabularies = await getVocabularies();
-        this.qualityCharacteristics = await getQualityCharacteristics();
-        this.vocabularies = vocabularies
-            .map((o: any) => o.vocabulary_id)
-            .sort(); //TODO: only show vocabularies with relationshipsOfInterest
+function selectConceptOfAttribute(concept_id: string) {
+    selectConcept(concept_id);
+    mostRecentConcepts.value.delete(concept_id);
+    mostRecentConcepts.value.add(concept_id);
+}
 
-        const concepts = await getAllConcepts();
-        this.concepts = concepts;
+function filterAnnotationConcept(event: any) {
+    filteredConcepts.value = concepts.value.filter((c: string) =>
+        c.toLowerCase().startsWith(event.query.toLowerCase())
+    );
+}
 
-        const axes = await getRelationshipsOfInterest("axes", "LOINC"); //TODO: automate
-        for (const axis of axes) {
-            axis.selectedValues = [];
-            axis.filteredValues = [];
+function filterRelationshipValues(event: any, relationship: any) {
+    relationship.filteredValues = relationship.distinct_values.filter((value: string) =>
+        value.toLowerCase().startsWith(event.query.toLowerCase())
+    );
+}
+
+function getQualityCharacteristicName(id: any) {
+    const item = qualityCharacteristics.value.find((c) => c.id === id);
+    return item ? item.name : null;
+}
+
+function toastNothingFound() {
+    // assumes a global toast plugin is available
+    window.$toast?.add({
+        severity: 'error',
+        summary: 'Nothing Found!',
+        life: 1000
+    });
+}
+
+function hasNoCollections() {
+    return resultCollections.value.length === 0;
+}
+
+function clearTable() {
+    resultCollections.value = [];
+    resultAttributes.value = [];
+    resultCollectionQualityValues.value = [];
+    selectedQuality.value = null;
+    selectedAttributeQuality.value = null;
+}
+
+async function doQuery(concept_ids: string[], search_mode: string) {
+
+    console.log("doQuery: concept_ids");
+    console.log(concept_ids);
+    isLoadingCollections.value = true;
+    const result =
+        search_mode === SEARCH_MODE.ALL
+            ? await queryAll(real_ids(concept_ids))
+            : await queryAny(real_ids(concept_ids));
+
+    resultCollections.value = result.data.collections || [];
+    resultAttributes.value = result.data.attributes || [];
+    resultCollectionQualityValues.value = result.data.collection_quality_values || [];
+    resultAttributeQualityValues.value = result.data.attribute_quality_values || [];
+    isLoadingCollections.value = false;
+    if (hasNoCollections()) toastNothingFound();
+}
+
+async function doQueryByQuality(f: number | null, t: number | null, qid: any) {
+    isLoadingCollections.value = true;
+    const result = await queryCollectionsByQuality(f, t, qid);
+    resultCollections.value = result.data.collections || [];
+    resultAttributes.value = result.data.attributes || [];
+    resultCollectionQualityValues.value = result.data.collection_quality_values || [];
+    resultAttributeQualityValues.value = result.data.attribute_quality_values || [];
+    isLoadingCollections.value = false;
+    if (hasNoCollections()) toastNothingFound();
+}
+
+async function doQueryByAttributeQuality(
+    concept_ids: string[],
+    f: number | null,
+    t: number | null,
+    qid: any
+) {
+    isLoadingCollections.value = true;
+    const result = await queryCollectionsByAttributeQuality(concept_ids, f, t, qid);
+    resultCollections.value = result.data.collections || [];
+    resultAttributes.value = result.data.attributes || [];
+    resultCollectionQualityValues.value = result.data.collection_quality_values || [];
+    resultAttributeQualityValues.value = result.data.attribute_quality_values || [];
+    isLoadingCollections.value = false;
+    if (hasNoCollections()) toastNothingFound();
+}
+
+async function doQueryAnonymousData(rangesList: typeof conceptRangesList.value) {
+    isLoadingCollections.value = true
+
+    const payload = rangesList.map(r => ({
+        concept: {
+            concept_id:  real_id(r.concept_id),
+            concept_name: ''
+        },
+        value: {
+            fromValue: r.from != null ? String(r.from) : '',
+            toValue:   r.to   != null ? String(r.to)   : ''
         }
-        this.axes = axes;
-    },
-    data() {
-        return {
-            selectedConcepts: ["45882500"],
-            selectedConcepts2: ["45882500"],
-            filteredConcepts: null,
-            concepts: [],
-            axes: [],
-            vocabularies: [],
-            qualityCharacteristics: [],
-            from1: null,
-            to1: null,
-            from2: null,
-            to2: null,
-            qualities: ["Completeness", "Accuracy", "Reliability", "Timeliness", "Consistency"],
-            selectedQuality: null,
-            selectedAttributeQuality: null,
-            selectedVocabulary: "LOINC",
-            resultCollections: [],
-            resultAttributes: [],
-            resultCollectionQualityValues: [],
-            resultAttributeQualityValues: [],
-            selectedSearchMode: SEARCH_MODE.ANY,
-            mostRecentConcepts: new Set([
-                "45882500",
-                "45876315",
-                "45876191", //descendent (36033638)
-                "3667069", //maps to (940658)
-            ]),
-            isLoadingCollections: false,
-        };
-    },
-    methods: {
-      selectConceptOfAttribute(concept_id: string) {
-        this.selectConcept(concept_id);
-        this.addToMostRecentConcepts(concept_id);
-      },
-      selectConcept(concept_id: string) {
-        this.selectedConcepts.push(concept_id);
-      },
-      addToMostRecentConcepts(concept_id: string) {
-        this.mostRecentConcepts.delete(concept_id);
-        this.mostRecentConcepts.add(concept_id);
-      },
-      async doQuery(concept_ids: [], search_mode: SEARCH_MODE) {
-        this.isLoadingCollections = true;
+    }))
 
-        let result: any = [];
-        if (search_mode == SEARCH_MODE.ALL) {
-          result = await queryAll(Object.values(concept_ids));
-        } else {
-          result = await queryAny(Object.values(concept_ids));
-        }
+    try {
+        const { data } = await node2Axios.post('/api/data', payload)
+        console.log(data)
+        let transformedData = transformServerData(data);
+        console.log(transformedData);
+        resultCollections.value = transformedData.collections || [];
+        resultAttributes.value = transformedData.attributes || [];
+        resultCollectionQualityValues.value = [];
+        resultAttributeQualityValues.value = [];
+        isLoadingCollections.value = false;
+        if (hasNoCollections()) toastNothingFound();
 
-        this.resultCollections = result.data.collections || [];
-        this.resultAttributes = result.data.attributes || [];
-        this.resultCollectionQualityValues = result.data.collection_quality_values || [];
-        this.resultAttributeQualityValues = result.data.attribute_quality_values || [];
-
-        this.isLoadingCollections = false;
-
-        if (this.hasNoCollections()) {
-          this.toastNothingFound();
-        }
-      },
-
-      async doQueryByQuality(from1: any, to1: any, qid: any) {
-        this.isLoadingCollections = true;
-
-        let result: any = [];
-        result = await queryCollectionsByQuality(from1, to1, qid);
-
-        this.resultCollections = result.data.collections || [];
-        this.resultAttributes = result.data.attributes || [];
-        this.resultCollectionQualityValues = result.data.collection_quality_values || [];
-        this.resultAttributeQualityValues = result.data.attribute_quality_values || [];
-
-        this.isLoadingCollections = false;
-
-        if (this.hasNoCollections()) {
-          this.toastNothingFound();
-        }
-      },
-
-      async doQueryByAttributeQuality(concept_ids: [], from1: any, to1: any, qid: any) {
-        this.isLoadingCollections = true;
-
-        let result: any = [];
-        result = await queryCollectionsByAttributeQuality(Object.values(concept_ids), from1, to1, qid);
-
-        this.resultCollections = result.data.collections || [];
-        this.resultAttributes = result.data.attributes || [];
-        this.resultCollectionQualityValues = result.data.collection_quality_values || [];
-        this.resultAttributeQualityValues = result.data.attribute_quality_values || [];
-
-        this.isLoadingCollections = false;
-
-        if (this.hasNoCollections()) {
-          this.toastNothingFound();
-        }
-      },
-
-
-      async doQueryRelationship() {
-        this.isLoadingCollections = true;
-
-        const relationships = [];
-        //TODO: generatlize (no just LOINC Axes)
-        for (const a of this.axes) {
-          const axis: any = a;
-          if (axis.selectedValues.length > 0) {
-            relationships.push({
-              relationship_id: axis.relationship_id,
-              concept_names: axis.selectedValues,
-            });
-          }
-        }
-
-        const result: any = await queryRelationships(
-            this.selectedVocabulary,
-            relationships
-        );
-        this.doQuery(result.data, SEARCH_MODE.ANY);
-      },
-      filterAnnotationConcept(event: any) {
-        const filtered: any = this.concepts.filter((concept: string) => {
-          return concept.startsWith(event.query);
-        });
-        this.filteredConcepts = filtered;
-      },
-      filterRelationshipValues(event: any, relationship: any) {
-        const filtered: any = relationship.distinct_values.filter(
-            (value: string) => {
-              return value
-                  .toLowerCase()
-                  .startsWith(event.query.toLowerCase());
-            }
-        );
-        relationship.filteredValues = filtered;
-      },
-      toastNothingFound() {
-        this.$toast.add({
-          severity: "error",
-          summary: "Nothing Found!",
-          life: 1000,
-        });
-      },
-      hasNoCollections() {
-        return this.resultCollections.length == 0;
-      },
-      getQualityCharacteristicName(id: any) {
-        for (let c of this.qualityCharacteristics) {
-          if (c["id"] == id) return c["name"];
-        }
-        return null;
-      },
-      clearTable() {
-        this.resultCollections = [];
-        this.resultAttributes = [];
-        this.resultCollectionQualityValues = [];
-        this.selectedQuality = null;
-        this.selectedAttributeQuality = null;
-      }
-
+    } finally {
+        isLoadingCollections.value = false
     }
+}
+
+// async function doQueryAnonymousData(ranges: Record<number, { from: number|null; to: number|null }>) {
+//     // 1) build payload
+//     const payload = Object.entries(ranges)
+//         .map(([id, range]) => ({
+//             concept: {
+//                 concept_id:    Number(id),
+//                 concept_name:  ''           // per your request
+//             },
+//             value: {
+//                 fromValue:     range.from   != null ? String(range.from) : '',
+//                 toValue:       range.to     != null ? String(range.to)   : ''
+//             }
+//         }))
+//
+//     try {
+//         // 2) send POST to http://localhost:5002/api/data
+//         const resp = await node2Axios.post('/api/data', payload)
+//         // 3) handle response just like in doQuery…()
+//         //    for example:
+//         // resultCollections.value            = resp.data.collections            || []
+//         // resultAttributes.value             = resp.data.attributes             || []
+//         // resultCollectionQualityValues.value= resp.data.collection_quality_values|| []
+//         // resultAttributeQualityValues.value = resp.data.attribute_quality_values || []
+//         console.log(resp.data);
+//     } catch (err: any) {
+//         console.error('Anonymous-data query failed', err)
+//         // ... your error handling …
+//     } finally {
+//         isLoadingCollections.value = false
+//     }
+// }
+
+async function doQueryRelationship() {
+    isLoadingCollections.value = true;
+    const relationships = axes.value
+        .filter((a) => a.selectedValues?.length > 0)
+        .map((axis: any) => ({
+            relationship_id: axis.relationship_id,
+            concept_names: axis.selectedValues
+        }));
+    const result = await queryRelationships(selectedVocabulary.value, relationships);
+    await doQuery(result.data, SEARCH_MODE.ANY);
+}
+
+onMounted(async () => {
+    vocabularies.value = (await getVocabularies())
+        .map((v: any) => v.vocabulary_id)
+        .sort();
+    qualityCharacteristics.value = await getQualityCharacteristics();
+    concepts.value = await getAllConcepts();
+    const relAxes = await getRelationshipsOfInterest('axes', 'LOINC');
+    axes.value = relAxes.map((axis: any) => ({
+        ...axis,
+        selectedValues: [],
+        filteredValues: []
+    }));
 });
 </script>
-
-
-<style>
-.p-tabview-panel {
-    display: flex;
-    justify-content: flex-start;
-}
-
-.p-dropdown {
-    min-width: 12rem;
-    width: fit-content;
-}
-
-.p-dropdown-label {
-    text-align: start;
-}
-</style>
-
-<style scoped>
-a {
-    margin-right: 20px;
-}
-
-.most-recents {
-    color: var(--primary-text);
-    cursor: pointer;
-    padding-inline: 10px;
-    padding-block: 5px;
-    border-radius: 8px;
-}
-
-.most-recents:hover {
-    background-color: rgba(213, 213, 213, 0.541);
-}
-
-#search-button,
-#search-mode {
-    margin: 2px;
-    min-width: fit-content;
-    height: 42px;
-}
-
-.p-autocomplete {
-    margin: 2px;
-    height: fit-content;
-}
-
-.selection-panel {
-    width: auto;
-    height: 200px;
-    border: solid 1px #e6e9ec;
-    border-radius: 8px;
-    overflow-y: auto;
-    min-width: fit-content;
-}
-</style>

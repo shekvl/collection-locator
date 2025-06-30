@@ -2,7 +2,7 @@
 Menubar#menubar(:model="items")
     template(#start)
         #logo.d-flex(@click="goToHome")
-            img(src="favicon-32x32.png")
+            img(src="/favicon-32x32.png")
             .ml-2 Collection Locator
     template(#end)
         Button.p-button-rounded.p-button-text(
@@ -36,10 +36,21 @@ const items = [
       to: "/qualitymodelupload",
     },
     {
-        label: "Upload Collection Data",
+        label: "Upload Collection Metadata",
         icon: "pi pi-upload",
         to: "/fileupload",
     },
+    {
+        label: "Configure Anonymization",
+        icon: "pi pi-lock",
+        to: "/definitions-home",
+    },
+    {
+        label: "Upload Anonymized Data",
+        icon: "pi pi-upload",
+        to: "/upload-anonymized-data",
+    }
+
 ];
 
 const i18n = {

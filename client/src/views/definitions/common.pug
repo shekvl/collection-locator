@@ -1,0 +1,129 @@
+mixin required
+	span.text-danger &nbsp;*
+mixin card-header
+	h4.card-header #[.badge.badge-dark {{value.id}}] {{value.name}}
+
+mixin card-header-also-known
+	h4.card-header #[.badge.badge-dark {{value.id}}] {{isFromCollection ? "Also Known As Alternative Source":"Biobank Alternative Source"}}
+
+//For examples see "BiobankEditCard.vue" etc.
+mixin input(attr, options)
+	-options = options || {}
+	.mb-2(class=options.large ? "form-group" : "form-inline", v-if=options.if)
+		label= options.label || makeLabel(attr)
+			if attributes.required
+				+required
+		input.form-control(
+			v-model="value." + attr,
+			class={"mx-sm-3": !options.large}
+		)&attributes(attributes)
+		if options.help
+			small= options.help
+
+mixin inputWithNetworkIDPrefix(attr, options)
+	-options = options || {}
+	.mb-2(class=options.large ? "form-group" : "form-inline", v-if=options.if, style="position:relative")
+		label= options.label || makeLabel(attr)
+			if attributes.required
+				+required
+		input.form-control(
+			v-model="value." + attr
+			style="padding-left:126pt"
+			class={"mx-sm-3": !options.large}
+		)&attributes(attributes)
+		div(style="color:darkgray; position: absolute;top: 71%;transform: translateY(-50%);left: 10pt")='bbmri-eric:networkID:'
+		if options.help
+			small= options.help
+
+//For examples see "BiobankEditCard.vue" etc.
+mixin input2(attr, options)
+	-options = options || {}
+	.mb-2(class=options.large ? "form-group" : "form-inline", v-if=options.if)
+		label= options.label || makeLabel(attr)
+			if attributes.required
+				+required
+		input.form-control(
+			v-model=attr,
+			class={"mx-sm-3": !options.large}
+		)&attributes(attributes)
+		if options.help
+			small= options.help
+
+//For examples see "BiobankEditCard.vue" etc.
+mixin input_if(attr, options)
+	-options = options || {}
+	.mb-2(class=options.large ? "form-group" : "form-inline", v-if=options.if)
+		label= options.label || makeLabel(attr)
+			if attributes.required
+				+required
+		input.form-control(
+			v-model="value." + attr,
+			v-if=options.if,
+			class={"mx-sm-3": !options.large}
+		)&attributes(attributes)
+		if options.help
+			small= options.help
+
+mixin textarea(attr, options)
+	-options = options || {}
+	.form-group.mb-2
+		label= options.label || makeLabel(attr)
+			if attributes.required
+				+required
+		textarea.form-control(v-model="value." + attr)&attributes(attributes)
+		if options.help
+			small= options.help
+
+mixin textarea2(attr, options)
+	-options = options || {}
+	.form-group.mb-2
+		label= options.label || makeLabel(attr)
+			if attributes.required
+				+required
+		textarea.form-control(v-model=attr)&attributes(attributes)
+		if options.help
+			small= options.help
+
+
+mixin checkbox(attr, label)
+	.form-check.mb-2
+		input.form-check-input(type="checkbox", v-model="value." + attr)
+		label.form-check-label= label
+
+mixin checkbox2(attr, label)
+	.form-check.mb-2
+		input.form-check-input(type="checkbox", v-model=attr)
+		label.form-check-label= label
+
+mixin headTitleAndName
+	.input-group.mx-sm-3
+		input.form-control(v-model="value.head_title_before_name", placeholder="(Title)")
+		input.form-control.w-25(v-model="value.head_firstname", placeholder="First name" required=attributes.required)
+		input.form-control.w-25(v-model="value.head_lastname", placeholder="Last name", required=attributes.required)
+		input.form-control(v-model="value.head_title_after_name", placeholder="(Title)")
+
+mixin latLong
+	.input-group.mx-sm-3
+		input.form-control(v-model="value.latitude", placeholder="Latitude")
+		.input-group-prepend.input-group-append: span.input-group-text &deg;N
+		input.form-control.ml-2(v-model="value.longitude", placeholder="Longitude")
+		.input-group-append: span.input-group-text &deg;E
+
+mixin accessPolicy(subject, plural)
+	- let jointProjectsAttr = `${subject}_access_joint_project`
+	- if (subject === "image") jointProjectsAttr = "image_joint_projects" //why?
+	div&attributes(attributes)
+		+checkbox(`${subject}_access_fee`, `Fee required for access to ${plural}`)
+		+checkbox(jointProjectsAttr, `Joint project required for access to ${plural}`)
+		+textarea(`${subject}_access_description`, {help: `Conditions for access to ${plural} in English`})
+		+input(`${subject}_access_uri`, {
+			help: `URL to a detailed description of the access conditions for access to ${plural}`,
+			large: true
+		}
+		)(type=`url`)
+
+mixin accessPolicy2(subject, plural)
+	div&attributes(attributes)
+		+checkbox(`access_fee_New['${subject}']`, `Fee required for access to ${plural}`)
+		+checkbox(`access_joint_project_New['${subject}']`, `Joint project required for access to ${plural}`)
+

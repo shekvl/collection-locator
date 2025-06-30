@@ -17,6 +17,8 @@ import 'primevue/resources/primevue.min.css'
 import 'primeicons/primeicons.css'
 import ToastService from 'primevue/toastservice'
 import Tooltip from 'primevue/tooltip';
+import vSelect from "vue-select";
+import "vue-select/dist/vue-select.css";
 
 const vuetify = createVuetify({
   components,
@@ -37,5 +39,6 @@ app.use(ElementPlus)
 app.use(PrimeVue)
 app.use(ToastService)
 app.directive('tooltip', Tooltip);
+app.component("v-select", vSelect);
 
 app.mount('#app')
