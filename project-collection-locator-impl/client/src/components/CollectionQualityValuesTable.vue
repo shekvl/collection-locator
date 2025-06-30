@@ -18,8 +18,8 @@ DataTable.p-datatable-sm(
         sortable
     )
         template(#body="slotProps")
-            div.strong(v-if="selected_quality_characteristic == slotProps.data.quality_characteristic_name") {{ slotProps.data[col.field] }}
-            div(v-if="selected_quality_characteristic != slotProps.data.quality_characteristic_name") {{ slotProps.data[col.field] }}
+            div.strong(v-if="selected_quality_characteristic === slotProps.data.quality_characteristic_name") {{ slotProps.data[col.field] }}
+            div(v-if="selected_quality_characteristic !== slotProps.data.quality_characteristic_name") {{ slotProps.data[col.field] }}
 </template>
 
 

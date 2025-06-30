@@ -369,7 +369,8 @@ export const locator = {
      * @returns Concepts ids
      */
     async allConcepts(): Promise<any> {
-        return pool.query('select concept_id from concept')
+        //return pool.query('select concept_id from concept')
+        return pool.query(`select CONCAT(concept_id, ': ', name, ' (', vocabulary_id, ')') as concept_info from concept`)
     },
 
     /**

@@ -20,8 +20,6 @@ DataTable.p-datatable-sm(
     :rowsPerPageOptions="[10,25,50,100]",
     removableSort,
     sortMode="multiple",
-    stateStorage="local",
-    stateKey="collectionBrowserTableState",
     exportFilename="collections",
     :exportFunction="export",
     stripedRows
@@ -115,6 +113,33 @@ import InputText from "primevue/inputtext";
 import MultiSelect from "primevue/multiselect";
 import AttributeTable from "../components/AttributeTable.vue";
 import CollectionQualityValuesTable from "@/components/CollectionQualityValuesTable.vue";
+
+import { onBeforeMount } from 'vue'
+
+const STATE_KEY = 'primevue_datatable_collectionBrowserTableState'
+
+onBeforeMount(() => {
+    const raw = localStorage.getItem(STATE_KEY)
+    if (!raw) return
+
+        const state = JSON.parse(raw)
+
+        if (state.filters && typeof state.filters === 'object') {
+            for (const field of Object.keys(state.filters)) {
+                const filter = state.filters[field]
+                // PrimeVue v3 shape: { value, matchMode }  or { operator, constraints: [...] }
+                if (filter && filter.value === null) {
+                    filter.value = ''      // empty matches-all
+                }
+                if (filter && Array.isArray(filter.constraints)) {
+                    filter.constraints.forEach((c: any) => {
+                        if (c.value === null) c.value = ''
+                    })
+                }
+            }
+            localStorage.setItem(STATE_KEY, JSON.stringify(state))
+        }
+})
 </script>
 
 <script lang="ts">
@@ -147,7 +172,7 @@ export default defineComponent({
     data() {
         return {
             filters: {
-                global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+                global: { value: '', matchMode: FilterMatchMode.CONTAINS },
             },
             columns: [
                 { field: "id", header: "ID", type: COLUMNTYPE.NUMERIC },
@@ -180,14 +205,22 @@ export default defineComponent({
         print(value: any) {
             console.log(value);
         },
+        // setupFilters() {
+        //     //add dynamically generated filters for each column
+        //     let filters: any = Object.assign(this.filters);
+        //     for (const column of this.columns) {
+        //         filters[column.field] = this.defaultFilter(column);
+        //     }
+        //     this.filters = filters;
+        // },
+
         setupFilters() {
-            //add dynamically generated filters for each column
-            let filters: any = Object.assign(this.filters);
-            for (const column of this.columns) {
-                filters[column.field] = this.defaultFilter(column);
-            }
-            this.filters = filters;
+                this.filters = {
+                    global: { value: '', matchMode: FilterMatchMode.CONTAINS }
+                };
         },
+            // … leave clearColumnFilter, clearTableFilters as-is (or tweak them too) …
+
         fetchSelectedColumnsFromLocalStorage() {
             const objectString = localStorage.getItem(
                 "BrowserVisibleCollectionTableColumns"
@@ -226,7 +259,7 @@ export default defineComponent({
                 operator: FilterOperator.AND,
                 constraints: [
                     {
-                        value: null,
+                        value: '',
                         matchMode:
                             column.type === COLUMNTYPE.NUMERIC
                                 ? FilterMatchMode.EQUALS
@@ -244,7 +277,7 @@ export default defineComponent({
         clearTableFilters() {
             for (const key in this.filters) {
                 if (key === "global") {
-                    this.filters.global.value = null;
+                    this.filters.global.value = '';
                 } else {
                     const column: any = this.columns.filter(
                         (c) => c.field === key
