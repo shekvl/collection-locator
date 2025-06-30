@@ -23,9 +23,10 @@ router.post('/data', async (req, res) => {
 //Save data (collections and definitions)
 router.post('/saveData', async (req, res) => {
     try {
-        const res = queryService.saveData()
+        const messageFromSave = await queryService.saveData()
         // const data = req.anonymizations
         console.log(res)
+        res.status(200).json({message: messageFromSave });
         // const datasets = await queryService.saveData(data)
     }
     catch(e) {
