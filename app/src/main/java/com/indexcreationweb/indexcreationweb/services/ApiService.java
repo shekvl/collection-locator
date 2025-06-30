@@ -26,6 +26,10 @@ public class ApiService {
     @Autowired
     DefinitionService definitionService;
 
+    public void deleteDefinitionById(Long id) {
+        definitionRepository.deleteById(id);
+    }
+
     public ApiDefinitionListDto getApiDataFromId(String id) {
         ApiDefinitionListDto apiDefinitionListDto = new ApiDefinitionListDto();
         List<DefinitionDownloadDto> downloadDtoList = new LinkedList<>();

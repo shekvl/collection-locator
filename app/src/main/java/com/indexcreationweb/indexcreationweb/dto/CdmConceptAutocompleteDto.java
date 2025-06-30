@@ -7,11 +7,11 @@ public class CdmConceptAutocompleteDto {
     private String slug;
 
     public String getId() {
-        return id;
+        return text;
     }
 
     public void setId(String id) {
-        this.id = id;
+        this.text = id;
     }
 
     public String getText() {

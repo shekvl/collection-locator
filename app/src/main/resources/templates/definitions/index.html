@@ -9,7 +9,7 @@
 
 <nav class="navbar navbar-expand-lg navbar-light bg-light" style="margin-bottom: 10px;">
     <div class="container-fluid">
-        <a class="navbar-brand" th:href="@{/index}">Definition Generation</a>
+        <a class="navbar-brand" th:href="@{/index}">Managing Data Property Definitions</a>
         <button aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler"
                 data-bs-target="#navbarSupportedContent" data-bs-toggle="collapse" type="button">
             <span class="navbar-toggler-icon"></span>
@@ -41,13 +41,15 @@
                 <br>
                 <table cellspacing="5">
                     <thead>
-                        <th>Name</th>
-                        <th>Code</th>
+                        <th>Property Name</th>
+                        <th>CDM Code</th>
+                        <th>CDM Description</th>
                     </thead>
                     <tbody>
                         <tr th:each="column : ${element.columns}">
                             <td><span th:text="${column.name}"></span></td>
                             <td><span th:text="${column.code}"></span></td>
+                            <td><span th:text="${column.codeText}"></span></td>
                         </tr>
                     </tbody>
                 </table>

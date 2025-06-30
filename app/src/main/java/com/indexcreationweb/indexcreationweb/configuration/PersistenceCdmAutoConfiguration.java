@@ -47,6 +47,11 @@ public class PersistenceCdmAutoConfiguration {
                 env.getProperty("hibernate.hbm2ddl.auto"));
         properties.put("hibernate.dialect",
                 env.getProperty("hibernate.dialect"));
+
+//        properties.put("hibernate.dialect", env.getProperty("spring.jpa.database-platform"));
+//        properties.put("hibernate.show_sql", env.getProperty("spring.jpa.properties.hibernate.show_sql", "false"));
+//        properties.put("hibernate.format_sql", env.getProperty("spring.jpa.properties.hibernate.format_sql", "false"));
+//        properties.put("hibernate.use_sql_comments", env.getProperty("spring.jpa.properties.hibernate.use_sql_comments", "false"));
         em.setJpaPropertyMap(properties);
 
         return em;

@@ -24,10 +24,13 @@ import javax.xml.bind.Marshaller;
 import java.io.ByteArrayInputStream;
 import java.io.StringWriter;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 public class DefinitionService {
     Logger logger = LoggerFactory.getLogger(DefinitionService.class);
+    private static final Pattern PATTERN = Pattern.compile("^(.*) \\((\\d+)\\)$");
 
     @Autowired
     DefinitionRepository definitionRepository;
@@ -45,7 +48,7 @@ public class DefinitionService {
 
     public List<Definition> findAll() {
         List<Definition> definitions = new LinkedList<>();
-        for (Definition definition : definitionRepository.findAll()) {
+        for (Definition definition : definitionRepository.findAllByOrderByIdAsc()) {
             definitions.add(definition);
         }
 
@@ -54,6 +57,18 @@ public class DefinitionService {
 
     public Integer findNumberOfDefinitions() {
         return ((java.util.Collection<?>) definitionRepository.findAll()).size();
+    }
+
+    public static String[] parseNameAndNumber(String input) {
+        Matcher m = PATTERN.matcher(input);
+        if (m.matches()) {
+            String text = m.group(1);
+            String number = m.group(2);
+            return new String[]{ text, number };
+        } else {
+            // no match: you can throw or return something else
+            return null;
+        }
     }
 
     public Definition save(DefinitionCommand command) {
@@ -66,12 +81,17 @@ public class DefinitionService {
         List<DefinitionColumn> columnList = new LinkedList<>();
         if (command.getColumns() != null) {
             for (DefinitionCommandColumnCommand column : command.getColumns()) {
-                if (column != null && column.getName() != null && column.getCode() != null) {
+                if (column != null && column.getName() != null && column.getCodeText() != null) {
                     DefinitionColumn col = new DefinitionColumn();
                     col.setPosition(cnt);
                     cnt++;
                     col.setName(column.getName());
-                    col.setCode(column.getCode());
+                    String codeText = column.getCodeText();
+
+                    String[] nameAndNumber = parseNameAndNumber(codeText);
+                    col.setCodeText(nameAndNumber[0]);
+
+                    col.setCode(nameAndNumber[1]);
                     columnList.add(col);
                 }
             }
@@ -91,12 +111,20 @@ public class DefinitionService {
         List<DefinitionColumn> columnList = new LinkedList<>();
         if (command.getColumns() != null) {
             for (DefinitionCommandColumnCommand column : command.getColumns()) {
-                if (column != null && column.getName() != null && column.getCode() != null) {
+                if (column != null && column.getName() != null && column.getCodeText() != null) {
                     DefinitionColumn col = new DefinitionColumn();
                     col.setPosition(cnt);
                     cnt++;
                     col.setName(column.getName());
-                    col.setCode(column.getCode());
+//                    col.setCode(column.getCode());
+//                    col.setCodeText(column.getCodeText());
+
+                    String codeText = column.getCodeText();
+
+                    String[] nameAndNumber = parseNameAndNumber(codeText);
+                    col.setCodeText(nameAndNumber[0]);
+
+                    col.setCode(nameAndNumber[1]);
                     columnList.add(col);
                 }
             }
@@ -119,6 +147,7 @@ public class DefinitionService {
             DefinitionCommandColumnCommand columnCommand = new DefinitionCommandColumnCommand();
             columnCommand.setName(column.getName());
             columnCommand.setCode(column.getCode());
+            columnCommand.setCodeText(column.getCodeText());
             Optional<Loinc> loincOptional = loincRepository.findById(column.getCode());
             if (loincOptional.isPresent()) {
                 Loinc loinc = loincOptional.get();
@@ -154,6 +183,7 @@ public class DefinitionService {
             columnDto.setPosition(column.getPosition());
             columnDto.setName(column.getName());
             columnDto.setCode(column.getCode());
+            columnDto.setCodeText(column.getCodeText());
             columnsList.add(columnDto);
         }
         Collections.sort(columnsList);
@@ -194,6 +224,7 @@ public class DefinitionService {
             columnDownloadDto.setPosition(column.getPosition());
             columnDownloadDto.setName(column.getName());
             columnDownloadDto.setCode(column.getCode());
+            columnDownloadDto.setCodeText(column.getCodeText());
             columnsList.add(columnDownloadDto);
         }
         Collections.sort(columnsList);
@@ -203,5 +234,21 @@ public class DefinitionService {
 
     public void delete(Long id) {
         definitionRepository.deleteById(id);
+    }
+
+    public List<DefinitionDownloadDto> getAllDownloadDataJson() {
+        List<Definition> definitions = findAll();
+//        List<String> jsonList = new ArrayList<>();
+        List<DefinitionDownloadDto> list = new ArrayList<>();
+        for (Definition d : definitions) {
+            Long id = d.getId();
+            DefinitionDownloadDto dto = getDefinitionDownloadDto(String.valueOf(id));
+
+//            Gson gson = new Gson();
+//            String json = gson.toJson(dto);
+            list.add(dto);
+
+        }
+        return list;
     }
 }

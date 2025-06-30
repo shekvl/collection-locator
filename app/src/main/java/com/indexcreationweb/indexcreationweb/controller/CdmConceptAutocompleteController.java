@@ -22,7 +22,8 @@ public class CdmConceptAutocompleteController {
     @GetMapping("/cdmconceptcautocomplete")
     public List<CdmConceptAutocompleteDto> index(@RequestParam(value = "q", required = false) String query) {
 
-        return cdmConceptService.findForAutocomplete(query);
+        List<CdmConceptAutocompleteDto> forAutocomplete = cdmConceptService.findForAutocomplete(query);
+        return forAutocomplete;
     }
 
 }

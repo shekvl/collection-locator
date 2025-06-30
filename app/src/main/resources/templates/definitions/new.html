@@ -8,7 +8,7 @@
 
 <nav class="navbar navbar-expand-lg navbar-light bg-light" style="margin-bottom: 10px;">
     <div class="container-fluid">
-        <a class="navbar-brand" th:href="@{/index}">Definition Generation</a>
+        <a class="navbar-brand" th:href="@{/index}">Managing Data Property Definitions</a>
         <button aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler"
                 data-bs-target="#navbarSupportedContent" data-bs-toggle="collapse" type="button">
             <span class="navbar-toggler-icon"></span>
@@ -70,7 +70,7 @@
                             <td>Code:</td>
                             <td class="input-element">
                                 <select class="form-select select2-single loinc" style="width: 100%"
-                                        th:field="*{columns[0].code}">
+                                        th:field="*{columns[0].codeText}">
                                     <option value=""></option>
                                 </select>
                             </td>
@@ -143,7 +143,7 @@
             '                    <tr class="form-group">' +
             '                        <td>Code:</td>' +
             '                        <td class="input-element">' +
-            '                              <select style="width: 100%" class="form-select select2-single loinc"  id="columns' + newindex + '.code" name="columns[' + newindex + '].code"' +
+            '                              <select style="width: 100%" class="form-select select2-single loinc"  id="columns' + newindex + '.codeText" name="columns[' + newindex + '].codeText"' +
             '                                    <option value=""></option>' +
             '                                </select>' +
             '                        </td>' +

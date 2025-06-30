@@ -26,6 +26,7 @@ public class CdmConceptService {
         if(query == null || query.isEmpty()){
             query="0";
         }
+        //System.out.println("findForAutocomplete");
         return CdmConceptEntityToAutocompleteDto(CdmConceptRepository.findForAutocomplete(query, pageable));
     }
 

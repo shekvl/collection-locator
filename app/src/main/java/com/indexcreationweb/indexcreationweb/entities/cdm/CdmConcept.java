@@ -15,6 +15,8 @@ public class CdmConcept {
     @Column(name = "concept_name")
     private String name;
 
+    @Column(name = "vocabulary_id")
+    private String vocabularyId;
 
     public String getId() {
         return id;
@@ -31,4 +33,13 @@ public class CdmConcept {
     public void setName(String name) {
         this.name = name;
     }
+
+    public String getVocabularyId() {
+        return vocabularyId;
+    }
+
+    public void setVocabularyId(String vocabularyId) {
+        this.vocabularyId = vocabularyId;
+    }
+
 }

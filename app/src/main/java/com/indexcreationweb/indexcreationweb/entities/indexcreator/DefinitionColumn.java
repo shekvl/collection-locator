@@ -17,6 +17,8 @@ public class DefinitionColumn implements Comparable<DefinitionColumn> {
 
     private String code;
 
+    private String codeText;
+
     public Long getId() {
         return id;
     }
@@ -52,5 +54,13 @@ public class DefinitionColumn implements Comparable<DefinitionColumn> {
     @Override
     public int compareTo(DefinitionColumn o) {
         return position.compareTo(o.position);
+    }
+
+    public String getCodeText() {
+        return codeText;
+    }
+
+    public void setCodeText(String codeText) {
+        this.codeText = codeText;
     }
 }
