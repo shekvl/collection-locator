@@ -1,1 +1,6 @@
 /project-searching-in-the-omop-based-repository/frontend/node_modules/
+/project-collection-locator-impl/db/AthenaVocabDownloads/LOINC+/CONCEPT.csv.REMOVED.git-id
+/project-collection-locator-impl/db/AthenaVocabDownloads/LOINC+/CONCEPT_ANCESTOR.csv.REMOVED.git-id
+/project-collection-locator-impl/db/AthenaVocabDownloads/LOINC+/CONCEPT_RELATIONSHIP.csv.REMOVED.git-id
+/project-collection-locator-impl/db/AthenaVocabDownloads/LOINC+/CONCEPT_SYNONYM.csv.REMOVED.git-id
+/project-searching-in-the-omop-based-repository/docker/cdm_dump.sql.REMOVED.git-id
