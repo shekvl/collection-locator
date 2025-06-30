@@ -1,0 +1,32 @@
+# Use an official Node.js runtime as a parent image
+FROM node:14.18.0-alpine
+
+# Set the working directory to /app
+# WORKDIR /app
+WORKDIR /app/
+
+# Copy the package.json and package-lock.json files to the container
+COPY package*.json ./
+# COPY ./package.json /app/package.json
+
+# Install dependencies
+RUN npm install
+RUN npm install -g nodemon
+
+
+# Copy the rest of the backend code to the container
+COPY . /app/
+# COPY / .
+COPY .env ./
+
+ENV DB2_PORT=5432
+ENV POSTGRES_USER=postgres
+# ENV DB2_PASSWORD=mysecretpassword2
+ENV POSTGRES_DB_2=collection-manager
+ENV DB_2_HOST=postgres
+
+# Expose port 5001 for the server API
+EXPOSE 5001
+
+# Run the command to start the server API
+CMD ["npm", "run", "dev"]
