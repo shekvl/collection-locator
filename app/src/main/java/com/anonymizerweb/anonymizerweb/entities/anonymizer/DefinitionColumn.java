@@ -1,4 +1,4 @@
-package com.anonymizerweb.anonymizerweb.entities;
+package com.anonymizerweb.anonymizerweb.entities.anonymizer;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -16,6 +16,17 @@ public class DefinitionColumn implements Comparable<DefinitionColumn>{
     private String name;
 
     private String code;
+
+    private String codeText;
+
+    public String getCodeText() {
+        return codeText;
+    }
+
+    public void setCodeText(String codeText) {
+        this.codeText = codeText;
+    }
+
 
     public Long getId() {
         return id;

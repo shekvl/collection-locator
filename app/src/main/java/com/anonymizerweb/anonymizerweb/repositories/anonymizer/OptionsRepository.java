@@ -1,6 +1,6 @@
-package com.anonymizerweb.anonymizerweb.repositories;
+package com.anonymizerweb.anonymizerweb.repositories.anonymizer;
 
-import com.anonymizerweb.anonymizerweb.entities.Options;
+import com.anonymizerweb.anonymizerweb.entities.anonymizer.Options;
 import org.springframework.data.repository.CrudRepository;
 
 import java.util.List;

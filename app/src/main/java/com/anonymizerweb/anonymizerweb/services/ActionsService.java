@@ -3,11 +3,11 @@ package com.anonymizerweb.anonymizerweb.services;
 import com.anonymizerweb.anonymizerweb.commands.CombineCommand;
 import com.anonymizerweb.anonymizerweb.commands.MatchCommand;
 import com.anonymizerweb.anonymizerweb.dto.*;
-import com.anonymizerweb.anonymizerweb.entities.Collection;
-import com.anonymizerweb.anonymizerweb.entities.*;
+import com.anonymizerweb.anonymizerweb.entities.anonymizer.*;
+import com.anonymizerweb.anonymizerweb.entities.anonymizer.Collection;
 import com.anonymizerweb.anonymizerweb.enums.CollectionUsageTyp;
-import com.anonymizerweb.anonymizerweb.repositories.DefinitionRepository;
-import com.anonymizerweb.anonymizerweb.repositories.OptionsRepository;
+import com.anonymizerweb.anonymizerweb.repositories.anonymizer.DefinitionRepository;
+import com.anonymizerweb.anonymizerweb.repositories.anonymizer.OptionsRepository;
 import com.anonymizerweb.anonymizerweb.xml.AnoSchemaOutputResolver;
 import com.google.gson.Gson;
 import org.hibernate.Hibernate;
@@ -63,7 +63,7 @@ public class ActionsService {
         if (indexGen.isPresent()) {
             RestTemplateBuilder builder = new RestTemplateBuilder();
             RestTemplate restTemplate = builder.build();
-            String url = indexGen.get().getOptValue();
+            String url = indexGen.get().getOptValue() + "/api/definitions/get/all/json";
             UploadDefinitionListDto dto = restTemplate.getForObject(url, UploadDefinitionListDto.class);
             List<Long> ids = new LinkedList<>();
             for (Definition definition : definitionRepository.findAll()) {

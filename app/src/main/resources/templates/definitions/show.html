@@ -2,57 +2,40 @@
 <html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
-    <title>Definition</title>
+    <title>K-Anonymizer</title>
     <link th:rel="stylesheet" th:href="@{/webjars/bootstrap/4.0.0-2/css/bootstrap.min.css} "/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="/main.css"/>
 </head>
 <body>
 
-<nav style="margin-bottom: 10px;" class="navbar navbar-expand-lg navbar-light bg-light">
-    <div class="container-fluid">
-        <a class="navbar-brand" th:href="@{/index}">K-Anonymizer</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
-                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="nav">
-                <li class="nav-item">
-                    <a class="nav-link active" th:href="@{/definitions}">Definitions</a>
-                </li>
-            </ul>
-            <ul class="nav">
-                <li class="nav-item">
-                    <a class="nav-link active" th:href="@{/definitions/new}">Add new Definition</a>
-                </li>
-            </ul>
-        </div>
-    </div>
-</nav>
+<nav th:replace="navbar.html"></nav>
 
-<div class="card">
+<div class="app">
+<div class="card w-50">
     <div class="card-header">
-        Definition: <span th:text="${definition.name}  + ' (' + ${definition.id} + ')'"/>
+        Uploaded Definition: <span th:text="${definition.name} + ' (' + ${definition.id} + ')'"/>
     </div>
-    <div class="card-body">
-        <div class="card-text">Filename: <span th:text="${definition.fileName}"/></div>
-        <div class="card-text">Columns:</div>
-        <table>
-            <thead>
-                <th> Position</th>
-                <th> Name</th>
-                <th> Code</th>
+    <div class="card-body" th:inline="javascript">
+        <div class="mb-3 card-text"><span class="b">Filename:</span> <span th:text="${definition.fileName}"/></div>
+        <div class="card-text"><span class="b">Properties to be anonymized</span></div>
+        <table class="table w-100">
+            <thead class="thead-light">
+            <th style="width: 20px"> Position</th>
+            <th> Name</th>
+            <th> CDM Concept</th>
             </thead>
             <tbody>
-                <tr th:each="column : ${definition.columns}">
-                    <td><span th:text="${column.position}"></span></td>
-                    <td><span th:text="${column.name}"></span></td>
-                    <td><span th:text="${column.code}"></span></td>
-                </tr>
+            <tr th:each="column : ${definition.columns}">
+                <td><span th:text="${column.position}"></span></td>
+                <td><span th:text="${column.name}"></span></td>
+                <td><span th:text="${column.code}"></span>: <span th:text="${column.codeText}"></span></td>
+            </tr>
             </tbody>
         </table>
     </div>
 </div>
-
+<a class="btn btn-outline-primary" href="/definitions">Back to definitions list</a>
 
 <script src=https://code.jquery.com/jquery-3.6.0.min.js></script>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"

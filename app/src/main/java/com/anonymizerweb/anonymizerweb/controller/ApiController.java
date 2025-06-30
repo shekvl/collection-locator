@@ -1,7 +1,7 @@
 package com.anonymizerweb.anonymizerweb.controller;
 
 import com.anonymizerweb.anonymizerweb.dto.ApiAnonymizationDtoList;
-import com.anonymizerweb.anonymizerweb.entities.Anonymization;
+import com.anonymizerweb.anonymizerweb.entities.anonymizer.Anonymization;
 import com.anonymizerweb.anonymizerweb.services.ActionsService;
 import com.anonymizerweb.anonymizerweb.services.AnonymizationService;
 import org.slf4j.Logger;
@@ -47,10 +47,10 @@ public class ApiController {
         return actionsService.sendAllAnonymizationsJson(future.get());
     }
 
-    @GetMapping(value = "/sendData/{id}",  produces = MediaType.APPLICATION_XML_VALUE)
+    @GetMapping(value = "/sendData/{id}",  produces = MediaType.APPLICATION_JSON_VALUE)
     public ApiAnonymizationDtoList sendData(@PathVariable String id) throws InterruptedException, JAXBException, IOException, ExecutionException {
         Anonymization anonymization = anonymizationService.findbyId(Long.valueOf(id));
-        return actionsService.sendAllAnonymizationsXml(Collections.singletonList(anonymization));
+        return actionsService.sendAllAnonymizationsJson(Collections.singletonList(anonymization));
     }
 
     @GetMapping(value = "/getXmlSchema",  produces = MediaType.APPLICATION_XML_VALUE)

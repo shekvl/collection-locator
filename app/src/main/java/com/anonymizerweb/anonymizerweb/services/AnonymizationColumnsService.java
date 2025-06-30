@@ -2,8 +2,8 @@ package com.anonymizerweb.anonymizerweb.services;
 
 import com.anonymizerweb.anonymizerweb.commands.AnonymizationColumnsCommand;
 import com.anonymizerweb.anonymizerweb.commands.AnonymizationColumnsCommandPropertiesCommand;
-import com.anonymizerweb.anonymizerweb.entities.Anonymization;
-import com.anonymizerweb.anonymizerweb.entities.AnonymizationColumn;
+import com.anonymizerweb.anonymizerweb.entities.anonymizer.Anonymization;
+import com.anonymizerweb.anonymizerweb.entities.anonymizer.AnonymizationColumn;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;

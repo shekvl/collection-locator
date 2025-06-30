@@ -2,12 +2,11 @@ package com.anonymizerweb.anonymizerweb.controller;
 
 import com.anonymizerweb.anonymizerweb.commands.EditCollectionCommand;
 import com.anonymizerweb.anonymizerweb.commands.NewCollectionCommand;
-import com.anonymizerweb.anonymizerweb.entities.Collection;
-import com.anonymizerweb.anonymizerweb.entities.Loinc;
+import com.anonymizerweb.anonymizerweb.entities.anonymizer.Collection;
 import com.anonymizerweb.anonymizerweb.enums.CollectionUsageTyp;
 import com.anonymizerweb.anonymizerweb.enums.ColumnDataTyp;
 import com.anonymizerweb.anonymizerweb.enums.ColumnTyp;
-import com.anonymizerweb.anonymizerweb.repositories.LoincRepository;
+import com.anonymizerweb.anonymizerweb.repositories.anonymizer.LoincRepository;
 import com.anonymizerweb.anonymizerweb.services.CollectionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
 
 @Controller
@@ -64,6 +62,7 @@ public class CollectionController {
 
     @PostMapping("/{id}/edit")
     public String editPost(@ModelAttribute EditCollectionCommand command, @PathVariable String id, Model model) throws IOException {
+        command.setUsageTyp("SUPPORT_BOTH");
         Collection collection = collectionService.updateCollection(command, Long.valueOf(id));
         model.addAttribute("collection", collection);
         return "redirect:/collections/" + collection.getId();
@@ -73,6 +72,7 @@ public class CollectionController {
     @GetMapping("/new")
     public String newGet(Model model) {
         NewCollectionCommand command = new NewCollectionCommand();
+        command.setUsageTyp("SUPPORT_BOTH");
         List<CollectionUsageTyp> usageTyps = Arrays.asList(CollectionUsageTyp.values());
 
         model.addAttribute("command", command);
@@ -82,6 +82,7 @@ public class CollectionController {
 
     @PostMapping("/new")
     public String newPost(@ModelAttribute NewCollectionCommand command, Model model) throws IOException {
+        command.setUsageTyp("SUPPORT_BOTH");
         Collection save = collectionService.save(command);
         model.addAttribute("command", command);
         return "redirect:/collections/" + save.getId() + "/edit";

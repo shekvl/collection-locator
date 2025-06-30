@@ -1,6 +1,6 @@
 package com.anonymizerweb.anonymizerweb.controller;
 
-import com.anonymizerweb.anonymizerweb.entities.Anonymization;
+import com.anonymizerweb.anonymizerweb.entities.anonymizer.Anonymization;
 import com.anonymizerweb.anonymizerweb.services.ActionsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,7 +1,6 @@
-package com.anonymizerweb.anonymizerweb.repositories;
+package com.anonymizerweb.anonymizerweb.repositories.anonymizer;
 
-import com.anonymizerweb.anonymizerweb.entities.Loinc;
-import org.springframework.data.domain.PageRequest;
+import com.anonymizerweb.anonymizerweb.entities.anonymizer.Loinc;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;

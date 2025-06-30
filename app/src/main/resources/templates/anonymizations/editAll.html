@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Anonymized Dataset</title>
+    <link th:href="@{/webjars/bootstrap/4.0.0-2/css/bootstrap.min.css}" rel="stylesheet"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.css"
+          rel="stylesheet" type="text/css"/>
+    <link rel="stylesheet" href="/main.css"/>
+</head>
+<body>
+<nav th:replace="navbar.html"></nav>
+
+<div class="app mt-4">
+            <h3>Edit Anonymized Dataset:
+                <span th:text="${anonymization.name} + ' (' + ${anonymization.id} + ')'">Dataset (ID)</span></h3>
+            <form method="post"
+                  th:action="@{/anonymizations/{id}/edit(id=${anonymization.id})}"
+                  th:object="${command}"
+                  enctype="multipart/form-data">
+                <table class="form-table w-50 mb-4">
+                    <tr>
+                        <td style="white-space: nowrap;">Name:</td>
+                        <td><input type="text" th:field="*{name}" class="form-control"/></td>
+                    </tr>
+                    <tr>
+                        <td style="white-space: nowrap;">Target K:</td>
+                        <td><input type="number" th:field="*{targetk}" class="form-control"/></td>
+                    </tr>
+                    <tr>
+                        <td style="white-space: nowrap;">Fast Mode:</td>
+                        <td>
+                            <div class="form-check">
+                                <input type="checkbox" th:field="*{fast}" class="form-check-input" id="fastCheck"/>
+<!--                                <label class="form-check-label" for="fastCheck"></label>-->
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="white-space: nowrap;">Batch Size:</td>
+                        <td><input type="number" th:field="*{batch}" class="form-control"/></td>
+                    </tr>
+                </table>
+
+                <!-- === per-column cards === -->
+                <h4>Properties</h4>
+                <div class="w-100 mb-3">
+                    It is possible to change characteristics of properties within the anonymized datasets, e.g. if the new information about the property
+                    allows to identify its type better. In this case the anonymization has to be run again, as it is affected by values of these characteristics, for example,
+                    the properties of different types and data types are anonymized differently.
+                </div>
+                <div style="display: flex; flex-wrap: wrap;">
+                    <div class="card bg-light" style="width: 48%; margin: 10px;" th:each="col, stat : *{columns}">
+                        <div class="card-body">
+                            <input type="hidden"
+                                   th:field="*{columns[__${stat.index}__].position}"/>
+
+                            <table class="form-table w-100">
+                                <tr class="form-group">
+                                    <td>Property Name:</td>
+                                    <td>
+                                        <input type="text"
+                                               th:field="*{columns[__${stat.index}__].name}"
+                                               class="form-control"/>
+                                    </td>
+                                </tr>
+
+                                <tr class="form-group">
+                                    <td>Property Type:</td>
+                                    <td class="input-element">
+                                        <select th:field="*{columns[__${stat.index}__].typ}"
+                                                class="form-select typ-select"
+                                                th:attr="data-index=${stat.index}">
+                                            <option th:each="typ : ${columnTyps}"
+                                                    th:value="${typ.code}"
+                                                    th:text="${typ.description}">
+                                            </option>
+                                        </select>
+                                    </td>
+                                </tr>
+
+                                <tr class="form-group datatype-container"
+                                    th:attr="data-index=${stat.index}">
+                                    <td style="white-space: nowrap;">Data Type:</td>
+                                    <td>
+                                        <select th:field="*{columns[__${stat.index}__].dataTyp}"
+                                                class="form-select datatyp-select"
+                                                th:attr="data-index=${stat.index}">
+                                            <option th:each="dt : ${columnDataTyps}"
+                                                    th:value="${dt.code}"
+                                                    th:text="${dt.description}">
+                                            </option>
+                                        </select>
+                                    </td>
+                                </tr>
+
+                                <tr class="form-group file-container"
+                                    th:attr="data-index=${stat.index}">
+                                    <td>Hierarchy:</td>
+                                    <td class="input-element">
+                                        <input type="file"
+                                               th:field="*{columns[__${stat.index}__].hierarchyFile}"
+                                               class="form-control"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Save all -->
+                <div class="mt-3">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fa fa-save"></i> Save
+                    </button>
+                    <a class="btn btn-outline-primary"
+                       th:href="@{/anonymizations}">
+                        Back to the list of datasets
+                    </a>
+                </div>
+            </form>
+        </div>
+<!--    </div>-->
+<!--</div>-->
+
+<!-- bootstrap & jQuery as before -->
+<script src=https://code.jquery.com/jquery-3.6.0.min.js></script>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+      integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+        crossorigin="anonymous"></script>
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.full.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.2.0/dist/select2-bootstrap-5-theme.min.css" />
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    $(function() {
+        function updateVis(ctx) {
+            var idx = ctx.data('index'),
+                typ = $('.typ-select[data-index=' + idx + ']').val(),
+                dt  = $('.datatyp-select[data-index=' + idx + ']').val(),
+                drow = $('.datatype-container[data-index=' + idx + ']'),
+                frow = $('.file-container[data-index=' + idx + ']');
+
+            if (typ !== 'qid') {
+                drow.hide();
+                frow.hide();
+            } else {
+                drow.show();
+                if (dt !== 'ch') {
+                    frow.hide();
+                } else {
+                    frow.show();
+                }
+            }
+        }
+
+        // initialize + on-change
+        $('.typ-select, .datatyp-select').each(function(){
+            updateVis($(this));
+        }).on('change', function(){
+            updateVis($(this));
+        });
+    });
+    /*]]>*/
+</script>
+</body>
+</html>

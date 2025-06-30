@@ -1,8 +1,8 @@
 package com.anonymizerweb.anonymizerweb.services;
 
 import com.anonymizerweb.anonymizerweb.dto.LoincAutocompleteDto;
-import com.anonymizerweb.anonymizerweb.entities.Loinc;
-import com.anonymizerweb.anonymizerweb.repositories.LoincRepository;
+import com.anonymizerweb.anonymizerweb.entities.anonymizer.Loinc;
+import com.anonymizerweb.anonymizerweb.repositories.anonymizer.LoincRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,12 +1,12 @@
 package com.anonymizerweb.anonymizerweb.services;
 
 import com.anonymizerweb.anonymizerweb.commands.*;
-import com.anonymizerweb.anonymizerweb.entities.Collection;
-import com.anonymizerweb.anonymizerweb.entities.*;
+import com.anonymizerweb.anonymizerweb.entities.anonymizer.*;
+import com.anonymizerweb.anonymizerweb.entities.anonymizer.Collection;
 import com.anonymizerweb.anonymizerweb.enums.AnonymizationTyp;
 import com.anonymizerweb.anonymizerweb.enums.ColumnDataTyp;
 import com.anonymizerweb.anonymizerweb.enums.ColumnTyp;
-import com.anonymizerweb.anonymizerweb.repositories.AnonymizationRepository;
+import com.anonymizerweb.anonymizerweb.repositories.anonymizer.AnonymizationRepository;
 import com.google.gson.Gson;
 import org.hibernate.Hibernate;
 import org.slf4j.Logger;
@@ -47,7 +47,7 @@ public class AnonymizationService {
 
     public List<Anonymization> findAll() {
         List<Anonymization> anonymizations = new LinkedList<>();
-        for (Anonymization anonymization : anonymizationRepository.findAll()) {
+        for (Anonymization anonymization : anonymizationRepository.findAllByOrderByIdAsc()) {
             anonymizations.add(anonymization);
         }
 

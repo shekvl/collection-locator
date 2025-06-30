@@ -1,9 +1,6 @@
 package com.anonymizerweb.anonymizerweb.commands;
 
-import com.anonymizerweb.anonymizerweb.entities.CollectionColumn;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
 
 public class EditCollectionCommandColumn implements Comparable<EditCollectionCommandColumn> {
     private Long id;

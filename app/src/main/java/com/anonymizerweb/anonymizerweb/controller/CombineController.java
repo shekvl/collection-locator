@@ -2,10 +2,10 @@ package com.anonymizerweb.anonymizerweb.controller;
 
 import com.anonymizerweb.anonymizerweb.commands.CombineCommand;
 import com.anonymizerweb.anonymizerweb.commands.MatchCommand;
-import com.anonymizerweb.anonymizerweb.entities.Anonymization;
-import com.anonymizerweb.anonymizerweb.entities.Collection;
-import com.anonymizerweb.anonymizerweb.entities.CollectionColumn;
-import com.anonymizerweb.anonymizerweb.entities.Definition;
+import com.anonymizerweb.anonymizerweb.entities.anonymizer.Anonymization;
+import com.anonymizerweb.anonymizerweb.entities.anonymizer.Collection;
+import com.anonymizerweb.anonymizerweb.entities.anonymizer.CollectionColumn;
+import com.anonymizerweb.anonymizerweb.entities.anonymizer.Definition;
 import com.anonymizerweb.anonymizerweb.services.AnonymizationService;
 import com.anonymizerweb.anonymizerweb.services.CollectionService;
 import com.anonymizerweb.anonymizerweb.services.CombineService;
@@ -23,7 +23,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 
 @Controller
 @RequestMapping("/combine")

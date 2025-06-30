@@ -1,8 +1,5 @@
 package com.anonymizerweb.anonymizerweb.commands;
 
-import com.anonymizerweb.anonymizerweb.entities.CollectionColumn;
-import com.anonymizerweb.anonymizerweb.enums.CollectionUsageTyp;
-
 import java.util.List;
 
 public class EditCollectionCommand {

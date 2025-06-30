@@ -2,89 +2,39 @@
 <html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
-    <title>Options</title>
+    <title>K-Anonymizer</title>
     <link th:rel="stylesheet" th:href="@{/webjars/bootstrap/4.0.0-2/css/bootstrap.min.css} "/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="/main.css"/>
 </head>
 <body>
 
-<nav style="margin-bottom: 10px;" class="navbar navbar-expand-lg navbar-light bg-light">
-    <div class="container-fluid">
-        <a class="navbar-brand" th:href="@{/index}">K-Anonymizer</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
-                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="nav">
-                <li class="nav-item">
-                    <a class="nav-link active" th:href="@{/collections}">Collections</a>
-                </li>
-            </ul>
-            <ul class="nav">
-                <li class="nav-item">
-                    <a class="nav-link active" th:href="@{/definitions}">Definitions</a>
-                </li>
-            </ul>
-            <ul class="nav">
-                <li class="nav-item">
-                    <a class="nav-link active" th:href="@{/anonymizations}">Anonymized Datasets</a>
-                </li>
-            </ul>
-            <ul class="nav">
-                <li class="nav-item">
-                    <a class="nav-link active" th:href="@{/actions}">Actions</a>
-                </li>
-            </ul>
-            <ul class="nav">
-                <li class="nav-item">
-                    <a class="nav-link active" th:href="@{/options}">Options</a>
-                </li>
-            </ul>
-        </div>
-    </div>
-</nav>
+<nav th:replace="navbar.html"></nav>
 
-<div class="card">
-    <div class="card-header">
-        Options
+<div class="app">
+
+    <div><h3>Settings</h3></div>
+    <div class="w-50 mb-3">
+        The <span class="b">biobank name</span> will allow to distinguish the anonymized data provided by the particular biobank among the results
+        returned by the Collection Locator. The <span class="b">Collection Locator URL</span> corresponds to the running instance of the Locator server and will be used by K-Anonymizer for
+        the communication with this instance, namely receiving anonymization definitions and sending back anonymized datasets.
     </div>
-    <div class="card-body">
-        <form method="post" th:action="@{/options}" th:object="${command}" enctype="multipart/form-data">
-            <div style="display: flex; flex-wrap: wrap;">
-                <div class="card" style="width: 100%; margin: 10px;">
-                    <div class="card-body">
-                        <table style="width: 100%">
-                            <tr class="form-group">
-                                <td>Unique Biobank name:</td>
-                                <td class="input-element">
-                                    <input type="text" class="form-control" th:field="*{biobankId}"/>
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
-                </div>
-                <div class="card" style="width: 100%; margin: 10px;">
-                    <div class="card-body">
-                        <table style="width: 100%">
-                            <tr class="form-group">
-                                <td>Url of the Index Generation System (Pull):</td>
-                                <td class="input-element">
-                                    <input type="text" class="form-control" th:field="*{indexGenUrl}"/>
-                                </td>
-                            </tr>
-                            <tr class="form-group">
-                                <td>Url of the Index Collection System (Push):</td>
-                                <td class="input-element">
-                                    <input type="text" class="form-control" th:field="*{collectUrl}"/>
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
-                </div>
-            </div>
-            <button style="margin-left: 10px" type="submit" class="btn btn-outline-primary">Save</button>
+        <form method="post" th:action="@{/options}" th:object="${command}" enctype="multipart/form-data" class="w-50">
+            <table class="form-table">
+                <tr class="form-group">
+                    <td>Biobank name:</td>
+                    <td class="input-element">
+                        <input type="text" class="form-control" th:field="*{biobankId}"/>
+                    </td>
+                <tr class="form-group">
+                    <td>Collection Locator URL:</td>
+                    <td class="input-element">
+                        <input type="text" class="form-control" th:field="*{indexGenUrl}"/>
+                    </td>
+                </tr>
+            </table>
+            <button type="submit" class="btn btn-primary mt-3"><i class="fa fa-save"></i> Save</button>
         </form>
-    </div>
 </div>
 
 <script src=https://code.jquery.com/jquery-3.6.0.min.js></script>

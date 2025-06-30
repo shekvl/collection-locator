@@ -15,6 +15,16 @@ public class UploadDefinitionColumnDto {
 
     private String code;
 
+    private String codeText;
+
+    public String getCodeText() {
+        return codeText;
+    }
+
+    public void setCodeText(String codeText) {
+        this.codeText = codeText;
+    }
+
     public Integer getPosition() {
         return position;
     }

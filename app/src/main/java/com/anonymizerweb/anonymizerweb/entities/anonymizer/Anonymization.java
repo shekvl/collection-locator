@@ -1,4 +1,4 @@
-package com.anonymizerweb.anonymizerweb.entities;
+package com.anonymizerweb.anonymizerweb.entities.anonymizer;
 
 import com.anonymizerweb.anonymizerweb.enums.AnonymizationTyp;
 import org.hibernate.annotations.LazyCollection;
@@ -28,6 +28,7 @@ public class Anonymization {
     @Enumerated(EnumType.STRING)
     private AnonymizationTyp anonymizationTyp;
 
+    @Column(name = "targetk")
     private Integer targetK;
 
     private Boolean isFast;
@@ -50,8 +51,8 @@ public class Anonymization {
     @LazyCollection(LazyCollectionOption.FALSE)
     private List<String> outputData;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = {CascadeType.ALL}, orphanRemoval = true)
-    @JoinColumn(name = "anonymizationId")
+    @OneToMany(fetch = FetchType.EAGER, cascade = {CascadeType.ALL}, orphanRemoval = true)
+    @JoinColumn(name = "anonymization_id")
     private Set<AnonymizationColumn> columns;
 
     public Long getId() {
@@ -190,3 +191,5 @@ public class Anonymization {
         this.columns = columnProperties;
     }
 }
+
+

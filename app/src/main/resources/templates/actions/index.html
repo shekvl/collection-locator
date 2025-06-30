@@ -2,64 +2,26 @@
 <html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
-    <title>Index</title>
+    <title>K-Anonymizer</title>
     <link th:rel="stylesheet" th:href="@{/webjars/bootstrap/4.0.0-2/css/bootstrap.min.css} "/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="/main.css"/>
 </head>
 <body>
 
-<nav style="margin-bottom: 10px;" class="navbar navbar-expand-lg navbar-light bg-light">
-    <div class="container-fluid">
-        <a class="navbar-brand" th:href="@{/index}">K-Anonymizer</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
-                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="nav">
-                <li class="nav-item">
-                    <a class="nav-link active" th:href="@{/collections}">Collections</a>
-                </li>
-            </ul>
-            <ul class="nav">
-                <li class="nav-item">
-                    <a class="nav-link active" th:href="@{/definitions}">Definitions</a>
-                </li>
-            </ul>
-            <ul class="nav">
-                <li class="nav-item">
-                    <a class="nav-link active" th:href="@{/anonymizations}">Anonymized Datasets</a>
-                </li>
-            </ul>
-            <ul class="nav">
-                <li class="nav-item">
-                    <a class="nav-link active" th:href="@{/actions}">Actions</a>
-                </li>
-            </ul>
-            <ul class="nav">
-                <li class="nav-item">
-                    <a class="nav-link active" th:href="@{/options}">Options</a>
-                </li>
-            </ul>
-        </div>
-    </div>
-</nav>
+<nav th:replace="navbar.html"></nav>
 
-<div class="card">
-    <div class="card-header">
-        Actions
+<div class="app">
+
+    <div><h3>Definitions were Imported Successfully</h3></div>
+
+    <div class="w-50 mb-3">
+        New definitions were added, existing definitions with the same IDs were updated to match those defined in the Collection Locator.
+        This update can be run at any time, it does not affect already defined anonymous datasets, as they clone all property information from Definitions.
     </div>
-    <div class="card-body">
-        <a class="btn btn-outline-secondary" th:href="@{/actions/importDefinitions}">Import Definitions</a>
-        <a class="btn btn-outline-secondary" th:href="@{/actions/createAnonymizations}">Create Datasets</a>
-        <a class="btn btn-outline-secondary" th:href="@{/actions/anonymizeAll}">Anonymize All</a>
-        <a class="btn btn-outline-secondary" th:href="@{/actions/sendAnonymization/xml}">Send Anonymized Datasets XML</a>
-        <a class="btn btn-outline-secondary" th:href="@{/actions/sendAnonymization/json}">Send Anonymized Datasets JSON</a>
-        <a class="btn btn-outline-primary" target="_blank" th:href="@{/api/sendAllData/xml}">Send All Data XML</a>
-        <a class="btn btn-outline-primary" target="_blank" th:href="@{/api/sendAllData/json}">Send All Data JSON</a>
-    </div>
-    <div class="card-body">
-        <a class="btn btn-outline-primary" target="_blank" th:href="@{/api/getXmlSchema}">Get XML Schema</a>
-    </div>
+
+    <a class="btn btn-outline-primary" href="/definitions"><i class="fa fa-arrow-left"></i> Back to definitions list</a>
+
 </div>
 
 <script src=https://code.jquery.com/jquery-3.6.0.min.js></script>
@@ -69,8 +31,5 @@
         integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
         crossorigin="anonymous"></script>
 
-<!--<script th:src="@{/webjars/jquery/3.0.0/jquery.min.js}"></script>-->
-<!--<script th:src="@{/webjars/popper.js/1.12.9-1/umd/popper.min.js}"></script>-->
-<!--<script th:src="@{/webjars/bootstrap/4.0.0-2/js/bootstrap.min.js}"></script>-->
 </body>
 </html>

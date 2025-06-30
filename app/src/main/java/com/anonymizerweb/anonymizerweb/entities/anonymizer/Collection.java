@@ -1,7 +1,6 @@
-package com.anonymizerweb.anonymizerweb.entities;
+package com.anonymizerweb.anonymizerweb.entities.anonymizer;
 
 import com.anonymizerweb.anonymizerweb.enums.CollectionUsageTyp;
-import com.anonymizerweb.anonymizerweb.enums.ColumnDataTyp;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 
@@ -21,6 +20,7 @@ public class Collection {
 
     private String heading;
 
+    @Column(name = "targetk")
     private Integer targetK;
 
     @Enumerated(EnumType.STRING)
@@ -28,10 +28,12 @@ public class Collection {
 
     @OneToMany(fetch = FetchType.LAZY, cascade = {CascadeType.ALL}, orphanRemoval = true)
     @JoinColumn(name = "collectionId")
+    @OrderBy("position ASC")
     private Set<CollectionColumn> columns;
 
     @ElementCollection
     @LazyCollection(LazyCollectionOption.FALSE)
+    @CollectionTable(name = "collection_raw_data", joinColumns = @JoinColumn(name = "collection_id"))
     private List<String> rawData;
 
     public Long getId() {

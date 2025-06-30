@@ -2,58 +2,62 @@
 <html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
-    <title>Anonymized Dataset</title>
+    <title>K-Anonymizer</title>
     <link th:rel="stylesheet" th:href="@{/webjars/bootstrap/4.0.0-2/css/bootstrap.min.css} "/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="/main.css"/>
 </head>
 <body>
 
-<nav style="margin-bottom: 10px;" class="navbar navbar-expand-lg navbar-light bg-light">
-    <div class="container-fluid">
-        <a class="navbar-brand" th:href="@{/index}">K-Anonymizer</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
-                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="nav">
-                <li class="nav-item">
-                    <a class="nav-link active" th:href="@{/anonymizations}">Anonymized Datasets</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link active" th:href="@{/anonymizations/new}">New Anonymized Dataset</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link active" th:href="@{/combine}">New Combination</a>
-                </li>
-            </ul>
-        </div>
-    </div>
-</nav>
+<nav th:replace="navbar.html"></nav>
 
-<div class="card">
-    <div class="card-header">
-        Anonymized Dataset: <span th:text="${anonymization.name}  + ' (' + ${anonymization.id} + ')'"/>
-    </div>
-    <div class="card-body">
-        <div class="card-text">Target K: <span th:text="${anonymization.targetK}"/></div>
-        <div class="card-text">Filename: <span th:text="${anonymization.fileName}"/></div>
-        <br>
-        <div class="card-text">Fast Mode: <span th:text="${anonymization.fast}"/></div>
-        <div class="card-text">Batchsize: <span th:text="${anonymization.batch}"/></div>
-        <br>
-        <span th:if="${anonymization.anonymized}">
-            <div class="card-text">Loss: <span th:text="${anonymization.loss}"/></div>
-            <div class="card-text">Duration: <span th:text="${anonymization.duration}"/></div>
+<div class="app">
+    <div class="card w-50">
+        <div class="card-header">
+            Anonymized Dataset: <span th:text="${anonymization.name} + ' (' + ${anonymization.id} + ')'"/>
+        </div>
+        <div class="card-body">
+            <p class="card-text"><span class="b">Target K:</span> <span th:text="${anonymization.targetK}"/></p>
+            <p class="card-text"><span class="b">Filename:</span> <span th:text="${anonymization.fileName}"/></p>
+            <div th:id="|block__${anonymization.id}__|" th:style="${anonymization.anonymized} ? 'display:block;' : 'display:none;'">
+                <p class="card-text"><span class="b">Loss:</span> <span th:id="|loss__${anonymization.id}__|" th:text="${anonymization.loss}"/></p>
+                <p class="card-text"><span class="b">Duration:</span> <span th:id="|duration__${anonymization.id}__|" th:text="${anonymization.duration}"/></p>
+            </div>
+            <span th:if="${anonymization.fast}">
+                    <p class="card-text">In Fast Mode with Batchsize of <span class="b"><span th:text="${anonymization.batch}"/></span></p>
+                </span>
             <br>
-        </span>
-        <span th:if="${anonymization.running}">
-            <div class="alert alert-warning" role="alert"> Anonymizations in progress. Please Wait! </div>
-            <br>
-        </span>
-        <span th:if="!${anonymization.running}">
-            <a class="btn btn-outline-primary" th:href="@{/anonymizations/{id}/edit(id=${anonymization.id})}">Edit Anonymized Dataset</a>
-            <a class="btn btn-outline-secondary" th:href="@{/anonymizations/{id}/columns(id=${anonymization.id})}">Edit Anonymized Dataset Columns</a>
-        </span>
+            <div class="alert alert-warning" role="alert"
+                 th:id="|statusBanner__${anonymization.id}__|"
+                 style="display:none;">
+                Anonymization in progress. Please wait…
+            </div>
+            <button
+                    type="button"
+                    class="btn btn-outline-success"
+                    th:data-id="${anonymization.id}">
+                <i class="fa fa-shield-alt"></i> Start Anonymization
+            </button>
+
+            <span th:id="|download__${anonymization.id}__|" th:style="${anonymization.anonymized} ? 'display:inline;' : 'display:none;'">
+                        <a class="btn btn-outline-primary" th:href="@{/anonymize/{id}/download(id=${anonymization.id})}"><i class="fa fa-download"></i>
+                            Download Anonymized Data</a>
+                        <a class="btn btn-outline-primary" target="_blank" th:href="@{/api/sendData/{id}(id=${anonymization.id})}"><i class="fa fa-paper-plane"></i>
+                            Send Anonymized Data</a>
+                </span>
+
+            <a class="btn btn-outline-primary"
+               th:href="@{/anonymizations/{id}/edit(id=${anonymization.id})}"><i class="fa fa-edit"></i> Edit</a>
+            <!--                <a class="btn btn-outline-secondary" th:href="@{/anonymizations/{id}/columns(id=${anonymization.id})}">Edit Columns</a>-->
+            <a class="btn btn-outline-danger"
+               th:href="@{/anonymizations/{id}/delete(id=${anonymization.id})}"
+               onclick="return confirm('Are you sure you want to delete this anonymized dataset?')"
+            ><i class="fa fa-trash"></i> Delete</a>
+            <a class="btn btn-outline-primary"
+               th:href="@{/anonymizations}">
+                Back to the list of datasets
+            </a>
+        </div>
     </div>
 </div>
 

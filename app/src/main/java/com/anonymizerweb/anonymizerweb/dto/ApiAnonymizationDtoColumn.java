@@ -1,14 +1,6 @@
 package com.anonymizerweb.anonymizerweb.dto;
 
-import com.anonymizerweb.anonymizerweb.entities.AnonymizationHierarchyNode;
-import com.anonymizerweb.anonymizerweb.enums.ColumnDataTyp;
-import com.anonymizerweb.anonymizerweb.enums.ColumnTyp;
-
-import javax.persistence.CascadeType;
-import javax.persistence.FetchType;
-import javax.persistence.ManyToOne;
 import javax.xml.bind.annotation.*;
-import java.util.List;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(propOrder = {"position", "name", "code", "hierarchy"})

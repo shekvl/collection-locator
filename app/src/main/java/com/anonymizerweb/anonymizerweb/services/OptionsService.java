@@ -1,8 +1,8 @@
 package com.anonymizerweb.anonymizerweb.services;
 
 import com.anonymizerweb.anonymizerweb.commands.OptionsCommand;
-import com.anonymizerweb.anonymizerweb.entities.Options;
-import com.anonymizerweb.anonymizerweb.repositories.OptionsRepository;
+import com.anonymizerweb.anonymizerweb.entities.anonymizer.Options;
+import com.anonymizerweb.anonymizerweb.repositories.anonymizer.OptionsRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
