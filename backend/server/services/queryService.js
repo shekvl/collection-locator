@@ -178,6 +178,7 @@ class QueryService {
             for (let testData of data) {
                 await contentDao.saveData(testData)
             }
+            return "data has been saved";
         }
         catch (e) {
             console.error(e)

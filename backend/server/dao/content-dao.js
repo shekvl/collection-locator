@@ -261,7 +261,6 @@ class ContentDAO {
             }
             return acc;
         }, []);
-        // console.log(tableNameGrouped);
         return tableNameGrouped
     }
 
@@ -270,41 +269,36 @@ class ContentDAO {
         console.log(alreadyKnownConceptIds);
         console.log(allRelatedConcepts);
         let counter = 0;
-        let whereClause = 'where ('
+        let whereClauseParts = [];
         for (let searchedConcept of frontendQuery) {
-            console.log(searchedConcept);
-            console.log(whereClause);
-            whereClause += '('
+            let whereClauseCurrent = '';
             let innerCounter = alreadyKnownConceptIds.length
             //Since multiple concepts from alreadyKnownConceptIds could belong to a single searchedConcept, we check all possibilities here
             for (let conceptId of alreadyKnownConceptIds) {
                 //if this concept is unrelated to the searched concept, then skip it
                 if(!Array.from(allRelatedConcepts[counter]).map(String).includes(conceptId.toString())){
-                    console.log(allRelatedConcepts[counter]);
-                    console.log('b '+conceptId);
-                    console.log('skip')
-                    //continue
+                    continue
                 }
                 if(innerCounter-- < alreadyKnownConceptIds.length){
-                    whereClause += ' or '
+                    whereClauseCurrent += ' or '
                 }
                 if (!isNaN(searchedConcept.value.fromValue) && !isNaN(searchedConcept.value.toValue)) {
-                    whereClause += `(${searchedConcept.value.fromValue} BETWEEN "${conceptId}_from"::numeric and "${conceptId}_to"::numeric) 
+                    whereClauseCurrent += `(${searchedConcept.value.fromValue} BETWEEN "${conceptId}_from"::numeric and "${conceptId}_to"::numeric) 
                     OR ( ${searchedConcept.value.toValue} BETWEEN "${conceptId}_from"::numeric and "${conceptId}_to"::numeric) 
                     OR ("${conceptId}_from"::numeric BETWEEN ${searchedConcept.value.fromValue} and ${searchedConcept.value.toValue}) 
                     OR ("${conceptId}_to"::numeric BETWEEN  ${searchedConcept.value.fromValue} and ${searchedConcept.value.toValue})`
                 }
                 // if we search by string
                 else {
-                    whereClause += `"${conceptId}_from" LIKE '%${searchedConcept.value.fromValue}%' OR "${conceptId}_to" LIKE '%${searchedConcept.value.toValue}%'`
+                    whereClauseCurrent += `"${conceptId}_from" LIKE '%${searchedConcept.value.fromValue}%' OR "${conceptId}_to" LIKE '%${searchedConcept.value.toValue}%'`
                 }
             }
-            whereClause += ')'
-            if (++counter < frontendQuery.length) {
-                whereClause += ' AND '
-            }
+            if (whereClauseCurrent !== '')
+                whereClauseParts.push('('+whereClauseCurrent+')');
+            ++counter;
         }
-        whereClause += ')'
+
+        let whereClause = 'where (' + whereClauseParts.join(' AND ') + ')';
         return whereClause;
     }
 
