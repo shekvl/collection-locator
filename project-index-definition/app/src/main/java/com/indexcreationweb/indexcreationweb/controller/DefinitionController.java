@@ -1,8 +1,9 @@
 package com.indexcreationweb.indexcreationweb.controller;
 
 import com.indexcreationweb.indexcreationweb.commands.DefinitionCommand;
+import com.indexcreationweb.indexcreationweb.dto.DefinitionDownloadDto;
 import com.indexcreationweb.indexcreationweb.dto.DefinitionDto;
-import com.indexcreationweb.indexcreationweb.entities.Definition;
+import com.indexcreationweb.indexcreationweb.entities.indexcreator.Definition;
 import com.indexcreationweb.indexcreationweb.services.DefinitionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,6 +82,18 @@ public class DefinitionController {
                 .contentType(MediaType.parseMediaType("application/json"))
                 .body(file);
     }
+
+//    @GetMapping("/download/json/all")
+//    public ResponseEntity<List<DefinitionDownloadDto>> downloadGetJsonAll(Model model) {
+////        DefinitionCommand command = definitionService.getCommandFromId(id);
+////        String filename = command.getName() + ".json";
+////        InputStreamResource file = definitionService.getAllDownloadDataJson();
+//        List<DefinitionDownloadDto> dataJson = definitionService.getAllDownloadDataJson();
+//        return ResponseEntity.ok()
+//                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename)
+//                .contentType(MediaType.parseMediaType("application/json"))
+//                .body(file);
+//    }
 
     @GetMapping("{id}/download/xml")
     public ResponseEntity<InputStreamResource> downloadGetXml(@PathVariable String id, Model model) throws JAXBException {

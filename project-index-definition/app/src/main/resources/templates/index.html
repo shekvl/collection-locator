@@ -9,7 +9,7 @@
 
 <nav class="navbar navbar-expand-lg navbar-light bg-light" style="margin-bottom: 10px;">
     <div class="container-fluid">
-        <a class="navbar-brand" th:href="@{/index}">Definition Generation</a>
+        <a class="navbar-brand" th:href="@{/index}">Anonymization Configuration</a>
         <button aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler"
                 data-bs-target="#navbarSupportedContent" data-bs-toggle="collapse" type="button">
             <span class="navbar-toggler-icon"></span>
@@ -17,7 +17,7 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="nav">
                 <li class="nav-item">
-                    <a class="nav-link active" th:href="@{/definitions}">Definitions</a>
+                    <a class="nav-link active" th:href="@{/definitions}">Data Property Definitions</a>
                 </li>
             </ul>
             <ul class="nav">
@@ -34,7 +34,7 @@
         Definitions
     </div>
     <div class="card-body">
-        <p class="card-text">Currently <span th:text="${definitionsNr}"/> Definitions available</p>
+        <p class="card-text">Currently <span th:text="${definitionsNr}"/>Property definitions available</p>
         <a class="btn btn-outline-primary"
            th:href="@{/definitions}">Open Definitions</a>
     </div>

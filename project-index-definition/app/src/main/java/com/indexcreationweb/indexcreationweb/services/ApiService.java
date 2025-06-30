@@ -2,8 +2,8 @@ package com.indexcreationweb.indexcreationweb.services;
 
 import com.indexcreationweb.indexcreationweb.dto.ApiDefinitionListDto;
 import com.indexcreationweb.indexcreationweb.dto.DefinitionDownloadDto;
-import com.indexcreationweb.indexcreationweb.entities.Definition;
-import com.indexcreationweb.indexcreationweb.repositories.DefinitionRepository;
+import com.indexcreationweb.indexcreationweb.entities.indexcreator.Definition;
+import com.indexcreationweb.indexcreationweb.repositories.indexcreator.DefinitionRepository;
 import com.indexcreationweb.indexcreationweb.xml.IndexgenSchemaOutputResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +25,10 @@ public class ApiService {
 
     @Autowired
     DefinitionService definitionService;
+
+    public void deleteDefinitionById(Long id) {
+        definitionRepository.deleteById(id);
+    }
 
     public ApiDefinitionListDto getApiDataFromId(String id) {
         ApiDefinitionListDto apiDefinitionListDto = new ApiDefinitionListDto();

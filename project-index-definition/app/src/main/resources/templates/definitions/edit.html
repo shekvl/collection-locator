@@ -8,7 +8,7 @@
 
 <nav class="navbar navbar-expand-lg navbar-light bg-light" style="margin-bottom: 10px;">
     <div class="container-fluid">
-        <a class="navbar-brand" th:href="@{/index}">Definition Generation</a>
+        <a class="navbar-brand" th:href="@{/index}">Managing Data Property Definitions</a>
         <button aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler"
                 data-bs-target="#navbarSupportedContent" data-bs-toggle="collapse" type="button">
             <span class="navbar-toggler-icon"></span>
@@ -71,13 +71,13 @@
                             <td>Code:</td>
                             <td class="input-element">
                                 <select class="form-select select2-single loinc" style="width: 100%"
-                                        th:field="*{columns[__${stat.index}__].code}">
-                                    <option th:if="*{columns[__${stat.index}__].code == null} or *{columns[__${stat.index}__].code == ''}"
+                                        th:field="*{columns[__${stat.index}__].codeText}">
+                                    <option th:if="*{columns[__${stat.index}__].codeText == null} or *{columns[__${stat.index}__].codeText == ''}"
                                             value=""></option>
                                     <option selected="selected"
-                                            th:if="*{columns[__${stat.index}__].code != null} and *{columns[__${stat.index}__].code != ''}"
+                                            th:if="*{columns[__${stat.index}__].codeText != null} and *{columns[__${stat.index}__].codeText != ''}"
                                             th:text="*{columns[__${stat.index}__].codeText}"
-                                            th:value="*{columns[__${stat.index}__].code}"></option>
+                                            th:value="*{columns[__${stat.index}__].codeText}"></option>
                                 </select>
                             </td>
                         </tr>
@@ -94,7 +94,7 @@
             </div>
         </div>
     </div>
-    <button class="btn btn-outline-primary add-column-button" type="button">Add new Column</button>
+    <button class="btn btn-outline-primary add-column-button" type="button">Add new Property</button>
     <button class="btn btn-primary" type="submit">Save</button>
 </form>
 
@@ -142,22 +142,22 @@
             '            <div class="card-body">' +
             '                <table style="width: 100%">' +
             '                    <tbody><tr class="form-group">' +
-            '                        <td>Name:</td>' +
+            '                        <td>Property Name:</td>' +
             '                        <td class="input-element">' +
             '                            <input type="text" class="form-control" id="columns' + newindex + '.name" name="columns[' + newindex + '].name" value="">' +
             '                        </td>' +
             '                    </tr>' +
             '                    <tr class="form-group">' +
-            '                        <td>Code:</td>' +
+            '                        <td>CDM Code:</td>' +
             '                        <td class="input-element">' +
-            '                              <select style="width: 100%" class="form-select select2-single loinc"  id="columns' + newindex + '.code" name="columns[' + newindex + '].code"' +
+            '                              <select style="width: 100%" class="form-select select2-single loinc"  id="columns' + newindex + '.codeText" name="columns[' + newindex + '].codeText"' +
             '                                    <option value=""></option>' +
             '                                </select>' +
             '                        </td>' +
             '                    </tr>' +
             '                    <tr class="form-group">' +
             '                        <td colspan="2">' +
-            '                            <button type="button" class="btn btn-danger delete-column-button" data-index="' + newindex + '">Delete Column</button>' +
+            '                            <button type="button" class="btn btn-danger delete-column-button" data-index="' + newindex + '">Delete Property</button>' +
             '                        </td>' +
             '                    </tr>' +
             '                </tbody></table>' +
@@ -172,7 +172,7 @@
         $(".loinc").select2({
             theme: "bootstrap-5",
             ajax: {
-                url: '/loincautocomplete',
+                url: '/cdmconceptcautocomplete',
                 dataType: 'json',
                 delay: 250,
                 processResults: function (response) {
@@ -188,7 +188,7 @@
     $(".loinc").select2({
         theme: "bootstrap-5",
         ajax: {
-            url: '/loincautocomplete',
+            url: '/cdmconceptcautocomplete',
             dataType: 'json',
             delay: 250,
             processResults: function (response) {
