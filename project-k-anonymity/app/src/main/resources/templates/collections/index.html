@@ -2,54 +2,74 @@
 <html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
-    <title>Index</title>
+    <title>K-Anonymizer</title>
     <link th:rel="stylesheet" th:href="@{/webjars/bootstrap/4.0.0-2/css/bootstrap.min.css} "/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="/main.css"/>
 </head>
 <body>
 
-<nav style="margin-bottom: 10px;" class="navbar navbar-expand-lg navbar-light bg-light">
-    <div class="container-fluid">
-        <a class="navbar-brand" th:href="@{/index}">K-Anonymizer</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
-                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="nav">
-                <li class="nav-item">
-                    <a class="nav-link active" th:href="@{/collections}">Collections</a>
-                </li>
-            </ul>
-            <ul class="nav">
-                <li class="nav-item">
-                    <a class="nav-link active" th:href="@{/collections/new}">Add new Collection</a>
-                </li>
-            </ul>
-        </div>
-    </div>
-</nav>
+<nav th:replace="navbar.html"></nav>
 
-<span th:if="${collections!=null and !collections.empty}">
-     <div class="card" th:each="element: ${collections}">
+<div class="app">
+
+    <div><h3>Biobank Collections</h3></div>
+
+    <p class="w-50">
+        The detailed sample data from local biobank collections can be uploaded to K-Anonymizer for further processing.
+        The data has to be in the regular CSV format, with headings for the attributes in the first row. After uploading the data, the collection attributes
+        has to be annotated by OMOP CDM concepts, this can be done either immediately after uploading the data file, or at a later time,
+        using collection editing functionality of K-Anonymizer available on this page. The collection data can be then used to form anonymized datasets.
+    </p>
+
+    <a class="btn btn-outline-primary upload-button"
+       th:href="@{/collections/new}"><i class="fa fa-plus"></i> Add new collection</a>
+
+    <span th:if="${collections!=null and !collections.empty}">
+     <div class="card w-50" th:each="element: ${collections}">
             <div class="card-header">
                 Collection: <span th:text="${element.name} + ' (' + ${element.id} + ')'"/>
             </div>
             <div class="card-body">
-                <p class="card-text">Filename: <span th:text="${element.fileName}"/></p>
-                <p class="card-text">Heading: <span th:text="${element.heading}"/></p>
-                <p class="card-text">Usage: <span th:text="${element.usageTyp.description}"/></p>
-                <p class="card-text">Default Target k: <span th:text="${element.targetK}"/></p>
-                <br>
+                <p class="card-text"><span class="b">Filename:</span> <span th:text="${element.fileName}"/></p>
+<!--                <p class="card-text">Usage: <span th:text="${element.usageTyp.description}"/></p>-->
+                <p class="card-text"><span class="b">Default Target k:</span> <span th:text="${element.targetK}"/></p>
+<!--                <p class="card-text">Heading: <span th:text="${element.heading}"/></p>-->
+<!--                <br>-->
+                <div class="card-text"><span class="b">Properties</span></div>
+                <table class="table w-100">
+                    <thead class="thead-light">
+                        <th style="width: 20px"> Position</th>
+                        <th> Name</th>
+                        <th> CDM Concept ID</th>
+                        <th> Property Type</th>
+                        <th> Data Type</th>
+                    </thead>
+                    <tbody>
+                        <tr th:each="column : ${element.columns}">
+                            <td><span th:text="${column.position}"></span></td>
+                            <td><span th:text="${column.name}"></span></td>
+                            <td><span th:text="${column.code}"></span></td>
+                            <td><span th:text="${column.typ.description}"></span></td>
+                            <td><span th:text="${column.dataTyp.description}"></span></td>
+<!--                            <td><span th:text="${column.code}"></span>: <span th:text="${column.codeText}"></span></td>-->
+                        </tr>
+                    </tbody>
+                </table>
+
                 <a class="btn btn-outline-primary"
-                   th:href="@{/collections/{id}(id=${element.id})}">Open Collection</a>
+                   th:href="@{/collections/{id}/edit(id=${element.id})}"><i class="fa fa-edit"></i> Edit</a>
                 <a class="btn btn-outline-danger"
-                   th:href="@{/collections/{id}/delete(id=${element.id})}">Delete Collection</a>
+                   th:href="@{/collections/{id}/delete(id=${element.id})}"
+                   onclick="return confirm('Are you sure you want to delete this collection?')"
+                ><i class="fa fa-trash"></i> Delete</a>
             </div>
     </div>
 </span>
 <span th:unless="${collections!=null and !collections.empty}">
     <div class="alert alert-primary" role="alert"> No Collections found! </div>
 </span>
+</div>
 
 <script src=https://code.jquery.com/jquery-3.6.0.min.js></script>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"

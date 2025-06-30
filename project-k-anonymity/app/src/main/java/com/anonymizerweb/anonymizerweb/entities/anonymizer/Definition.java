@@ -1,4 +1,4 @@
-package com.anonymizerweb.anonymizerweb.entities;
+package com.anonymizerweb.anonymizerweb.entities.anonymizer;
 
 import javax.persistence.*;
 import java.util.Set;
@@ -15,6 +15,7 @@ public class Definition {
 
     private String fileName;
 
+    @Column(name = "targetk")
     private Integer targetK;
 
     private Boolean fast;
@@ -23,6 +24,7 @@ public class Definition {
 
     @OneToMany(fetch = FetchType.LAZY, cascade = {CascadeType.ALL}, orphanRemoval = true)
     @JoinColumn(name = "definitionId")
+    @OrderBy("position ASC")
     private Set<DefinitionColumn> columns;
 
     public Long getId() {

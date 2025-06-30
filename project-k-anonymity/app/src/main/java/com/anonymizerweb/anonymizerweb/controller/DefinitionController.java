@@ -1,19 +1,14 @@
 package com.anonymizerweb.anonymizerweb.controller;
 
-import com.anonymizerweb.anonymizerweb.commands.EditCollectionCommand;
-import com.anonymizerweb.anonymizerweb.commands.NewCollectionCommand;
 import com.anonymizerweb.anonymizerweb.commands.NewDefinitionCommand;
-import com.anonymizerweb.anonymizerweb.entities.Collection;
-import com.anonymizerweb.anonymizerweb.entities.Definition;
+import com.anonymizerweb.anonymizerweb.entities.anonymizer.Definition;
 import com.anonymizerweb.anonymizerweb.services.DefinitionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;

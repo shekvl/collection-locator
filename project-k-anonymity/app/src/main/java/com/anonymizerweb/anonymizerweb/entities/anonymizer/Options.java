@@ -1,4 +1,4 @@
-package com.anonymizerweb.anonymizerweb.entities;
+package com.anonymizerweb.anonymizerweb.entities.anonymizer;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;

@@ -3,15 +3,15 @@ package com.anonymizerweb.anonymizerweb.services;
 import com.anonymizerweb.anonymizerweb.commands.EditCollectionCommand;
 import com.anonymizerweb.anonymizerweb.commands.EditCollectionCommandColumn;
 import com.anonymizerweb.anonymizerweb.commands.NewCollectionCommand;
-import com.anonymizerweb.anonymizerweb.entities.Collection;
-import com.anonymizerweb.anonymizerweb.entities.CollectionColumn;
-import com.anonymizerweb.anonymizerweb.entities.CollectionHierarchyNode;
-import com.anonymizerweb.anonymizerweb.entities.Loinc;
+import com.anonymizerweb.anonymizerweb.entities.anonymizer.Collection;
+import com.anonymizerweb.anonymizerweb.entities.anonymizer.CollectionColumn;
+import com.anonymizerweb.anonymizerweb.entities.anonymizer.CollectionHierarchyNode;
+import com.anonymizerweb.anonymizerweb.entities.anonymizer.Loinc;
 import com.anonymizerweb.anonymizerweb.enums.CollectionUsageTyp;
 import com.anonymizerweb.anonymizerweb.enums.ColumnDataTyp;
 import com.anonymizerweb.anonymizerweb.enums.ColumnTyp;
-import com.anonymizerweb.anonymizerweb.repositories.CollectionRepository;
-import com.anonymizerweb.anonymizerweb.repositories.LoincRepository;
+import com.anonymizerweb.anonymizerweb.repositories.anonymizer.CollectionRepository;
+import com.anonymizerweb.anonymizerweb.repositories.anonymizer.LoincRepository;
 import com.google.gson.Gson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,7 +44,7 @@ public class CollectionService {
 
     public List<Collection> findAll() {
         List<Collection> collections = new LinkedList<>();
-        for (Collection collection : collectionRepository.findAll()) {
+        for (Collection collection : collectionRepository.findAllByOrderByIdAsc()) {
             collections.add(collection);
         }
 
@@ -83,7 +83,8 @@ public class CollectionService {
 
         collection.setName(command.getName());
         collection.setTargetK(command.getTargetK());
-        collection.setUsageTyp(CollectionUsageTyp.getByCode(command.getUsageTyp()));
+        collection.setUsageTyp(CollectionUsageTyp.SUPPORT_BOTH);
+//        collection.setUsageTyp(CollectionUsageTyp.getByCode(command.getUsageTyp()));
         collection.setFileName(command.getFile().getOriginalFilename());
         collection.setColumns(collectionColumnList);
 
@@ -134,7 +135,8 @@ public class CollectionService {
             Collection collection = collectionOptional.get();
             collection.setName(editCollectionCommand.getName());
             collection.setTargetK(editCollectionCommand.getTargetK());
-            collection.setUsageTyp(CollectionUsageTyp.getByCode(editCollectionCommand.getUsageTyp()));
+            collection.setUsageTyp(CollectionUsageTyp.SUPPORT_BOTH);
+//            collection.setUsageTyp(CollectionUsageTyp.getByCode(editCollectionCommand.getUsageTyp()));
             Set<CollectionColumn> collectionColumns = collection.getColumns();
             collectionColumns.clear();
             List<CollectionColumn> collectionColumnList = new LinkedList<>();

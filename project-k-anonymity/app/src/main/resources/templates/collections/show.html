@@ -2,45 +2,50 @@
 <html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
-    <title>Collection</title>
+    <title>K-Anonymizer</title>
     <link th:rel="stylesheet" th:href="@{/webjars/bootstrap/4.0.0-2/css/bootstrap.min.css} "/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="/main.css"/>
 </head>
 <body>
 
-<nav style="margin-bottom: 10px;" class="navbar navbar-expand-lg navbar-light bg-light">
-    <div class="container-fluid">
-        <a class="navbar-brand" th:href="@{/index}">K-Anonymizer</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
-                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="nav">
-                <li class="nav-item">
-                    <a class="nav-link active" th:href="@{/collections}">Collections</a>
-                </li>
-            </ul>
-            <ul class="nav">
-                <li class="nav-item">
-                    <a class="nav-link active" th:href="@{/collections/new}">Add new Collection</a>
-                </li>
-            </ul>
-        </div>
-    </div>
-</nav>
+<!--<nav style="margin-bottom: 10px;" class="navbar navbar-expand-lg navbar-light bg-light">-->
+<!--    <div class="container-fluid">-->
+<!--        <a class="navbar-brand" th:href="@{/index}">K-Anonymizer</a>-->
+<!--        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"-->
+<!--                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">-->
+<!--            <span class="navbar-toggler-icon"></span>-->
+<!--        </button>-->
+<!--        <div class="collapse navbar-collapse" id="navbarSupportedContent">-->
+<!--            <ul class="nav">-->
+<!--                <li class="nav-item">-->
+<!--                    <a class="nav-link active" th:href="@{/collections}">Collections</a>-->
+<!--                </li>-->
+<!--            </ul>-->
+<!--            <ul class="nav">-->
+<!--                <li class="nav-item">-->
+<!--                    <a class="nav-link active" th:href="@{/collections/new}">Add new Collection</a>-->
+<!--                </li>-->
+<!--            </ul>-->
+<!--        </div>-->
+<!--    </div>-->
+<!--</nav>-->
 
+<nav th:replace="navbar.html"></nav>
+<div class="app">
 <div class="card">
     <div class="card-header">
         Collection: <span th:text="${collection.name}  + ' (' + ${collection.id} + ')'"/>
     </div>
     <div class="card-body">
-        <div class="card-text">Usage: <span th:text="${collection.usageTyp.description}"/></div>
+<!--        <div class="card-text">Usage: <span th:text="${collection.usageTyp.description}"/></div>-->
         <div class="card-text">Default Target k: <span th:text="${collection.targetK}"/></div>
         <div class="card-text">Filename: <span th:text="${collection.fileName}"/></div>
         <div class="card-text">Heading: <span th:text="${collection.heading}"/></div>
         <br>
         <a class="btn btn-outline-primary" th:href="@{/collections/{id}/edit(id=${collection.id})}">Edit Collection</a>
     </div>
+</div>
 </div>
 
 

@@ -1,80 +1,101 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml" xmlns="http://www.w3.org/1999/html">
 <head>
     <meta charset="UTF-8">
-    <title>Index</title>
+    <title>K-Anonymizer</title>
     <link th:rel="stylesheet" th:href="@{/webjars/bootstrap/4.0.0-2/css/bootstrap.min.css} "/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="/main.css"/>
 </head>
 <body>
 
-<nav style="margin-bottom: 10px;" class="navbar navbar-expand-lg navbar-light bg-light">
-    <div class="container-fluid">
-        <a class="navbar-brand" th:href="@{/index}">K-Anonymizer</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
-                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="nav">
-                <li class="nav-item">
-                    <a class="nav-link active" th:href="@{/collections}">Collections</a>
-                </li>
-            </ul>
-            <ul class="nav">
-                <li class="nav-item">
-                    <a class="nav-link active" th:href="@{/definitions}">Definitions</a>
-                </li>
-            </ul>
-            <ul class="nav">
-                <li class="nav-item">
-                    <a class="nav-link active" th:href="@{/anonymizations}">Anonymized Datasets</a>
-                </li>
-            </ul>
-            <ul class="nav">
-                <li class="nav-item">
-                    <a class="nav-link active" th:href="@{/actions}">Actions</a>
-                </li>
-            </ul>
-            <ul class="nav">
-                <li class="nav-item">
-                    <a class="nav-link active" th:href="@{/options}">Options</a>
-                </li>
-            </ul>
+<nav th:replace="navbar.html"></nav>
+
+<div class="app">
+<div style="margin-bottom: 10px">
+    <div><h3>K-Anonymizer</h3></div>
+    <div>
+        The K-Anonymizer is a part of the Collection Locator toolset aimed at anonymizing sensitive data prior to transferring it
+        to the Collection Locator instance, which is able to perform search over this data.
+    </div>
+</div>
+<div style="margin-bottom: 10px">
+    <div><h4>Deployment</h4></div>
+    <div>
+        Every biobank which supplies the data to the Collection Locator instance has to install this component locally. It can reside behind
+        a biobank corporate firewall, as it is not contacted by Collection Locator directly. It should, however, be able to contact Collection Locator itself.
+    </div>
+</div>
+<div style="margin-bottom: 10px">
+        <div><h4>Functionality</h4></div>
+
+        <div>
+        Below are the steps for preparing the anonymized data by means of K-Anonymizer.
+        <ol class="inline-list">
+            <li>Local biobank administrators upload available sensitive <strong>collection</strong> data to K-Anonymizer.
+                The collection attributes have to be annotated by OMOP CDM concepts.</li>
+            <li>K-Anonymizer receives the <strong>anonymization definitions</strong> from the running Collection Locator instance, each such definition
+                specifies a set of sensitive attributes to be anonymized, annotated with OMOP CDM concepts. This can be currently done by request of the biobank administrators or by manual file upload.</li>
+            <li>Local biobank administrators select the attributes of the uploaded collection data based on the available definitions, and ask K-Anonymizer to anonymize this data.
+                it is also possible to anonymize the whole collections.</li>
+            <li>K-Anonymizer performs anonymization of the data belonging to these attributes or the whole collections by means of an <strong>anonymization
+                algorithm</strong> (currently, a version of k-anonymity algorithm is supported) to form <strong>anonymized datasets</strong>.</li>
+            <li>Finally, local biobank administrators ask K-Anonymizer to send the anonymized datasets back to the Collection Locator server, which is able to perform the search within this data.</li>
+        </ol>
+    </div>
+</div>
+<div><h3 class="next-h3">Dashboard</h3></div>
+
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-header">
+                    Biobank Collections
+                </div>
+                <div class="card-body">
+                    <p class="card-text">
+                        Currently available: <span th:text="${collectionsNr}"/> uploaded collection(s)
+                    </p>
+                    <a class="btn btn-outline-primary" th:href="@{/collections}">
+                        <i class="fa fa-book-medical"></i> Open Collections
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-header">
+                    Anonymization Definitions
+                </div>
+                <div class="card-body">
+                    <p class="card-text">
+                        Currently available: <span th:text="${definitionsNr}"/> uploaded definition(s)
+                    </p>
+                    <a class="btn btn-outline-primary" th:href="@{/definitions}">
+                        <i class="fa fa-lock"></i> Open Definitions
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-header">
+                    Anonymized Datasets
+                </div>
+                <div class="card-body">
+                    <p class="card-text">
+                        Currently available: <span th:text="${anonymizationsNr}"/> anonymized dataset(s)
+                    </p>
+                    <a class="btn btn-outline-primary" th:href="@{/anonymizations}">
+                        <i class="fa fa-shield-alt"></i> Open Anonymized Datasets
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
-</nav>
 
-<div class="card">
-    <div class="card-header">
-        Collections
-    </div>
-    <div class="card-body">
-        <p class="card-text">Currently <span th:text="${collectionsNr}"/> Collections available</p>
-        <a class="btn btn-outline-primary"
-           th:href="@{/collections}">Open Collections</a>
-    </div>
-</div>
-
-<div class="card">
-    <div class="card-header">
-        Definitions
-    </div>
-    <div class="card-body">
-        <p class="card-text">Currently <span th:text="${definitionsNr}"/> Definitions available</p>
-        <a class="btn btn-outline-primary"
-           th:href="@{/definitions}">Open Definitions</a>
-    </div>
-</div>
-
-<div class="card">
-    <div class="card-header">
-        Anonymized Datasets
-    </div>
-    <div class="card-body">
-        <p class="card-text">Currently <span th:text="${anonymizationsNr}"/> Anonymized Datasets available</p>
-        <a class="btn btn-outline-primary"
-           th:href="@{/anonymizations}">Open Anonymized Datasets</a>
-    </div>
 </div>
 
 <script src=https://code.jquery.com/jquery-3.6.0.min.js></script>

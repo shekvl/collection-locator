@@ -1,11 +1,5 @@
 package com.anonymizerweb.anonymizerweb.dto;
 
-import com.anonymizerweb.anonymizerweb.entities.AnonymizationHierarchyNode;
-
-import javax.persistence.CascadeType;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToMany;
 import javax.xml.bind.annotation.*;
 import java.util.List;
 

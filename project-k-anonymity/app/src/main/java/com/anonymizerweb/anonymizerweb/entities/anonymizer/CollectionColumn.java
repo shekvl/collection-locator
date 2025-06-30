@@ -1,4 +1,4 @@
-package com.anonymizerweb.anonymizerweb.entities;
+package com.anonymizerweb.anonymizerweb.entities.anonymizer;
 
 import com.anonymizerweb.anonymizerweb.enums.ColumnDataTyp;
 import com.anonymizerweb.anonymizerweb.enums.ColumnTyp;

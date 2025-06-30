@@ -1,0 +1,1 @@
+{"uId":"Pathology Test Property Set_1","name":"Pathology Test Property Set","targetK":6,"fast":true,"batch":3000,"columns":[{"position":1,"name":"osteoporosis presence","code":"80502","codeText":"Osteoporosis"},{"position":2,"name":"sepsis presence","code":"132797","codeText":"Sepsis"},{"position":3,"name":"tetanus presence","code":"435740","codeText":"Tetanus"}]}
