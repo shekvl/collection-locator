@@ -1,0 +1,12 @@
+collection_name;attribute_name;code;vocabulary_id;completeness;accuracy;reliability;timeliness;consistancy
+covid_reinfection;COVID-19 PCR test;43hF.00;Read;0.69;0.94;0.75;0.72;0.92
+covid_reinfection;COVID-19 immunization or negative status certificate;97500-3;LOINC;0.83;0.86;0.96;0.74;1
+covid_reinfection;Age;30525-0;LOINC;0.78;0.75;0.84;0.93;0.83
+covid_reinfection;Age;397669002;SNOMED;0.78;0.75;0.84;0.93;0.83
+covid_reinfection;BMI;39156-5;LOINC;0.51;0.9;0.93;0.89;0.98
+covid_reinfection;Body weight;27113001;SNOMED;0.74;0.80;0.81;0.93;0.7
+covid_reinfection;Body weight;LP30604-0;LOINC;0.74;0.80;0.81;0.93;0.7
+covid_reinfection;Body height;LP64598-3;LOINC;0.98;0.77;0.78;;0.93
+blood_sample;Blood sample taken;41D0.00;Read;;0.94;0.75;0.72;0.92
+blood_sample;Bone marrow finding;250411006;SNOMED;0.83;0.86;0.96;0.74;1
+blood_sample;DNA analysis;62302004;SNOMED;0.78;0.75;;0.93;0.83
