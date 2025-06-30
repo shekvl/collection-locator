@@ -1,0 +1,58 @@
+version: '3'
+services:
+  anodb:
+    image: mysql:5.7
+    container_name: ano-db
+    environment:
+      MYSQL_DATABASE: ano
+      MYSQL_USER: springuser
+      MYSQL_PASSWORD: springuser
+      MYSQL_ROOT_PASSWORD: admin
+      MYSQL_ROOT_HOST: '%'
+    expose:
+      - "3306"
+    networks:
+      - ano
+    restart: always
+    volumes:
+      - ./mysqldata:/var/lib/mysql
+
+  adminerano:
+    image: adminer
+    container_name: ano-adminer
+    restart: always
+    depends_on:
+      - anodb
+    environment:
+      ADMINER_DEFAULT_DB_DRIVER: mysql
+      ADMINER_DEFAULT_DB_HOST: anodb
+      ADMINER_DEFAULT_DB_NAME: ano
+      ADMINER_DESIGN: nette
+      ADMINER_PLUGINS: tables-filter
+    ports:
+      - "8083:8080"
+    networks:
+      - ano
+
+  ano:
+    build: ./app
+    container_name: ano
+    depends_on:
+      - anodb
+    restart: always
+    # will build ./docker/ano/Dockerfile
+    working_dir: /app
+    volumes:
+      - ./:/ano
+      - ~/.m2:/root/.m2
+    ports:
+      - "8082:8080"
+    networks:
+      - ano
+      - ano-system
+    command: "mvn clean spring-boot:run"
+
+networks:
+  ano:
+  ano-system:
+    external: true
