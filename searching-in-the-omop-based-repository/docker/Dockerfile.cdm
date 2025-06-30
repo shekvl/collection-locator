@@ -1,7 +1,0 @@
-FROM postgres:14.2-alpine
-ENV POSTGRES_USER_1 postgres
-ENV POSTGRES_PASSWORD_1 mypassword
-ENV POSTGRES_DB_1 cdm
-RUN rm -rf /var/lib/postgresql/data/*
-COPY cdm_dump.sql /docker-entrypoint-initdb.d/
-RUN rm -rf /var/lib/postgresql/data/*
