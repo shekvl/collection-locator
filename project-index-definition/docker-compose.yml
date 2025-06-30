@@ -1,0 +1,58 @@
+version: '3'
+services:
+  indexgendb:
+    image: mysql:5.7
+    container_name: indexgen-db
+    environment:
+      MYSQL_DATABASE: indexgen
+      MYSQL_USER: springuser
+      MYSQL_PASSWORD: springuser
+      MYSQL_ROOT_PASSWORD: admin
+      MYSQL_ROOT_HOST: '%'
+    expose:
+      - "3306"
+    networks:
+      - indexgen
+    restart: always
+    volumes:
+      - ./mysqldata:/var/lib/mysql
+
+  adminerano:
+    image: adminer
+    container_name: indexgen-adminer
+    restart: always
+    depends_on:
+      - indexgendb
+    environment:
+      ADMINER_DEFAULT_DB_DRIVER: mysql
+      ADMINER_DEFAULT_DB_HOST: indexgendb
+      ADMINER_DEFAULT_DB_NAME: indexgen
+      ADMINER_DESIGN: nette
+      ADMINER_PLUGINS: tables-filter
+    ports:
+      - "8081:8080"
+    networks:
+      - indexgen
+
+  indexgen:
+    build: ./app
+    container_name: indexgen
+    depends_on:
+      - indexgendb
+    restart: always
+    # will build ./docker/ano/Dockerfile
+    working_dir: /app
+    volumes:
+      - ./:/indexgen
+      - ~/.m2:/root/.m2
+    ports:
+      - "8080:8080"
+    networks:
+      - indexgen
+      - ano-system
+    command: "mvn clean spring-boot:run"
+
+networks:
+  indexgen:
+  ano-system:
+    external: true
